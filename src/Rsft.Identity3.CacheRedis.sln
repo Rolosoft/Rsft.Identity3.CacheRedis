@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25123.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Components", "Components", "{30DBEB04-7399-4A68-90C0-CD37105F73A2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{1535B29F-BE5E-430C-9D56-61894D8C9A5C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rsft.Identity3.CacheRedis", "Components\Rsft.Identity3.CacheRedis\Rsft.Identity3.CacheRedis.csproj", "{373D91BB-71EF-430C-A218-08E53C9770DA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rsft.Identity3.CacheRedis.Tests", "Tests\Rsft.Identity3.CacheRedis.Tests\Rsft.Identity3.CacheRedis.Tests.csproj", "{CD00A0A9-39DD-4ED0-AF20-6D67594D3BA8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{373D91BB-71EF-430C-A218-08E53C9770DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{373D91BB-71EF-430C-A218-08E53C9770DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{373D91BB-71EF-430C-A218-08E53C9770DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{373D91BB-71EF-430C-A218-08E53C9770DA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CD00A0A9-39DD-4ED0-AF20-6D67594D3BA8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CD00A0A9-39DD-4ED0-AF20-6D67594D3BA8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CD00A0A9-39DD-4ED0-AF20-6D67594D3BA8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CD00A0A9-39DD-4ED0-AF20-6D67594D3BA8}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{373D91BB-71EF-430C-A218-08E53C9770DA} = {30DBEB04-7399-4A68-90C0-CD37105F73A2}
+		{CD00A0A9-39DD-4ED0-AF20-6D67594D3BA8} = {1535B29F-BE5E-430C-9D56-61894D8C9A5C}
+	EndGlobalSection
+EndGlobal
