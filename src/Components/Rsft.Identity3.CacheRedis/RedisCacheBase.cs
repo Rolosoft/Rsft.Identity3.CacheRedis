@@ -48,20 +48,16 @@ namespace Rsft.Identity3.CacheRedis
 
         public virtual async Task<T> GetAsync(string key)
         {
-            var foo = await this.cacheManager.GetAsync(key, CancellationToken.None).ConfigureAwait(false);
+            var foo = await this.cacheManager.GetAsync(key).ConfigureAwait(false);
 
             return foo;
         }
 
         public virtual async Task SetAsync(string key, T item)
         {
-            var addMilliseconds = DateTime.UtcNow.AddMilliseconds(this.cacheConfiguration.Get.CacheDuration);
+            var timeSpan = DateTime.UtcNow.AddMilliseconds(this.cacheConfiguration.Get.CacheDuration) - DateTime.UtcNow;
 
-            var specifyKind = DateTime.SpecifyKind(addMilliseconds, DateTimeKind.Utc);
-
-            var dateTimeOffset = new DateTimeOffset(specifyKind);
-
-            await this.cacheManager.SetAsync(key, item, dateTimeOffset, CancellationToken.None).ConfigureAwait(false);
+            await this.cacheManager.SetAsync(key, item, timeSpan).ConfigureAwait(false);
         }
     }
 }

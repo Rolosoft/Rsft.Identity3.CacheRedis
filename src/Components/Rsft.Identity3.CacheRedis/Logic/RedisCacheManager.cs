@@ -6,16 +6,17 @@
 namespace Rsft.Identity3.CacheRedis.Logic
 {
     using System;
+    using System.Diagnostics;
     using System.Diagnostics.Contracts;
     using System.Globalization;
-    using System.Threading;
     using System.Threading.Tasks;
+    using Diagnostics.EventSources;
     using Entities;
+    using Helpers;
     using Interfaces;
     using Newtonsoft.Json;
     using StackExchange.Redis;
-    using StackExchange.Redis.Extensions.Core;
-    using StackExchange.Redis.Extensions.Newtonsoft;
+    using Util.Compression;
 
     /// <summary>
     /// The redis cache manager.
@@ -23,6 +24,11 @@ namespace Rsft.Identity3.CacheRedis.Logic
     /// <typeparam name="T">Type of object to cache.</typeparam>
     internal sealed class RedisCacheManager<T> : ICacheManager<T>
     {
+        /// <summary>
+        /// The logging source name base
+        /// </summary>
+        private const string LoggingSourceNameBase = @"Rsft.Identity3.CacheRedis.Logic.RedisCacheManager";
+
         /// <summary>
         /// The json serializer settings lazy
         /// </summary>
@@ -32,16 +38,6 @@ namespace Rsft.Identity3.CacheRedis.Logic
         /// The claim converter lazy
         /// </summary>
         private static readonly Lazy<ClaimConverter> ClaimConverterLazy = new Lazy<ClaimConverter>(() => new ClaimConverter());
-
-        /// <summary>
-        /// The newtonsoft serializer lazy
-        /// </summary>
-        private static readonly Lazy<NewtonsoftSerializer> NewtonsoftSerializerLazy = new Lazy<NewtonsoftSerializer>(() => new NewtonsoftSerializer(JsonSerializerSettingsLazy.Value));
-
-        /// <summary>
-        /// The stack exchange redis cache client lazy
-        /// </summary>
-        private static Lazy<StackExchangeRedisCacheClient> stackExchangeRedisCacheClientLazy;
 
         /// <summary>
         /// The connection multiplexer
@@ -68,7 +64,7 @@ namespace Rsft.Identity3.CacheRedis.Logic
             this.connectionMultiplexer = connectionMultiplexer;
             this.cacheConfiguration = cacheConfiguration;
 
-            this.Initialize();
+            SerializerSettings.Converters.Add(ClaimConverter);
         }
 
         /// <summary>
@@ -78,23 +74,6 @@ namespace Rsft.Identity3.CacheRedis.Logic
         /// The serializer settings.
         /// </value>
         private static JsonSerializerSettings SerializerSettings => JsonSerializerSettingsLazy.Value;
-
-        /// <summary>
-        /// Gets the newtonsoft serializer.
-        /// </summary>
-        /// <value>
-        /// The newtonsoft serializer.
-        /// </value>
-        private static NewtonsoftSerializer NewtonsoftSerializer => NewtonsoftSerializerLazy.Value;
-
-        /// <summary>
-        /// Gets the stack exchange redis cache client.
-        /// </summary>
-        /// <value>
-        /// The stack exchange redis cache client.
-        /// </value>
-        private static StackExchangeRedisCacheClient StackExchangeRedisCacheClient
-                    => stackExchangeRedisCacheClientLazy.Value;
 
         /// <summary>
         /// Gets the claim converter.
@@ -108,15 +87,59 @@ namespace Rsft.Identity3.CacheRedis.Logic
         /// Gets the cache item asynchronously.
         /// </summary>
         /// <param name="key">The key.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        public async Task<T> GetAsync(string key, CancellationToken cancellationToken)
+        public async Task<T> GetAsync(string key)
         {
+            var fqMethodLogName = LoggingNaming.GetFqMethodLogName(LoggingSourceNameBase, "GetAsync");
+
+            ActivityLoggingEventSource.Log.MethodEnter(fqMethodLogName);
+
+            var database = this.connectionMultiplexer.GetDatabase();
             var s = this.GetKey(key);
 
-            var foo = await StackExchangeRedisCacheClient.GetAsync<T>(s).ConfigureAwait(false);
+            var redisValue = default(RedisValue);
 
-            return foo;
+            try
+            {
+                var stopwatch = Stopwatch.StartNew();
+                redisValue = await database.StringGetAsync(s).ConfigureAwait(false);
+                stopwatch.Stop();
+                ActivityLoggingEventSource.Log.TimerLogging(fqMethodLogName, stopwatch.ElapsedMilliseconds);
+            }
+            catch (AggregateException aggregateException)
+            {
+                aggregateException.Handle(
+                    ae =>
+                        {
+                            ae.Log();
+                            return true;
+                        });
+            }
+            catch (Exception exception)
+            {
+                exception.Log();
+            }
+
+            if (redisValue == default(RedisValue)
+                || redisValue.IsNullOrEmpty)
+            {
+                ActivityLoggingEventSource.Log.CacheMiss(fqMethodLogName);
+                ActivityLoggingEventSource.Log.MethodExit(fqMethodLogName);
+                return default(T);
+            }
+
+            ActivityLoggingEventSource.Log.CacheHit(fqMethodLogName);
+
+            var s1 = redisValue.ToString();
+            var decompressOrNo = this.cacheConfiguration.Get.UseObjectCompression ? s1.Decompress() : s1;
+
+            ActivityLoggingEventSource.Log.CacheGetObject(fqMethodLogName, decompressOrNo);
+
+            var deserializedObject = JsonConvert.DeserializeObject<T>(decompressOrNo, SerializerSettings);
+
+            ActivityLoggingEventSource.Log.MethodExit(fqMethodLogName);
+
+            return deserializedObject;
         }
 
         /// <summary>
@@ -124,34 +147,59 @@ namespace Rsft.Identity3.CacheRedis.Logic
         /// </summary>
         /// <param name="key">The key.</param>
         /// <param name="item">The item.</param>
-        /// <param name="expiresAtOffset">The expires at offset.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        public async Task SetAsync(string key, T item, DateTimeOffset expiresAtOffset, CancellationToken cancellationToken)
+        /// <param name="timeSpan">The time span.</param>
+        /// <returns>
+        /// A <see cref="Task" /> representing the asynchronous operation.
+        /// </returns>
+        public async Task SetAsync(string key, T item, TimeSpan timeSpan)
         {
+            var fqMethodLogName = LoggingNaming.GetFqMethodLogName(LoggingSourceNameBase, "GetAsync");
+
+            ActivityLoggingEventSource.Log.MethodEnter(fqMethodLogName);
+
+            var database = this.connectionMultiplexer.GetDatabase();
             var s = this.GetKey(key);
 
-            await StackExchangeRedisCacheClient.AddAsync(s, item, expiresAtOffset).ConfigureAwait(false);
+            var serializeObject = JsonConvert.SerializeObject(item, SerializerSettings);
+
+            ActivityLoggingEventSource.Log.CacheSetObject(fqMethodLogName, serializeObject);
+
+            var compressOrNo = this.cacheConfiguration.Get.UseObjectCompression ? serializeObject.Compress() : serializeObject;
+
+            try
+            {
+                var stopWatch = Stopwatch.StartNew();
+                await database.StringSetAsync(s, compressOrNo, timeSpan).ConfigureAwait(false);
+                stopWatch.Stop();
+                ActivityLoggingEventSource.Log.TimerLogging(fqMethodLogName, stopWatch.ElapsedMilliseconds);
+            }
+            catch (AggregateException aggregateException)
+            {
+                aggregateException.Handle(
+                    ae =>
+                    {
+                        ae.Log();
+                        return true;
+                    });
+            }
+            catch (Exception exception)
+            {
+                exception.Log();
+            }
+
+            ActivityLoggingEventSource.Log.MethodExit(fqMethodLogName);
         }
 
-        private string GetKey(string key)
+        /// <summary>
+        /// Gets the cache key.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <returns>The <see cref="string"/> defining the cache key.</returns>
+        internal string GetKey(string key)
         {
             Contract.Requires(!string.IsNullOrWhiteSpace(key));
 
             return string.Format(CultureInfo.InvariantCulture, @"{0}_{1}", this.cacheConfiguration.Get.RedisCacheDefaultPrefix, key);
-        }
-
-        /// <summary>
-        /// Initializes this instance.
-        /// </summary>
-        private void Initialize()
-        {
-            SerializerSettings.Converters.Add(ClaimConverter);
-
-            if (stackExchangeRedisCacheClientLazy == null)
-            {
-                stackExchangeRedisCacheClientLazy = new Lazy<StackExchangeRedisCacheClient>(() => new StackExchangeRedisCacheClient(this.connectionMultiplexer, NewtonsoftSerializer));
-            }
         }
     }
 }

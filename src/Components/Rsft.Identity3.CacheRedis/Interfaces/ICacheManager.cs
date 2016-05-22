@@ -6,7 +6,6 @@ namespace Rsft.Identity3.CacheRedis.Interfaces
 {
     using System;
     using System.Diagnostics.Contracts;
-    using System.Threading;
     using System.Threading.Tasks;
 
     using Contracts;
@@ -18,18 +17,18 @@ namespace Rsft.Identity3.CacheRedis.Interfaces
         /// Gets the cache item asynchronously.
         /// </summary>
         /// <param name="key">The key.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        Task<T> GetAsync(string key, CancellationToken cancellationToken);
+        Task<T> GetAsync(string key);
 
         /// <summary>
         /// Sets the asynchronous.
         /// </summary>
         /// <param name="key">The key.</param>
         /// <param name="item">The item.</param>
-        /// <param name="expiresAtOffset">The expires at offset.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        Task SetAsync(string key, T item, DateTimeOffset expiresAtOffset, CancellationToken cancellationToken);
+        /// <param name="timeSpan">The time span.</param>
+        /// <returns>
+        /// A <see cref="Task" /> representing the asynchronous operation.
+        /// </returns>
+        Task SetAsync(string key, T item, TimeSpan timeSpan);
     }
 }

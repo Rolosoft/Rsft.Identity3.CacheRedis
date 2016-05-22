@@ -24,5 +24,17 @@ namespace Rsft.Identity3.CacheRedis.Entities
         /// The redis cache default prefix.
         /// </value>
         public string RedisCacheDefaultPrefix { get; set; } = @"rsftidcache";
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to use compression to store objects in Redis.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if [use object compression]; otherwise, <c>false</c>.
+        /// </value>
+        /// <remarks>
+        /// <para>Compression can dramatically increase storage efficiency in Redis. Store more objects for less cost.</para>
+        /// <para>Default is 'True'.</para>
+        /// </remarks>
+        public bool UseObjectCompression { get; set; } = true;
     }
 }
