@@ -1,0 +1,208 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Rsft.Identity3.Cacheredis by Rolosoft</title>
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/github-dark.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="javascripts/respond.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <!--[if lt IE 8]>
+    <link rel="stylesheet" href="stylesheets/ie.css">
+    <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+  </head>
+  <body>
+      <div id="header">
+        <nav>
+          <li class="fork"><a href="https://github.com/Rolosoft/Rsft.Identity3.CacheRedis">View On GitHub</a></li>
+          <li class="downloads"><a href="https://github.com/Rolosoft/Rsft.Identity3.CacheRedis/zipball/master">ZIP</a></li>
+          <li class="downloads"><a href="https://github.com/Rolosoft/Rsft.Identity3.CacheRedis/tarball/master">TAR</a></li>
+          <li class="title">DOWNLOADS</li>
+        </nav>
+      </div><!-- end header -->
+
+    <div class="wrapper">
+
+      <section>
+        <div id="title">
+          <h1>Rsft.Identity3.Cacheredis</h1>
+          <p>Redis Caching for Client, Scope and Claims stores.</p>
+          <hr>
+          <span class="credits left">Project maintained by <a href="https://github.com/Rolosoft">Rolosoft</a></span>
+          <span class="credits right">Hosted on GitHub Pages &mdash; Theme by <a href="https://twitter.com/michigangraham">mattgraham</a></span>
+        </div>
+
+        <h1>
+<a id="redis-cache-for-identity-server-3" class="anchor" href="#redis-cache-for-identity-server-3" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Redis Cache For Identity Server 3</h1>
+
+<p><a href="https://www.myget.org/"><img src="https://www.myget.org/BuildSource/Badge/rolosoft_public_packages?identifier=a53e1b7a-1d56-43f7-8e0e-a518e82c8cb5" alt="rolosoft_public_packages MyGet Build Status"></a></p>
+
+<h2>
+<a id="about" class="anchor" href="#about" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>About</h2>
+
+<p>A library that delivers a Redis based implementation of Identity Server 3 extension points for:</p>
+
+<ul>
+<li><code>ICache&lt;Client&gt;</code></li>
+<li><code>ICache&lt;IEnumerable&lt;Scope&gt;&gt;</code></li>
+<li><code>ICache&lt;IEnumerable&lt;Claim&gt;&gt;</code></li>
+</ul>
+
+<h2>
+<a id="why-do-i-care" class="anchor" href="#why-do-i-care" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Why do I care?</h2>
+
+<p>Identity Server 3 default implementations for Client, Scope and Claim persistence are volatile in-memory stores. This is no problem for single server solutions. However, in load balanced environments, the default in-memory stores fail.</p>
+
+<p>In such shared server scenarios, a central persistence store is required. Redis offers a perfect solution.</p>
+
+<h2>
+<a id="features-and-benefits" class="anchor" href="#features-and-benefits" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Features and Benefits</h2>
+
+<ul>
+<li>Thread safe, high performance implementation</li>
+<li>Extensive async logging built in using <a href="https://msdn.microsoft.com/en-us/library/dn440729(v=pandp.60).aspx">SLAB</a>
+</li>
+<li>Built in compression (can be disabled if required)</li>
+<li>Optional configuration over-rides for cache duration, cache prefix and compression options</li>
+</ul>
+
+<h2>
+<a id="installation" class="anchor" href="#installation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Installation</h2>
+
+<p>From Nuget</p>
+
+<pre><code>install-package Rsft.Identity3.CacheRedis
+</code></pre>
+
+<h2>
+<a id="quick-start" class="anchor" href="#quick-start" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Quick Start</h2>
+
+<p>See unit / integration tests for full examples. A default setup might look like this:</p>
+
+<div class="highlight highlight-source-cs"><pre><span class="pl-c">/*Create a singleton instance of our Redis integration extension */</span>
+<span class="pl-k">var</span> caches = RedisCacheFactory.Create(RedisConnectionString);
+
+<span class="pl-c">/*Assign caches to vars for ease of single-step debugging / inspection etc.*/</span>
+<span class="pl-k">var</span> clientCache = caches.ClientCache;
+<span class="pl-k">var</span> scopesCache = caches.ScopesCache;
+<span class="pl-k">var</span> userServiceCache = caches.UserServiceCache;
+
+<span class="pl-c">/*Create Identity Server 3 with default, in memory persistence stores. NOTE: persistence stores will be your SQL, EF or storage production stores or whatever*/</span>
+<span class="pl-k">var</span> identityServerServiceFactory = <span class="pl-k">new</span> IdentityServerServiceFactory().UseInMemoryClients(<span class="pl-k">new</span> List&lt;Client&gt;()).UseInMemoryScopes(<span class="pl-k">new</span> List&lt;Scope&gt;()).UseInMemoryUsers(<span class="pl-k">new</span> List&lt;InMemoryUser&gt;());
+
+<span class="pl-c">/*Add the Redis cache stores as extension objects into Identity Server 3*/</span>
+identityServerServiceFactory.ConfigureClientStoreCache(<span class="pl-k">new</span> Registration&lt;ICache&lt;Client&gt;&gt;(clientCache));
+identityServerServiceFactory.ConfigureScopeStoreCache(<span class="pl-k">new</span> Registration&lt;ICache&lt;IEnumerable&lt;Scope&gt;&gt;&gt;(scopesCache));
+identityServerServiceFactory.ConfigureUserServiceCache(<span class="pl-k">new</span> Registration&lt;ICache&lt;IEnumerable&lt;Claim&gt;&gt;&gt;(userServiceCache));</pre></div>
+
+<h2>
+<a id="advanced-topics" class="anchor" href="#advanced-topics" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Advanced Topics</h2>
+
+<h3>
+<a id="connection-multiplexer" class="anchor" href="#connection-multiplexer" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Connection Multiplexer</h3>
+
+<p>A Redis ConnectionMultiplexer or connection string is required to create a connection to Redis.</p>
+
+<p>There are 3 ways of doing this:</p>
+
+<p>1) Pass in a connection string
+e.g.</p>
+
+<div class="highlight highlight-source-cs"><pre><span class="pl-k">var</span> caches RedisCacheFactory.Create(<span class="pl-s"><span class="pl-pds">"</span>&lt;your connection string&gt;<span class="pl-pds">"</span></span>);</pre></div>
+
+<p>2) Pass in an existing Connection Multiplexer
+e.g.</p>
+
+<div class="highlight highlight-source-cs"><pre><span class="pl-k">var</span> caches RedisCacheFactory.Create(MyConnectionMultiplexer);</pre></div>
+
+<p><strong>Note:</strong> If you are creating a Connection Multiplexer yourself, be sure to ensure that it is a singleton instance as per recommendations described <a href="https://github.com/StackExchange/StackExchange.Redis/blob/master/Docs/Basics.md">here</a></p>
+
+<p>3) Connection string
+In App.config or Web.config, ConnectionString or value named <code>'Rsft:Identity3:CacheConnectionString'</code></p>
+
+<p>We use Azure CloudConfigurationManager wo ensure that configuration options are as diverse as possible for Azure hosting options (e.g Cloud service, Web etc)</p>
+
+<p>e.g.
+<strong>Web.config</strong> or <strong>App.config</strong></p>
+
+<div class="highlight highlight-text-xml"><pre>&lt;<span class="pl-ent">appSettings</span>&gt;
+    &lt;<span class="pl-ent">add</span> <span class="pl-e">key</span>=<span class="pl-s"><span class="pl-pds">"</span>Rsft:Identity3:CacheConnectionString<span class="pl-pds">"</span></span> <span class="pl-e">value</span>=<span class="pl-s"><span class="pl-pds">"</span>MyConnectionString<span class="pl-pds">"</span></span>/&gt;
+&lt;/<span class="pl-ent">appSettings</span>&gt;</pre></div>
+
+<p>e.g.
+<strong>*.cscfg</strong></p>
+
+<div class="highlight highlight-text-xml"><pre>&lt;<span class="pl-ent">ConfigurationSettings</span>&gt;
+  &lt;<span class="pl-ent">Setting</span> <span class="pl-e">name</span>=<span class="pl-s"><span class="pl-pds">"</span>Rsft:Identity3:CacheConnectionString<span class="pl-pds">"</span></span> <span class="pl-e">value</span>=<span class="pl-s"><span class="pl-pds">"</span>MyConnectionString<span class="pl-pds">"</span></span> /&gt;
+&lt;/<span class="pl-ent">ConfigurationSettings</span>&gt;</pre></div>
+
+<h3>
+<a id="configuration" class="anchor" href="#configuration" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Configuration</h3>
+
+<p>Customize configuration by passing in an optional <code>IConfiguration&lt;RedisCacheConfigurationEntity&gt;</code> to the <code>RedisCacheFactory.Create(..)</code> method.</p>
+
+<p>Configuration options are:</p>
+
+<table>
+<thead>
+<tr>
+<th>Option Name</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CacheDuration</td>
+<td>Duration of cache (in seconds)</td>
+<td>3600</td>
+</tr>
+<tr>
+<td>RedisCacheDefaultPrefix</td>
+<td>Prefix of keys to store in cache</td>
+<td>rsftid3cache</td>
+</tr>
+<tr>
+<td>UseObjectCompression</td>
+<td>Use compression to store objects in Redis ?</td>
+<td>true</td>
+</tr>
+</tbody>
+</table>
+
+<h3>
+<a id="logging" class="anchor" href="#logging" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Logging</h3>
+
+<p>Extensive async logging is built in using <a href="https://msdn.microsoft.com/en-us/library/dn440729(v=pandp.60).aspx">SLAB</a>.</p>
+
+<p>There are two logs:</p>
+
+<ul>
+<li>
+<strong>Exception</strong> - Add listener(s) for <code>ExceptionLoggingEventSource.Log</code>
+</li>
+<li>
+<strong>Activity</strong> - Add listener(s) for <code>ActivityLoggingEventSource.Log</code>
+</li>
+</ul>
+
+<p>Example of Creating Console Listener for Exception Logging.</p>
+
+<div class="highlight highlight-source-cs"><pre><span class="pl-k">var</span> observableEventListener = <span class="pl-k">new</span> ObservableEventListener();
+observableEventListener.EnableEvents(ExceptionLoggingEventSource.Log, EventLevel.LogAlways);
+observableEventListener.LogToConsole();</pre></div>
+
+<p>See unit tests in source code for more examples of logging verbosity options and filters.</p>
+      </section>
+
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+    
+  </body>
+</html>
