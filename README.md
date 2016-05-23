@@ -104,7 +104,7 @@ Extensive async logging is built in using [SLAB](https://msdn.microsoft.com/en-u
 
 There are two logs:
 * __Exception__ - Add listener(s) for ```ExceptionLoggingEventSource.Log```
-* __Activity___ - Add listener(s) for ```ActivityLoggingEventSource.Log```
+* __Activity__ - Add listener(s) for ```ActivityLoggingEventSource.Log```
  
 Example of Creating Console Listener for Exception Logging.
 ```csharp
