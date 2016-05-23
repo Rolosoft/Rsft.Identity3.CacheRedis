@@ -33,7 +33,8 @@
     <SignAssembly>false</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>Rsft.Identity3.CacheRedis.Tests.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="IdentityServer3, Version=2.5.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -79,6 +80,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Integration\Logic\RedisCacheManagerTests.cs" />
+    <Compile Include="Integration\RedisCacheFactoryTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestBase.cs" />
     <Compile Include="Unit\Diagnostics\EventSources\ActivityLoggingEventSourceTests.cs" />
@@ -87,7 +89,6 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
-    <None Include="Rsft.Identity3.CacheRedis.Tests.snk" />
     <AdditionalFiles Include="stylecop.json" />
   </ItemGroup>
   <ItemGroup>

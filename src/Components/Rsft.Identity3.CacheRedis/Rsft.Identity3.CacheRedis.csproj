@@ -64,6 +64,7 @@
     <CodeContractsRuntimeCheckingLevel>Full</CodeContractsRuntimeCheckingLevel>
     <CodeContractsReferenceAssembly>Build</CodeContractsReferenceAssembly>
     <CodeContractsAnalysisWarningLevel>0</CodeContractsAnalysisWarningLevel>
+    <DocumentationFile>bin\Debug\Rsft.Identity3.CacheRedis.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -72,12 +73,14 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Release\Rsft.Identity3.CacheRedis.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>false</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>Rsft.Identity3.CacheRedis.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="IdentityServer3, Version=2.5.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -124,32 +127,35 @@
     <Compile Include="Diagnostics\EventSources\ActivityLoggingEventSourceCore.cs" />
     <Compile Include="Diagnostics\EventSources\ExceptionLoggingEventSource.cs" />
     <Compile Include="Diagnostics\EventSources\ExceptionLoggingEventSourceCore.cs" />
+    <Compile Include="Entities\Caches.cs" />
     <Compile Include="Entities\RedisCacheConfigurationEntity.cs" />
     <Compile Include="Helpers\ExceptionLogging.cs" />
     <Compile Include="Helpers\LoggingNaming.cs" />
+    <Compile Include="Helpers\SafeLinq.cs" />
     <Compile Include="Interfaces\ICacheManager.cs" />
-    <Compile Include="Contracts\ICacheManagerContract.cs" />
+    <Compile Include="Contracts\CacheManagerContract.cs" />
     <Compile Include="Interfaces\IConfiguration.cs" />
     <Compile Include="Logic\ClaimConverter.cs" />
     <Compile Include="Logic\RedisCacheConfigurationDefault.cs" />
     <Compile Include="Logic\RedisCacheManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RedisCache.cs" />
     <Compile Include="RedisCacheBase.cs" />
     <Compile Include="Contracts\RedisCacheBaseContract.cs" />
     <Compile Include="RedisCacheFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="Rsft.Identity3.CacheRedis.snk" />
     <AdditionalFiles Include="stylecop.json" />
+    <None Include="Rsft.Identity3.CacheRedis.nuspec" />
   </ItemGroup>
   <ItemGroup>
     <Analyzer Include="..\..\packages\StyleCop.Analyzers.1.0.0\analyzers\dotnet\cs\Newtonsoft.Json.dll" />
     <Analyzer Include="..\..\packages\StyleCop.Analyzers.1.0.0\analyzers\dotnet\cs\StyleCop.Analyzers.CodeFixes.dll" />
     <Analyzer Include="..\..\packages\StyleCop.Analyzers.1.0.0\analyzers\dotnet\cs\StyleCop.Analyzers.dll" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="readme.txt" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

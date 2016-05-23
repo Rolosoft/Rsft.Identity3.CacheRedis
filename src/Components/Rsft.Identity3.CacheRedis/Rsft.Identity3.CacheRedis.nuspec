@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>$author$</authors>
+    <owners>$author$</owners>
+    <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
+    <projectUrl>https://github.com/Rolosoft/Rsft.Identity3.CacheRedis</projectUrl>
+    <iconUrl>https://rolosoft.blob.core.windows.net/common/rolosoft128x128.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <summary>Redis Cache for Identity Server 3</summary>
+    <description>$description$</description>
+    <releaseNotes>Initial release.</releaseNotes>
+    <copyright>Copyright Rolosoft 2016</copyright>
+    <language>en-US</language>
+    <tags>IdentityServer Redis</tags>
+    <frameworkAssemblies>
+      <frameworkAssembly assemblyName="System" targetFramework="net452" />
+      <frameworkAssembly assemblyName="System.Core" targetFramework="net452" />
+      <frameworkAssembly assemblyName="System.Data" targetFramework="net452" />
+      <frameworkAssembly assemblyName="System.Data.DataSetExtensions" targetFramework="net452" />
+      <frameworkAssembly assemblyName="System.Net.Http" targetFramework="net452" />
+      <frameworkAssembly assemblyName="System.Xml" targetFramework="net452" />
+      <frameworkAssembly assemblyName="System.Xml.Linq" targetFramework="net452" />
+    </frameworkAssemblies>
+  </metadata>
+  <files>
+    <file src="bin\$configuration$\$id$.xml" target="lib\net452"/>
+    <file src="readme.txt" target="" />
+  </files>
+</package>

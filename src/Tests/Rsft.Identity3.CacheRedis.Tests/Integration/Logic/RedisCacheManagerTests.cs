@@ -1,4 +1,15 @@
-﻿// <copyright file="RedisCacheManagerTests.cs" company="Rolosoft Ltd">
+﻿// Copyright 2016 Rolosoft Ltd
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// http://www.apache.org/licenses/LICENSE-2.0
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// <copyright file="RedisCacheManagerTests.cs" company="Rolosoft Ltd">
 // Copyright (c) Rolosoft Ltd. All rights reserved.
 // </copyright>
 
@@ -8,6 +19,8 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic
     using System.Collections.Generic;
     using System.Diagnostics.Tracing;
     using System.Security.Claims;
+    using System.Threading.Tasks;
+
     using CacheRedis.Logic;
     using Diagnostics.EventSources;
     using Entities;
@@ -22,7 +35,7 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic
     using NUnit.Framework;
     using StackExchange.Redis;
 
-    [Ignore("Enter your own Redis connection string.")]
+    [Ignore("Enter your own Redis connection string. Tests verified passing 05/23/16, ROC")]
     [TestFixture]
     public class RedisCacheManagerTests : TestBase
     {
@@ -32,6 +45,9 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic
 
         private static ObservableEventListener activityEventListener;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RedisCacheManagerTests"/> class.
+        /// </summary>
         public RedisCacheManagerTests()
         {
             activityEventListener = new ObservableEventListener();
@@ -55,20 +71,51 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic
 
             var claim = new Claim("mytype1", "myvalue2");
 
-            var timeSpan = DateTime.UtcNow.AddMilliseconds(10000) - DateTime.UtcNow;
+            var claims = new List<Claim> { claim, claim, claim };
+
+            var timeSpan = new TimeSpan(0, 0, 0, 10);
 
             var mockConfiguration = new Mock<IConfiguration<RedisCacheConfigurationEntity>>();
             mockConfiguration.Setup(r => r.Get).Returns(() => new RedisCacheConfigurationEntity { CacheDuration = 1000, UseObjectCompression = true, RedisCacheDefaultPrefix = @"RedisCacheManagerTests" });
 
             // act
-            var redisCacheManager = new RedisCacheManager<Claim>(Singleton, mockConfiguration.Object);
-            redisCacheManager.SetAsync(Key, claim, timeSpan).Wait();
+            var redisCacheManager = new RedisCacheManager<IEnumerable<Claim>>(Singleton, mockConfiguration.Object);
+            redisCacheManager.SetAsync(Key, claims, timeSpan).Wait();
 
             var result = redisCacheManager.GetAsync(Key).Result;
 
             // assert
             Console.WriteLine(@"Fetched From Cache:{0}", JsonConvert.SerializeObject(result));
-            Assert.That(result.GetType() == typeof(Claim));
+            Assert.That(result.GetType() == typeof(List<Claim>));
+        }
+
+        [Test]
+        public void SetAsync_WhenClaimObjectAndTtlExceeded_ExpectNull()
+        {
+            // arrange
+            const string Key = @"SetAsync_WhenClaimObjectAndTtlExceeded_ExpectNull";
+
+            var claim = new Claim("mytype1", "myvalue2");
+
+            var claims = new List<Claim> { claim, claim, claim };
+
+            var timeSpan = new TimeSpan(0, 0, 0, 5);
+
+            var mockConfiguration = new Mock<IConfiguration<RedisCacheConfigurationEntity>>();
+            mockConfiguration.Setup(r => r.Get).Returns(() => new RedisCacheConfigurationEntity { CacheDuration = 1000, UseObjectCompression = true, RedisCacheDefaultPrefix = @"RedisCacheManagerTests" });
+
+            // act
+            var redisCacheManager = new RedisCacheManager<IEnumerable<Claim>>(Singleton, mockConfiguration.Object);
+            redisCacheManager.SetAsync(Key, claims, timeSpan).Wait();
+
+            /*Wait 6 seconds for expiry*/
+            Task.Delay(6000).Wait();
+
+            var result = redisCacheManager.GetAsync(Key).Result;
+
+            // assert
+            Console.WriteLine(@"Fetched From Cache:{0}", JsonConvert.SerializeObject(result));
+            Assert.That(result == null);
         }
 
         [Test]
@@ -78,7 +125,7 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic
             const string Key = @"SetAsync_WhenClientObject_ExpectSuccess";
             var client = new Client { AllowedScopes = new List<string> { "scope 1", "scope 2" }, Enabled = true};
 
-            var timeSpan = DateTime.UtcNow.AddMilliseconds(10000) - DateTime.UtcNow;
+            var timeSpan = new TimeSpan(0, 0, 0, 10);
 
             var mockConfiguration = new Mock<IConfiguration<RedisCacheConfigurationEntity>>();
             mockConfiguration.Setup(r => r.Get).Returns(() => new RedisCacheConfigurationEntity { CacheDuration = 1000, UseObjectCompression = true, RedisCacheDefaultPrefix = @"RedisCacheManagerTests" });
@@ -101,20 +148,22 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic
             const string Key = @"SetAsync_WhenScopeObject_ExpectSuccess";
             var scope = new Scope {Claims = new List<ScopeClaim> { new ScopeClaim(@"fdf") } };
 
-            var timeSpan = DateTime.UtcNow.AddMilliseconds(10000) - DateTime.UtcNow;
+            var scopes = new List<Scope> { scope, scope, scope };
+
+            var timeSpan = new TimeSpan(0, 0, 0, 10);
 
             var mockConfiguration = new Mock<IConfiguration<RedisCacheConfigurationEntity>>();
             mockConfiguration.Setup(r => r.Get).Returns(() => new RedisCacheConfigurationEntity { CacheDuration = 1000, UseObjectCompression = true, RedisCacheDefaultPrefix = @"RedisCacheManagerTests" });
 
             // act
-            var redisCacheManager = new RedisCacheManager<Scope>(Singleton, mockConfiguration.Object);
-            redisCacheManager.SetAsync(Key, scope, timeSpan).Wait();
+            var redisCacheManager = new RedisCacheManager<IEnumerable<Scope>>(Singleton, mockConfiguration.Object);
+            redisCacheManager.SetAsync(Key, scopes, timeSpan).Wait();
 
             var result = redisCacheManager.GetAsync(Key).Result;
 
             // assert
             Console.WriteLine(@"Fetched From Cache:{0}", JsonConvert.SerializeObject(result));
-            Assert.That(result.GetType() == typeof(Scope));
+            Assert.That(result.GetType() == typeof(List<Scope>));
         }
 
         [SetUp]

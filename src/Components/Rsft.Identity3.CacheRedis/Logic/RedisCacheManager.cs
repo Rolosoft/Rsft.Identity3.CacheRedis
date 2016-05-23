@@ -1,4 +1,15 @@
-﻿// <copyright file="RedisCacheManager.cs" company="Rolosoft Ltd">
+﻿// Copyright 2016 Rolosoft Ltd
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// http://www.apache.org/licenses/LICENSE-2.0
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// <copyright file="RedisCacheManager.cs" company="Rolosoft Ltd">
 // Copyright (c) Rolosoft Ltd. All rights reserved.
 // </copyright>
 
@@ -6,9 +17,11 @@
 namespace Rsft.Identity3.CacheRedis.Logic
 {
     using System;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Diagnostics.Contracts;
     using System.Globalization;
+    using System.Linq;
     using System.Threading.Tasks;
     using Diagnostics.EventSources;
     using Entities;
@@ -110,10 +123,10 @@ namespace Rsft.Identity3.CacheRedis.Logic
             {
                 aggregateException.Handle(
                     ae =>
-                        {
-                            ae.Log();
-                            return true;
-                        });
+                    {
+                        ae.Log();
+                        return true;
+                    });
             }
             catch (Exception exception)
             {
@@ -121,7 +134,9 @@ namespace Rsft.Identity3.CacheRedis.Logic
             }
 
             if (redisValue == default(RedisValue)
-                || redisValue.IsNullOrEmpty)
+                || redisValue == RedisValue.Null
+                || redisValue.IsNullOrEmpty
+                || !redisValue.HasValue)
             {
                 ActivityLoggingEventSource.Log.CacheMiss(fqMethodLogName);
                 ActivityLoggingEventSource.Log.MethodExit(fqMethodLogName);
@@ -143,6 +158,68 @@ namespace Rsft.Identity3.CacheRedis.Logic
         }
 
         /// <summary>
+        /// Gets all the cache items specified by keys asynchronously.
+        /// </summary>
+        /// <param name="keys">The keys.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        public async Task<IDictionary<string, T>> GetAllAsync(IEnumerable<string> keys)
+        {
+            var fqMethodLogName = LoggingNaming.GetFqMethodLogName(LoggingSourceNameBase, "GetAllAsync");
+
+            ActivityLoggingEventSource.Log.MethodEnter(fqMethodLogName);
+
+            var database = this.connectionMultiplexer.GetDatabase();
+
+            var redisKeys = keys.Select(r => (RedisKey)r).ToArray();
+
+            RedisValue[] redisValues = null;
+
+            try
+            {
+                redisValues = await database.StringGetAsync(redisKeys).ConfigureAwait(false);
+            }
+            catch (Exception exception)
+            {
+                exception.Log();
+            }
+
+            if (redisValues != null
+                && redisValues.AnySafe())
+            {
+                var rtn = new Dictionary<string, T>();
+                for (var index = 0; index < redisValues.Length; index++)
+                {
+                    var redisKey = redisKeys[index];
+                    var redisValue = redisValues[index];
+
+                    var deserializedObject = default(T);
+
+                    if (redisValue != RedisValue.Null
+                        && redisValue.HasValue)
+                    {
+                        var s1 = redisValue.ToString();
+
+                        var s = this.cacheConfiguration.Get.UseObjectCompression ? s1.Decompress() : s1;
+
+                        deserializedObject = JsonConvert.DeserializeObject<T>(s, SerializerSettings);
+                    }
+
+                    rtn.Add(redisKey, deserializedObject);
+                }
+
+                ActivityLoggingEventSource.Log.CacheHit(fqMethodLogName);
+                ActivityLoggingEventSource.Log.MethodExit(fqMethodLogName);
+
+                return rtn;
+            }
+
+            ActivityLoggingEventSource.Log.CacheMiss(fqMethodLogName);
+            ActivityLoggingEventSource.Log.MethodExit(fqMethodLogName);
+
+            return default(IDictionary<string, T>);
+        }
+
+        /// <summary>
         /// Sets the asynchronous.
         /// </summary>
         /// <param name="key">The key.</param>
@@ -153,7 +230,7 @@ namespace Rsft.Identity3.CacheRedis.Logic
         /// </returns>
         public async Task SetAsync(string key, T item, TimeSpan timeSpan)
         {
-            var fqMethodLogName = LoggingNaming.GetFqMethodLogName(LoggingSourceNameBase, "GetAsync");
+            var fqMethodLogName = LoggingNaming.GetFqMethodLogName(LoggingSourceNameBase, "SetAsync");
 
             ActivityLoggingEventSource.Log.MethodEnter(fqMethodLogName);
 
@@ -195,7 +272,7 @@ namespace Rsft.Identity3.CacheRedis.Logic
         /// </summary>
         /// <param name="key">The key.</param>
         /// <returns>The <see cref="string"/> defining the cache key.</returns>
-        internal string GetKey(string key)
+        private string GetKey(string key)
         {
             Contract.Requires(!string.IsNullOrWhiteSpace(key));
 
