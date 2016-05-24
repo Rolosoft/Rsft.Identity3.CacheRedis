@@ -9,7 +9,7 @@ A library that delivers a Redis based implementation of Identity Server 3 extens
 * ```ICache<IEnumerable<Scope>>```
 * ```ICache<IEnumerable<Claim>>```
 
-## Why do I care?
+## Who and what is this for?
 Identity Server 3 default implementations for Client, Scope and Claim persistence are volatile in-memory stores. This is no problem for single server solutions. However, in load balanced environments, the default in-memory stores fail.
 
 In such shared server scenarios, a central persistence store is required. Redis offers a perfect solution.
