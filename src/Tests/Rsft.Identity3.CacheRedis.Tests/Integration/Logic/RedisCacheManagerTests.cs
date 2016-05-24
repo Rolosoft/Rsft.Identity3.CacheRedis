@@ -73,10 +73,10 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic
 
             var claims = new List<Claim> { claim, claim, claim };
 
-            var timeSpan = new TimeSpan(0, 0, 0, 10);
+            var timeSpan = TimeSpan.FromSeconds(10);
 
             var mockConfiguration = new Mock<IConfiguration<RedisCacheConfigurationEntity>>();
-            mockConfiguration.Setup(r => r.Get).Returns(() => new RedisCacheConfigurationEntity { CacheDuration = 1000, UseObjectCompression = true, RedisCacheDefaultPrefix = @"RedisCacheManagerTests" });
+            mockConfiguration.Setup(r => r.Get).Returns(() => new RedisCacheConfigurationEntity { CacheDuration = 3600, UseObjectCompression = true, RedisCacheDefaultPrefix = @"RedisCacheManagerTests" });
 
             // act
             var redisCacheManager = new RedisCacheManager<IEnumerable<Claim>>(Singleton, mockConfiguration.Object);
@@ -99,10 +99,10 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic
 
             var claims = new List<Claim> { claim, claim, claim };
 
-            var timeSpan = new TimeSpan(0, 0, 0, 5);
+            var timeSpan = TimeSpan.FromSeconds(5);
 
             var mockConfiguration = new Mock<IConfiguration<RedisCacheConfigurationEntity>>();
-            mockConfiguration.Setup(r => r.Get).Returns(() => new RedisCacheConfigurationEntity { CacheDuration = 1000, UseObjectCompression = true, RedisCacheDefaultPrefix = @"RedisCacheManagerTests" });
+            mockConfiguration.Setup(r => r.Get).Returns(() => new RedisCacheConfigurationEntity { CacheDuration = 3600, UseObjectCompression = true, RedisCacheDefaultPrefix = @"RedisCacheManagerTests" });
 
             // act
             var redisCacheManager = new RedisCacheManager<IEnumerable<Claim>>(Singleton, mockConfiguration.Object);
@@ -125,10 +125,10 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic
             const string Key = @"SetAsync_WhenClientObject_ExpectSuccess";
             var client = new Client { AllowedScopes = new List<string> { "scope 1", "scope 2" }, Enabled = true};
 
-            var timeSpan = new TimeSpan(0, 0, 0, 10);
+            var timeSpan = TimeSpan.FromSeconds(10);
 
             var mockConfiguration = new Mock<IConfiguration<RedisCacheConfigurationEntity>>();
-            mockConfiguration.Setup(r => r.Get).Returns(() => new RedisCacheConfigurationEntity { CacheDuration = 1000, UseObjectCompression = true, RedisCacheDefaultPrefix = @"RedisCacheManagerTests" });
+            mockConfiguration.Setup(r => r.Get).Returns(() => new RedisCacheConfigurationEntity { CacheDuration = 3600, UseObjectCompression = true, RedisCacheDefaultPrefix = @"RedisCacheManagerTests" });
 
             // act
             var redisCacheManager = new RedisCacheManager<Client>(Singleton, mockConfiguration.Object);
@@ -150,10 +150,10 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic
 
             var scopes = new List<Scope> { scope, scope, scope };
 
-            var timeSpan = new TimeSpan(0, 0, 0, 10);
+            var timeSpan = TimeSpan.FromSeconds(10);
 
             var mockConfiguration = new Mock<IConfiguration<RedisCacheConfigurationEntity>>();
-            mockConfiguration.Setup(r => r.Get).Returns(() => new RedisCacheConfigurationEntity { CacheDuration = 1000, UseObjectCompression = true, RedisCacheDefaultPrefix = @"RedisCacheManagerTests" });
+            mockConfiguration.Setup(r => r.Get).Returns(() => new RedisCacheConfigurationEntity { CacheDuration = 3600, UseObjectCompression = true, RedisCacheDefaultPrefix = @"RedisCacheManagerTests" });
 
             // act
             var redisCacheManager = new RedisCacheManager<IEnumerable<Scope>>(Singleton, mockConfiguration.Object);

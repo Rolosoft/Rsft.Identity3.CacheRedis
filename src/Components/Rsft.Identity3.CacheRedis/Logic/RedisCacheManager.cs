@@ -133,8 +133,8 @@ namespace Rsft.Identity3.CacheRedis.Logic
                 exception.Log();
             }
 
-            if (redisValue == default(RedisValue)
-                || redisValue == RedisValue.Null
+            if (redisValue == RedisValue.Null
+                || redisValue == default(RedisValue)
                 || redisValue.IsNullOrEmpty
                 || !redisValue.HasValue)
             {
@@ -183,10 +183,11 @@ namespace Rsft.Identity3.CacheRedis.Logic
                 exception.Log();
             }
 
+            var rtn = new Dictionary<string, T>();
+
             if (redisValues != null
                 && redisValues.AnySafe())
             {
-                var rtn = new Dictionary<string, T>();
                 for (var index = 0; index < redisValues.Length; index++)
                 {
                     var redisKey = redisKeys[index];
@@ -216,7 +217,7 @@ namespace Rsft.Identity3.CacheRedis.Logic
             ActivityLoggingEventSource.Log.CacheMiss(fqMethodLogName);
             ActivityLoggingEventSource.Log.MethodExit(fqMethodLogName);
 
-            return default(IDictionary<string, T>);
+            return rtn;
         }
 
         /// <summary>

@@ -28,6 +28,9 @@ namespace Rsft.Identity3.CacheRedis
     using Microsoft.Azure;
     using StackExchange.Redis;
 
+    /// <summary>
+    /// The Redis cache factory.
+    /// </summary>
     public static class RedisCacheFactory
     {
         /// <summary>

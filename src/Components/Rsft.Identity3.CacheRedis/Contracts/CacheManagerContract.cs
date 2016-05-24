@@ -22,6 +22,10 @@ namespace Rsft.Identity3.CacheRedis.Contracts
 
     using Interfaces;
 
+    /// <summary>
+    /// Cache manager contracts.
+    /// </summary>
+    /// <typeparam name="T">Type of cache manager.</typeparam>
     [ContractClassFor(typeof(ICacheManager<>))]
     internal abstract class CacheManagerContract<T> : ICacheManager<T>
     {
@@ -33,6 +37,7 @@ namespace Rsft.Identity3.CacheRedis.Contracts
         public virtual Task<T> GetAsync(string key)
         {
             Contract.Requires(!string.IsNullOrWhiteSpace(key));
+            Contract.Ensures(Contract.Result<Task<T>>() != null);
             return default(Task<T>);
         }
 
@@ -44,6 +49,8 @@ namespace Rsft.Identity3.CacheRedis.Contracts
         public virtual Task<IDictionary<string, T>> GetAllAsync(IEnumerable<string> keys)
         {
             Contract.Requires(keys != null);
+            Contract.Ensures(Contract.Result<Task<IDictionary<string, T>>>() != null);
+
             return default(Task<IDictionary<string, T>>);
         }
 
@@ -59,6 +66,7 @@ namespace Rsft.Identity3.CacheRedis.Contracts
         public virtual Task SetAsync(string key, T item, TimeSpan timeSpan)
         {
             Contract.Requires(!string.IsNullOrWhiteSpace(key));
+            Contract.Ensures(Contract.Result<Task>() != null);
             return default(Task);
         }
     }

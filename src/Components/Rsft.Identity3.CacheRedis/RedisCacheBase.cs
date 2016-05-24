@@ -23,6 +23,10 @@ namespace Rsft.Identity3.CacheRedis
     using IdentityServer3.Core.Services;
     using Interfaces;
 
+    /// <summary>
+    /// Redis cache base.
+    /// </summary>
+    /// <typeparam name="T">Type of object.</typeparam>
     [ContractClass(typeof(RedisCacheBaseContract<>))]
     internal abstract class RedisCacheBase<T> : ICache<T>
         where T : class
@@ -56,6 +60,9 @@ namespace Rsft.Identity3.CacheRedis
             this.cacheConfiguration = cacheConfiguration;
         }
 
+        /// <summary>Gets the cached data based upon a key index.</summary>
+        /// <param name="key">The key.</param>
+        /// <returns>The cached item, or <c>null</c> if no item matches the key.</returns>
         public virtual async Task<T> GetAsync(string key)
         {
             var foo = await this.cacheManager.GetAsync(key).ConfigureAwait(false);
@@ -63,9 +70,13 @@ namespace Rsft.Identity3.CacheRedis
             return foo;
         }
 
+        /// <summary>Caches the data based upon a key</summary>
+        /// <param name="key">The key.</param>
+        /// <param name="item">The item.</param>
+        /// <returns>The <see cref="Task"/></returns>
         public virtual async Task SetAsync(string key, T item)
         {
-            var timeSpan = new TimeSpan(0, 0, 0, this.cacheConfiguration.Get.CacheDuration);
+            var timeSpan = TimeSpan.FromSeconds(this.cacheConfiguration.Get.CacheDuration);
 
             await this.cacheManager.SetAsync(key, item, timeSpan).ConfigureAwait(false);
         }

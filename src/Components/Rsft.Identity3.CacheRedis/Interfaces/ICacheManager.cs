@@ -22,6 +22,10 @@ namespace Rsft.Identity3.CacheRedis.Interfaces
 
     using Contracts;
 
+    /// <summary>
+    /// The cache manager interface.
+    /// </summary>
+    /// <typeparam name="T">Type of object to manage.</typeparam>
     [ContractClass(typeof(CacheManagerContract<>))]
     internal interface ICacheManager<T>
     {
