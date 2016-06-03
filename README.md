@@ -57,13 +57,13 @@ There are 3 ways of doing this:
 1) Pass in a connection string
 e.g.
 ```csharp
-var caches RedisCacheFactory.Create("<your connection string>");
+var cache = RedisCacheFactory.Create("<your connection string>");
 ```
 
 2) Pass in an existing Connection Multiplexer
 e.g.
 ```csharp
-var caches RedisCacheFactory.Create(MyConnectionMultiplexer);
+var cache = RedisCacheFactory.Create(MyConnectionMultiplexer);
 ```
 __Note:__ If you are creating a Connection Multiplexer yourself, be sure to ensure that it is a singleton instance as per recommendations described [here](https://github.com/StackExchange/StackExchange.Redis/blob/master/Docs/Basics.md)
 
