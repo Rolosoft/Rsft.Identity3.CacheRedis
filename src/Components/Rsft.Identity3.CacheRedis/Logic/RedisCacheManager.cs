@@ -28,6 +28,7 @@ namespace Rsft.Identity3.CacheRedis.Logic
     using Helpers;
     using Interfaces;
     using Newtonsoft.Json;
+    using Serialization;
     using StackExchange.Redis;
     using Util.Compression;
 
@@ -43,24 +44,29 @@ namespace Rsft.Identity3.CacheRedis.Logic
         private const string LoggingSourceNameBase = @"Rsft.Identity3.CacheRedis.Logic.RedisCacheManager";
 
         /// <summary>
-        /// The json serializer settings lazy
-        /// </summary>
-        private static readonly Lazy<JsonSerializerSettings> JsonSerializerSettingsLazy = new Lazy<JsonSerializerSettings>(() => new JsonSerializerSettings());
-
-        /// <summary>
         /// The claim converter lazy
         /// </summary>
         private static readonly Lazy<ClaimConverter> ClaimConverterLazy = new Lazy<ClaimConverter>(() => new ClaimConverter());
 
         /// <summary>
-        /// The connection multiplexer
+        /// The client converter lazy
         /// </summary>
-        private readonly ConnectionMultiplexer connectionMultiplexer;
+        private static readonly Lazy<ClientConverter> ClientConverterLazy = new Lazy<ClientConverter>(() => new ClientConverter());
+
+        /// <summary>
+        /// The json serializer settings lazy
+        /// </summary>
+        private static readonly Lazy<JsonSerializerSettings> JsonSerializerSettingsLazy = new Lazy<JsonSerializerSettings>(() => new JsonSerializerSettings());
 
         /// <summary>
         /// The cache configuration
         /// </summary>
         private readonly IConfiguration<RedisCacheConfigurationEntity> cacheConfiguration;
+
+        /// <summary>
+        /// The connection multiplexer
+        /// </summary>
+        private readonly ConnectionMultiplexer connectionMultiplexer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RedisCacheManager{T}" /> class.
@@ -78,15 +84,8 @@ namespace Rsft.Identity3.CacheRedis.Logic
             this.cacheConfiguration = cacheConfiguration;
 
             SerializerSettings.Converters.Add(ClaimConverter);
+            SerializerSettings.Converters.Add(ClientConverter);
         }
-
-        /// <summary>
-        /// Gets the serializer settings.
-        /// </summary>
-        /// <value>
-        /// The serializer settings.
-        /// </value>
-        private static JsonSerializerSettings SerializerSettings => JsonSerializerSettingsLazy.Value;
 
         /// <summary>
         /// Gets the claim converter.
@@ -97,27 +96,43 @@ namespace Rsft.Identity3.CacheRedis.Logic
         private static ClaimConverter ClaimConverter => ClaimConverterLazy.Value;
 
         /// <summary>
-        /// Gets the cache item asynchronously.
+        /// Gets the client converter.
+        /// </summary>
+        /// <value>
+        /// The client converter.
+        /// </value>
+        private static ClientConverter ClientConverter => ClientConverterLazy.Value;
+
+        /// <summary>
+        /// Gets the serializer settings.
+        /// </summary>
+        /// <value>
+        /// The serializer settings.
+        /// </value>
+        private static JsonSerializerSettings SerializerSettings => JsonSerializerSettingsLazy.Value;
+
+        /// <summary>
+        /// Deletes the asynchronous.
         /// </summary>
         /// <param name="key">The key.</param>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        public async Task<T> GetAsync(string key)
+        /// <returns>
+        /// The <see cref="T:System.Threading.Tasks.Task" />
+        /// </returns>
+        public async Task DeleteAsync(string key)
         {
-            var fqMethodLogName = LoggingNaming.GetFqMethodLogName(LoggingSourceNameBase, "GetAsync");
+            var fqMethodLogName = LoggingNaming.GetFqMethodLogName(LoggingSourceNameBase, "SetAsync");
 
             ActivityLoggingEventSource.Log.MethodEnter(fqMethodLogName);
 
             var database = this.connectionMultiplexer.GetDatabase();
             var s = this.GetKey(key);
 
-            var redisValue = default(RedisValue);
-
             try
             {
-                var stopwatch = Stopwatch.StartNew();
-                redisValue = await database.StringGetAsync(s).ConfigureAwait(false);
-                stopwatch.Stop();
-                ActivityLoggingEventSource.Log.TimerLogging(fqMethodLogName, stopwatch.ElapsedMilliseconds);
+                var stopWatch = Stopwatch.StartNew();
+                await database.KeyDeleteAsync(s).ConfigureAwait(false);
+                stopWatch.Stop();
+                ActivityLoggingEventSource.Log.TimerLogging(fqMethodLogName, stopWatch.ElapsedMilliseconds);
             }
             catch (AggregateException aggregateException)
             {
@@ -133,28 +148,7 @@ namespace Rsft.Identity3.CacheRedis.Logic
                 exception.Log();
             }
 
-            if (redisValue == RedisValue.Null
-                || redisValue == default(RedisValue)
-                || redisValue.IsNullOrEmpty
-                || !redisValue.HasValue)
-            {
-                ActivityLoggingEventSource.Log.CacheMiss(fqMethodLogName);
-                ActivityLoggingEventSource.Log.MethodExit(fqMethodLogName);
-                return default(T);
-            }
-
-            ActivityLoggingEventSource.Log.CacheHit(fqMethodLogName);
-
-            var s1 = redisValue.ToString();
-            var decompressOrNo = this.cacheConfiguration.Get.UseObjectCompression ? s1.Decompress() : s1;
-
-            ActivityLoggingEventSource.Log.CacheGetObject(fqMethodLogName, decompressOrNo);
-
-            var deserializedObject = JsonConvert.DeserializeObject<T>(decompressOrNo, SerializerSettings);
-
             ActivityLoggingEventSource.Log.MethodExit(fqMethodLogName);
-
-            return deserializedObject;
         }
 
         /// <summary>
@@ -218,6 +212,67 @@ namespace Rsft.Identity3.CacheRedis.Logic
             ActivityLoggingEventSource.Log.MethodExit(fqMethodLogName);
 
             return rtn;
+        }
+
+        /// <summary>
+        /// Gets the cache item asynchronously.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        public async Task<T> GetAsync(string key)
+        {
+            var fqMethodLogName = LoggingNaming.GetFqMethodLogName(LoggingSourceNameBase, "GetAsync");
+
+            ActivityLoggingEventSource.Log.MethodEnter(fqMethodLogName);
+
+            var database = this.connectionMultiplexer.GetDatabase();
+            var s = this.GetKey(key);
+
+            var redisValue = default(RedisValue);
+
+            try
+            {
+                var stopwatch = Stopwatch.StartNew();
+                redisValue = await database.StringGetAsync(s).ConfigureAwait(false);
+                stopwatch.Stop();
+                ActivityLoggingEventSource.Log.TimerLogging(fqMethodLogName, stopwatch.ElapsedMilliseconds);
+            }
+            catch (AggregateException aggregateException)
+            {
+                aggregateException.Handle(
+                    ae =>
+                    {
+                        ae.Log();
+                        return true;
+                    });
+            }
+            catch (Exception exception)
+            {
+                exception.Log();
+            }
+
+            if (redisValue == RedisValue.Null
+                || redisValue == default(RedisValue)
+                || redisValue.IsNullOrEmpty
+                || !redisValue.HasValue)
+            {
+                ActivityLoggingEventSource.Log.CacheMiss(fqMethodLogName);
+                ActivityLoggingEventSource.Log.MethodExit(fqMethodLogName);
+                return default(T);
+            }
+
+            ActivityLoggingEventSource.Log.CacheHit(fqMethodLogName);
+
+            var s1 = redisValue.ToString();
+            var decompressOrNo = this.cacheConfiguration.Get.UseObjectCompression ? s1.Decompress() : s1;
+
+            ActivityLoggingEventSource.Log.CacheGetObject(fqMethodLogName, decompressOrNo);
+
+            var deserializedObject = JsonConvert.DeserializeObject<T>(decompressOrNo, SerializerSettings);
+
+            ActivityLoggingEventSource.Log.MethodExit(fqMethodLogName);
+
+            return deserializedObject;
         }
 
         /// <summary>

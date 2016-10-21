@@ -35,11 +35,12 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic
     using NUnit.Framework;
     using StackExchange.Redis;
 
-    [Ignore("Enter your own Redis connection string. Tests verified passing 05/23/16, ROC")]
+    //    [Ignore("Enter your own Redis connection string. Tests verified passing 05/23/16, ROC")]
     [TestFixture]
     public class RedisCacheManagerTests : TestBase
     {
-        private const string RedisConnectionString = @"<INSERT CONNECTION STRING HERE>";
+        //    private const string RedisConnectionString = @"<INSERT CONNECTION STRING HERE>";
+        private const string RedisConnectionString = @"127.0.0.1:6379";
 
         private static readonly Lazy<ConnectionMultiplexer> ConnectionMuxLazy = new Lazy<ConnectionMultiplexer>(() => ConnectionMultiplexer.Connect(RedisConnectionString));
 
@@ -123,7 +124,7 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic
         {
             // arrange
             const string Key = @"SetAsync_WhenClientObject_ExpectSuccess";
-            var client = new Client { AllowedScopes = new List<string> { "scope 1", "scope 2" }, Enabled = true};
+            var client = new Client { AllowedScopes = new List<string> { "scope 1", "scope 2" }, Enabled = true };
 
             var timeSpan = TimeSpan.FromSeconds(10);
 
@@ -146,7 +147,7 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic
         {
             // arrange
             const string Key = @"SetAsync_WhenScopeObject_ExpectSuccess";
-            var scope = new Scope {Claims = new List<ScopeClaim> { new ScopeClaim(@"fdf") } };
+            var scope = new Scope { Claims = new List<ScopeClaim> { new ScopeClaim(@"fdf") } };
 
             var scopes = new List<Scope> { scope, scope, scope };
 
@@ -169,19 +170,16 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic
         [SetUp]
         public void Setup()
         {
-
         }
 
         [TearDown]
         public void TearDown()
         {
-
         }
 
         [TestFixtureSetUp]
         public void TestFixtureSetup()
         {
-
         }
 
         [TestFixtureTearDown]

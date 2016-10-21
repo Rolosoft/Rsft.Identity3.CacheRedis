@@ -32,11 +32,12 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration
     using NUnit.Framework;
     using StackExchange.Redis;
 
-    [Ignore("Supply a valid Redis connection string to test. Tests verified passing on 05/23/16 - ROC")]
+    //    [Ignore("Supply a valid Redis connection string to test. Tests verified passing on 05/23/16 - ROC")]
     [TestFixture]
     public class RedisCacheFactoryTests : TestBase
     {
-        private const string RedisConnectionString = @"<INSERT CONNECTION STRING HERE>";
+        //       private const string RedisConnectionString = @"<INSERT CONNECTION STRING HERE>";
+        private const string RedisConnectionString = @"127.0.0.1:6379";
 
         private static readonly Lazy<ConnectionMultiplexer> ConnectionMuxLazy = new Lazy<ConnectionMultiplexer>(() => ConnectionMultiplexer.Connect(RedisConnectionString));
 
@@ -95,25 +96,21 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration
             identityServerServiceFactory.ConfigureUserServiceCache(new Registration<ICache<IEnumerable<Claim>>>(userServiceCache));
 
             // assert
-
         }
 
         [SetUp]
         public void Setup()
         {
-
         }
 
         [TearDown]
         public void TearDown()
         {
-
         }
 
         [TestFixtureSetUp]
         public void TestFixtureSetup()
         {
-
         }
 
         [TestFixtureTearDown]

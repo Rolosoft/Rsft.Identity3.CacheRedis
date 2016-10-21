@@ -45,6 +45,14 @@ namespace Rsft.Identity3.CacheRedis.Entities
         public string RedisCacheDefaultPrefix { get; set; } = @"rsftid3cache";
 
         /// <summary>
+        /// Gets or sets the duration of the refresh token cache.
+        /// </summary>
+        /// <value>
+        /// The duration of the refresh token cache.
+        /// </value>
+        public int RefreshTokenCacheDuration { get; set; } = 60 * 60 * 3;
+
+        /// <summary>
         /// Gets or sets a value indicating whether to use compression to store objects in Redis.
         /// </summary>
         /// <value>

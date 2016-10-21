@@ -16,6 +16,7 @@
 namespace Rsft.Identity3.CacheRedis.Tests
 {
     using System;
+    using System.Diagnostics;
     using System.Diagnostics.Tracing;
     using Diagnostics.EventSources;
     using Microsoft.Practices.EnterpriseLibrary.SemanticLogging;
@@ -54,6 +55,15 @@ namespace Rsft.Identity3.CacheRedis.Tests
         protected static void WriteTimeElapsed(TimeSpan timerElapsed)
         {
             Console.WriteLine("Elapsed timer: {0}", timerElapsed);
+        }
+
+        /// <summary>
+        /// Writes the time elapsed.
+        /// </summary>
+        /// <param name="stopwatch">The stopwatch.</param>
+        protected void WriteTimeElapsed(Stopwatch stopwatch)
+        {
+            Console.WriteLine($"Elapsed timer: {stopwatch.ElapsedMilliseconds}ms ({stopwatch.Elapsed})");
         }
     }
 }

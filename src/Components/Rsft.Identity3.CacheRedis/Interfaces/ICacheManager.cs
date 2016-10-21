@@ -30,11 +30,11 @@ namespace Rsft.Identity3.CacheRedis.Interfaces
     internal interface ICacheManager<T>
     {
         /// <summary>
-        /// Gets the cache item asynchronously.
+        /// Deletes the asynchronous.
         /// </summary>
         /// <param name="key">The key.</param>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        Task<T> GetAsync(string key);
+        /// <returns>The <see cref="Task"/></returns>
+        Task DeleteAsync(string key);
 
         /// <summary>
         /// Gets all the cache items specified by keys asynchronously.
@@ -42,6 +42,13 @@ namespace Rsft.Identity3.CacheRedis.Interfaces
         /// <param name="keys">The keys.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         Task<IDictionary<string, T>> GetAllAsync(IEnumerable<string> keys);
+
+        /// <summary>
+        /// Gets the cache item asynchronously.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        Task<T> GetAsync(string key);
 
         /// <summary>
         /// Sets the asynchronous.

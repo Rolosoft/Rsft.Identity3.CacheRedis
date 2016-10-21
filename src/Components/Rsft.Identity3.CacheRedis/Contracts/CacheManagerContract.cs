@@ -30,15 +30,17 @@ namespace Rsft.Identity3.CacheRedis.Contracts
     internal abstract class CacheManagerContract<T> : ICacheManager<T>
     {
         /// <summary>
-        /// Gets the cache item asynchronously.
+        /// Deletes the asynchronous.
         /// </summary>
         /// <param name="key">The key.</param>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        public virtual Task<T> GetAsync(string key)
+        /// <returns>
+        /// The <see cref="T:System.Threading.Tasks.Task" />
+        /// </returns>
+        public virtual Task DeleteAsync(string key)
         {
             Contract.Requires(!string.IsNullOrWhiteSpace(key));
-            Contract.Ensures(Contract.Result<Task<T>>() != null);
-            return default(Task<T>);
+
+            return default(Task);
         }
 
         /// <summary>
@@ -49,9 +51,20 @@ namespace Rsft.Identity3.CacheRedis.Contracts
         public virtual Task<IDictionary<string, T>> GetAllAsync(IEnumerable<string> keys)
         {
             Contract.Requires(keys != null);
-            Contract.Ensures(Contract.Result<Task<IDictionary<string, T>>>() != null);
 
             return default(Task<IDictionary<string, T>>);
+        }
+
+        /// <summary>
+        /// Gets the cache item asynchronously.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        public virtual Task<T> GetAsync(string key)
+        {
+            Contract.Requires(!string.IsNullOrWhiteSpace(key));
+
+            return default(Task<T>);
         }
 
         /// <summary>
@@ -66,7 +79,7 @@ namespace Rsft.Identity3.CacheRedis.Contracts
         public virtual Task SetAsync(string key, T item, TimeSpan timeSpan)
         {
             Contract.Requires(!string.IsNullOrWhiteSpace(key));
-            Contract.Ensures(Contract.Result<Task>() != null);
+
             return default(Task);
         }
     }

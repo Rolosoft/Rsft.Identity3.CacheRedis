@@ -29,3 +29,4 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyInformationalVersion("1.0.0.0")]
 [assembly: CLSCompliant(false)]
 [assembly: InternalsVisibleTo("Rsft.Identity3.CacheRedis.Tests")]
+[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]

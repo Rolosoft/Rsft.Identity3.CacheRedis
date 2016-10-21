@@ -87,6 +87,10 @@
       <HintPath>..\..\packages\IdentityServer3.2.5.0\lib\net45\IdentityServer3.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Microsoft.Practices.EnterpriseLibrary.SemanticLogging, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\EnterpriseLibrary.SemanticLogging.2.0.1406.1\lib\net45\Microsoft.Practices.EnterpriseLibrary.SemanticLogging.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Microsoft.WindowsAzure.Configuration, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Microsoft.WindowsAzure.ConfigurationManager.3.2.1\lib\net40\Microsoft.WindowsAzure.Configuration.dll</HintPath>
       <Private>True</Private>
@@ -128,6 +132,8 @@
     <Compile Include="Diagnostics\EventSources\ExceptionLoggingEventSource.cs" />
     <Compile Include="Diagnostics\EventSources\ExceptionLoggingEventSourceCore.cs" />
     <Compile Include="Entities\Caches.cs" />
+    <Compile Include="Entities\Serialization\SimpleClaimsIdentity.cs" />
+    <Compile Include="Entities\Serialization\SimpleClaim.cs" />
     <Compile Include="Entities\RedisCacheConfigurationEntity.cs" />
     <Compile Include="Helpers\ExceptionLogging.cs" />
     <Compile Include="Helpers\LoggingNaming.cs" />
@@ -135,15 +141,25 @@
     <Compile Include="Interfaces\ICacheManager.cs" />
     <Compile Include="Contracts\CacheManagerContract.cs" />
     <Compile Include="Interfaces\IConfiguration.cs" />
-    <Compile Include="Logic\ClaimConverter.cs" />
+    <Compile Include="Logic\Mappers\ClaimMappers.cs" />
+    <Compile Include="Logic\Mappers\ClaimsIdentityMappers.cs" />
+    <Compile Include="Logic\Serialization\ClaimConverter.cs" />
     <Compile Include="Logic\RedisCacheConfigurationDefault.cs" />
     <Compile Include="Logic\RedisCacheManager.cs" />
+    <Compile Include="Logic\Serialization\ClaimsPrincipalConverter.cs" />
+    <Compile Include="Logic\Serialization\ClientConverter.cs" />
+    <Compile Include="Logic\Serialization\ScopeConverter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RedisCacheBase.cs" />
     <Compile Include="Contracts\RedisCacheBaseContract.cs" />
     <Compile Include="RedisCacheFactory.cs" />
+    <Compile Include="Stores\AuthorizationCodeStore.cs" />
+    <Compile Include="Stores\RefreshTokenStore.cs" />
+    <Compile Include="Stores\TokenHandleStore.cs" />
+    <Compile Include="RedisStoreBase.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="packages.config" />
     <AdditionalFiles Include="stylecop.json" />
     <None Include="Rsft.Identity3.CacheRedis.nuspec" />

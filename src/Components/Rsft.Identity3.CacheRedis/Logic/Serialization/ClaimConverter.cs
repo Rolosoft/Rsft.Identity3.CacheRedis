@@ -13,13 +13,13 @@
 // Copyright (c) Rolosoft Ltd. All rights reserved.
 // </copyright>
 
-namespace Rsft.Identity3.CacheRedis.Logic
+namespace Rsft.Identity3.CacheRedis.Logic.Serialization
 {
     using System;
     using System.Security.Claims;
-
+    using Entities.Serialization;
+    using Mappers;
     using Newtonsoft.Json;
-    using Newtonsoft.Json.Linq;
 
     /// <summary>
     /// The claim convertor for JSON.
@@ -35,13 +35,13 @@ namespace Rsft.Identity3.CacheRedis.Logic
         public override bool CanWrite => false;
 
         /// <summary>
-        /// Writes the JSON representation of the object.
+        /// Determines whether this instance can convert the specified object type.
         /// </summary>
-        /// <param name="writer">The <see cref="T:Newtonsoft.Json.JsonWriter"/> to write to.</param><param name="value">The value.</param><param name="serializer">The calling serializer.</param>
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
-        {
-            throw new NotImplementedException();
-        }
+        /// <param name="objectType">Type of the object.</param>
+        /// <returns>
+        /// <c>true</c> if this instance can convert the specified object type; otherwise, <c>false</c>.
+        /// </returns>
+        public override bool CanConvert(Type objectType) => objectType != null && (objectType == typeof(Claim));
 
         /// <summary>
         /// Reads the JSON representation of the object.
@@ -52,25 +52,36 @@ namespace Rsft.Identity3.CacheRedis.Logic
         /// </returns>
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
-            var jo = JObject.Load(reader);
-            var type = (string)jo["Type"];
-            var value = (string)jo["Value"];
-            var valueType = (string)jo["ValueType"];
-            var issuer = (string)jo["Issuer"];
-            var originalIssuer = (string)jo["OriginalIssuer"];
-            return new Claim(type, value, valueType, issuer, originalIssuer);
+            var source = serializer.Deserialize<SimpleClaim>(reader);
+            var target = new Claim(
+                source.Type,
+                source.Value,
+                source.ValueType,
+                source.Issuer,
+                source.OriginalIssuer,
+                source.Subject.To);
+            return target;
         }
 
         /// <summary>
-        /// Determines whether this instance can convert the specified object type.
+        /// Writes the JSON representation of the object.
         /// </summary>
-        /// <param name="objectType">Type of the object.</param>
-        /// <returns>
-        /// <c>true</c> if this instance can convert the specified object type; otherwise, <c>false</c>.
-        /// </returns>
-        public override bool CanConvert(Type objectType)
+        /// <param name="writer">The <see cref="T:Newtonsoft.Json.JsonWriter"/> to write to.</param><param name="value">The value.</param><param name="serializer">The calling serializer.</param>
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            return objectType != null && (objectType == typeof(Claim));
+            var source = (Claim)value;
+            var target = new SimpleClaim
+            {
+                Type = source.Type,
+                Value = source.Value,
+                Subject = source.Subject.ToSimpleEntity(),
+                Issuer = source.Issuer,
+                OriginalIssuer = source.OriginalIssuer,
+                Properties = source.Properties,
+                ValueType = source.ValueType
+            };
+
+            serializer.Serialize(writer, target);
         }
     }
 }
