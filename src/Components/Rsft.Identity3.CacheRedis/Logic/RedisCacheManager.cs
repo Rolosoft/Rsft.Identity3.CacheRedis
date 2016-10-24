@@ -28,7 +28,6 @@ namespace Rsft.Identity3.CacheRedis.Logic
     using Helpers;
     using Interfaces;
     using Newtonsoft.Json;
-    using Serialization;
     using StackExchange.Redis;
     using Util.Compression;
 
@@ -44,21 +43,6 @@ namespace Rsft.Identity3.CacheRedis.Logic
         private const string LoggingSourceNameBase = @"Rsft.Identity3.CacheRedis.Logic.RedisCacheManager";
 
         /// <summary>
-        /// The claim converter lazy
-        /// </summary>
-        private static readonly Lazy<ClaimConverter> ClaimConverterLazy = new Lazy<ClaimConverter>(() => new ClaimConverter());
-
-        /// <summary>
-        /// The client converter lazy
-        /// </summary>
-        private static readonly Lazy<ClientConverter> ClientConverterLazy = new Lazy<ClientConverter>(() => new ClientConverter());
-
-        /// <summary>
-        /// The json serializer settings lazy
-        /// </summary>
-        private static readonly Lazy<JsonSerializerSettings> JsonSerializerSettingsLazy = new Lazy<JsonSerializerSettings>(() => new JsonSerializerSettings());
-
-        /// <summary>
         /// The cache configuration
         /// </summary>
         private readonly IConfiguration<RedisCacheConfigurationEntity> cacheConfiguration;
@@ -69,47 +53,30 @@ namespace Rsft.Identity3.CacheRedis.Logic
         private readonly ConnectionMultiplexer connectionMultiplexer;
 
         /// <summary>
+        /// The json serializer settings
+        /// </summary>
+        private readonly JsonSerializerSettings jsonSerializerSettings;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="RedisCacheManager{T}" /> class.
         /// </summary>
         /// <param name="connectionMultiplexer">The connection multiplexer.</param>
         /// <param name="cacheConfiguration">The cache configuration.</param>
+        /// <param name="jsonSettingsFactory">The json settings factory.</param>
         public RedisCacheManager(
             ConnectionMultiplexer connectionMultiplexer,
-            IConfiguration<RedisCacheConfigurationEntity> cacheConfiguration)
+            IConfiguration<RedisCacheConfigurationEntity> cacheConfiguration,
+            IJsonSettingsFactory jsonSettingsFactory)
         {
             Contract.Requires(connectionMultiplexer != null);
             Contract.Requires(cacheConfiguration != null);
+            Contract.Requires(jsonSettingsFactory != null);
 
             this.connectionMultiplexer = connectionMultiplexer;
             this.cacheConfiguration = cacheConfiguration;
 
-            SerializerSettings.Converters.Add(ClaimConverter);
-            SerializerSettings.Converters.Add(ClientConverter);
+            this.jsonSerializerSettings = jsonSettingsFactory.Create(cacheConfiguration.Get.UseObjectCompression);
         }
-
-        /// <summary>
-        /// Gets the claim converter.
-        /// </summary>
-        /// <value>
-        /// The claim converter.
-        /// </value>
-        private static ClaimConverter ClaimConverter => ClaimConverterLazy.Value;
-
-        /// <summary>
-        /// Gets the client converter.
-        /// </summary>
-        /// <value>
-        /// The client converter.
-        /// </value>
-        private static ClientConverter ClientConverter => ClientConverterLazy.Value;
-
-        /// <summary>
-        /// Gets the serializer settings.
-        /// </summary>
-        /// <value>
-        /// The serializer settings.
-        /// </value>
-        private static JsonSerializerSettings SerializerSettings => JsonSerializerSettingsLazy.Value;
 
         /// <summary>
         /// Deletes the asynchronous.
@@ -196,7 +163,7 @@ namespace Rsft.Identity3.CacheRedis.Logic
 
                         var s = this.cacheConfiguration.Get.UseObjectCompression ? s1.Decompress() : s1;
 
-                        deserializedObject = JsonConvert.DeserializeObject<T>(s, SerializerSettings);
+                        deserializedObject = JsonConvert.DeserializeObject<T>(s, this.jsonSerializerSettings);
                     }
 
                     rtn.Add(redisKey, deserializedObject);
@@ -267,8 +234,9 @@ namespace Rsft.Identity3.CacheRedis.Logic
             var decompressOrNo = this.cacheConfiguration.Get.UseObjectCompression ? s1.Decompress() : s1;
 
             ActivityLoggingEventSource.Log.CacheGetObject(fqMethodLogName, decompressOrNo);
+            var x = typeof(T);
 
-            var deserializedObject = JsonConvert.DeserializeObject<T>(decompressOrNo, SerializerSettings);
+            var deserializedObject = JsonConvert.DeserializeObject<T>(decompressOrNo, this.jsonSerializerSettings);
 
             ActivityLoggingEventSource.Log.MethodExit(fqMethodLogName);
 
@@ -293,7 +261,7 @@ namespace Rsft.Identity3.CacheRedis.Logic
             var database = this.connectionMultiplexer.GetDatabase();
             var s = this.GetKey(key);
 
-            var serializeObject = JsonConvert.SerializeObject(item, SerializerSettings);
+            var serializeObject = JsonConvert.SerializeObject(item, this.jsonSerializerSettings);
 
             ActivityLoggingEventSource.Log.CacheSetObject(fqMethodLogName, serializeObject);
 

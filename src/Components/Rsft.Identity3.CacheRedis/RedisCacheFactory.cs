@@ -18,6 +18,7 @@ namespace Rsft.Identity3.CacheRedis
     using System;
     using System.Collections.Generic;
     using System.Security.Claims;
+    using System.Threading;
     using Caches;
     using Entities;
     using Helpers;
@@ -27,6 +28,7 @@ namespace Rsft.Identity3.CacheRedis
     using Logic;
     using Microsoft.Azure;
     using StackExchange.Redis;
+    using Stores;
 
     /// <summary>
     /// The Redis cache factory.
@@ -39,9 +41,9 @@ namespace Rsft.Identity3.CacheRedis
         private const string CloudConfigurationRedisConnectionStringKey = @"Rsft:Identity3:CacheConnectionString";
 
         /// <summary>
-        /// The caches lazy
+        /// The lazy caches
         /// </summary>
-        private static readonly Lazy<Entities.Caches> CachesLazy = new Lazy<Entities.Caches>(() => new Entities.Caches());
+        private static readonly Lazy<Entities.Caches> LazyCaches = new Lazy<Entities.Caches>(Initialize, LazyThreadSafetyMode.ExecutionAndPublication);
 
         /// <summary>
         /// The connection multiplexer lazy
@@ -54,49 +56,14 @@ namespace Rsft.Identity3.CacheRedis
         private static IConfiguration<RedisCacheConfigurationEntity> incomingConfiguration;
 
         /// <summary>
-        /// The incoming redis connection string
-        /// </summary>
-        private static string incomingRedisConnectionString;
-
-        /// <summary>
-        /// The configuration lazy
-        /// </summary>
-        private static Lazy<IConfiguration<RedisCacheConfigurationEntity>> configurationLazy;
-
-        /// <summary>
-        /// The cache client lazy
-        /// </summary>
-        private static Lazy<ICache<Client>> cacheClientLazy;
-
-        /// <summary>
-        /// The cache scope lazy
-        /// </summary>
-        private static Lazy<ICache<IEnumerable<Scope>>> cacheScopeLazy;
-
-        /// <summary>
-        /// The cache user service lazy
-        /// </summary>
-        private static Lazy<ICache<IEnumerable<Claim>>> cacheUserServiceLazy;
-
-        /// <summary>
-        /// The client cache manager lazy
-        /// </summary>
-        private static Lazy<ICacheManager<Client>> clientCacheManagerLazy;
-
-        /// <summary>
-        /// The scopes cache manager lazy
-        /// </summary>
-        private static Lazy<ICacheManager<IEnumerable<Scope>>> scopesCacheManagerLazy;
-
-        /// <summary>
-        /// The user service manager lazy
-        /// </summary>
-        private static Lazy<ICacheManager<IEnumerable<Claim>>> userServiceManagerLazy;
-
-        /// <summary>
         /// The incoming connection multiplexer
         /// </summary>
         private static ConnectionMultiplexer incomingConnectionMultiplexer;
+
+        /// <summary>
+        /// The incoming redis connection string
+        /// </summary>
+        private static string incomingRedisConnectionString;
 
         /// <summary>
         /// Gets the connection multiplexer.
@@ -117,8 +84,7 @@ namespace Rsft.Identity3.CacheRedis
                 {
                     try
                     {
-                        connectionMultiplexerLazy =
-                            new Lazy<ConnectionMultiplexer>(() => ConnectionMultiplexer.Connect(RedisConnectionString));
+                        connectionMultiplexerLazy = new Lazy<ConnectionMultiplexer>(() => ConnectionMultiplexer.Connect(RedisConnectionString));
                     }
                     catch (Exception exception)
                     {
@@ -178,81 +144,7 @@ namespace Rsft.Identity3.CacheRedis
         /// <value>
         /// The configuration.
         /// </value>
-        private static IConfiguration<RedisCacheConfigurationEntity> Configuration
-        {
-            get
-            {
-                /*Try incoming configuration*/
-                if (incomingConfiguration != null)
-                {
-                    return incomingConfiguration;
-                }
-
-                /*Use default config*/
-                if (configurationLazy == null)
-                {
-                    configurationLazy = new Lazy<IConfiguration<RedisCacheConfigurationEntity>>(() => new RedisCacheConfigurationDefault());
-                }
-
-                return configurationLazy.Value;
-            }
-        }
-
-        /// <summary>
-        /// Gets the cache manager client.
-        /// </summary>
-        /// <value>
-        /// The cache manager client.
-        /// </value>
-        private static ICacheManager<Client> CacheManagerClient => clientCacheManagerLazy.Value;
-
-        /// <summary>
-        /// Gets the cache manager scopes.
-        /// </summary>
-        /// <value>
-        /// The cache manager scopes.
-        /// </value>
-        private static ICacheManager<IEnumerable<Scope>> CacheManagerScopes => scopesCacheManagerLazy.Value;
-
-        /// <summary>
-        /// Gets the cache user service.
-        /// </summary>
-        /// <value>
-        /// The cache user service.
-        /// </value>
-        private static ICacheManager<IEnumerable<Claim>> CacheUserService => userServiceManagerLazy.Value;
-
-        /// <summary>
-        /// Gets the caches.
-        /// </summary>
-        /// <value>
-        /// The caches.
-        /// </value>
-        private static Entities.Caches Caches => CachesLazy.Value;
-
-        /// <summary>
-        /// Gets the cache client.
-        /// </summary>
-        /// <value>
-        /// The cache client.
-        /// </value>
-        private static ICache<Client> CacheClient => cacheClientLazy.Value;
-
-        /// <summary>
-        /// Gets the cache scope.
-        /// </summary>
-        /// <value>
-        /// The cache scope.
-        /// </value>
-        private static ICache<IEnumerable<Scope>> CacheScope => cacheScopeLazy.Value;
-
-        /// <summary>
-        /// Gets the cache users.
-        /// </summary>
-        /// <value>
-        /// The cache users.
-        /// </value>
-        private static ICache<IEnumerable<Claim>> CacheUsers => cacheUserServiceLazy.Value;
+        private static IConfiguration<RedisCacheConfigurationEntity> Configuration => incomingConfiguration ?? new RedisCacheConfigurationDefault();
 
         /// <summary>
         /// Creates the specified connection multiplexer.
@@ -262,60 +154,104 @@ namespace Rsft.Identity3.CacheRedis
         /// <param name="configuration">The configuration.</param>
         /// <returns>
         /// <see cref="Tuple" /> containing singleton instances of objects to be used with Identity Server.
-        /// <para>Item 1: Client store cache (<see cref="ICache{Client}" />)</para><para>Item 2: Scope store cache (<see cref="ICache{IEnumerable{Scope}}" />)</para><para>Item 3: User service cache (<see cref="ICache{IEnumerable{Claim}}" />)</para>
+        /// <para>Item 1: Client store cache (<see cref="ICache{T}" />)</para><para>Item 2: Scope store cache (<see cref="ICache{T}" />)</para><para>Item 3: User service cache (<see cref="ICache{T}" />)</para>
         /// </returns>
         public static Entities.Caches Create(
             string redisConnectionString = null,
             ConnectionMultiplexer connectionMultiplexer = null,
             IConfiguration<RedisCacheConfigurationEntity> configuration = null)
         {
-            incomingRedisConnectionString = redisConnectionString;
-            incomingConnectionMultiplexer = connectionMultiplexer;
-            incomingConfiguration = configuration;
+            if (incomingRedisConnectionString == null)
+            {
+                incomingRedisConnectionString = redisConnectionString;
+            }
 
-            Initialize();
+            if (incomingConnectionMultiplexer == null)
+            {
+                incomingConnectionMultiplexer = connectionMultiplexer;
+            }
 
-            Caches.ClientCache = CacheClient;
-            Caches.ScopesCache = CacheScope;
-            Caches.UserServiceCache = CacheUsers;
+            if (incomingConfiguration == null)
+            {
+                incomingConfiguration = configuration;
+            }
 
-            return Caches;
+            return LazyCaches.Value;
         }
 
         /// <summary>
         /// Initializes this instance.
         /// </summary>
-        private static void Initialize()
+        /// <returns>The <see cref="Caches"/></returns>
+        private static Entities.Caches Initialize()
         {
-            if (clientCacheManagerLazy == null)
-            {
-                clientCacheManagerLazy = new Lazy<ICacheManager<Client>>(() => new RedisCacheManager<Client>(ConnectionMultiplexer, Configuration));
-            }
+            var jsonSettingsFactory = new JsonSettingsFactory();
 
-            if (scopesCacheManagerLazy == null)
-            {
-                scopesCacheManagerLazy = new Lazy<ICacheManager<IEnumerable<Scope>>>(() => new RedisCacheManager<IEnumerable<Scope>>(ConnectionMultiplexer, Configuration));
-            }
+            var authorizationCacheManager = new RedisCacheManager<AuthorizationCode>(
+                ConnectionMultiplexer,
+                Configuration,
+                jsonSettingsFactory);
 
-            if (userServiceManagerLazy == null)
-            {
-                userServiceManagerLazy = new Lazy<ICacheManager<IEnumerable<Claim>>>(() => new RedisCacheManager<IEnumerable<Claim>>(ConnectionMultiplexer, Configuration));
-            }
+            var authorizationCodeStore = new AuthorizationCodeStore(
+                authorizationCacheManager,
+                Configuration);
 
-            if (cacheClientLazy == null)
-            {
-                cacheClientLazy = new Lazy<ICache<Client>>(() => new ClientStoreCache(CacheManagerClient, Configuration));
-            }
+            var clientCacheManager = new RedisCacheManager<Client>(
+                ConnectionMultiplexer,
+                Configuration,
+                jsonSettingsFactory);
 
-            if (cacheScopeLazy == null)
-            {
-                cacheScopeLazy = new Lazy<ICache<IEnumerable<Scope>>>(() => new ScopeStoreCache(CacheManagerScopes, Configuration));
-            }
+            var clientCache = new ClientStoreCache(
+                clientCacheManager,
+                Configuration);
 
-            if (cacheUserServiceLazy == null)
+            var refreshTokenCacheManager = new RedisCacheManager<RefreshToken>(
+                ConnectionMultiplexer,
+                Configuration,
+                jsonSettingsFactory);
+
+            var refreshTokenStore = new RefreshTokenStore(
+                refreshTokenCacheManager,
+                Configuration);
+
+            var scopeCacheManager = new RedisCacheManager<IEnumerable<Scope>>(
+                ConnectionMultiplexer,
+                Configuration,
+                jsonSettingsFactory);
+
+            var scopesCache = new ScopeStoreCache(
+                scopeCacheManager,
+                Configuration);
+
+            var redisHandleCacheManager = new RedisCacheManager<Token>(
+                ConnectionMultiplexer,
+                Configuration,
+                jsonSettingsFactory);
+
+            var tokenHandleStore = new RedisHandleStore(
+                redisHandleCacheManager,
+                Configuration);
+
+            var userServiceCacheManager = new RedisCacheManager<IEnumerable<Claim>>(
+                ConnectionMultiplexer,
+                Configuration,
+                jsonSettingsFactory);
+
+            var userServiceCache = new UserServiceCache(
+                userServiceCacheManager,
+                Configuration);
+
+            var caches = new Entities.Caches
             {
-                cacheUserServiceLazy = new Lazy<ICache<IEnumerable<Claim>>>(() => new UserServiceCache(CacheUserService, Configuration));
-            }
+                AuthorizationCodeStore = authorizationCodeStore,
+                ClientCache = clientCache,
+                RefreshTokenStore = refreshTokenStore,
+                ScopesCache = scopesCache,
+                TokenHandleStore = tokenHandleStore,
+                UserServiceCache = userServiceCache
+            };
+
+            return caches;
         }
     }
 }

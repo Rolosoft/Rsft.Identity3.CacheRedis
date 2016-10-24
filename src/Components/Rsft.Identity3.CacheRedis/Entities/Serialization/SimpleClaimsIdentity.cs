@@ -15,6 +15,7 @@
 namespace Rsft.Identity3.CacheRedis.Entities.Serialization
 {
     using System.Collections.Generic;
+    using Newtonsoft.Json;
 
     /// <summary>
     /// The Simple Claims Identity
@@ -22,48 +23,39 @@ namespace Rsft.Identity3.CacheRedis.Entities.Serialization
     internal sealed class SimpleClaimsIdentity
     {
         /// <summary>
-        /// Gets or sets the actor.
-        /// </summary>
-        public SimpleClaimsIdentity Actor { get; set; }
-
-        /// <summary>
         /// Gets or sets the type of the authentication.
         /// </summary>
+        [JsonProperty("at")]
         public string AuthenticationType { get; set; }
 
         /// <summary>
         /// Gets or sets the bootstrap context.
         /// </summary>
+        [JsonProperty("bc")]
         public object BootstrapContext { get; set; }
 
         /// <summary>
         /// Gets or sets the claims.
         /// </summary>
+        [JsonProperty("c")]
         public IEnumerable<SimpleClaim> Claims { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether this instance is authenticated.
-        /// </summary>
-        public bool IsAuthenticated { get; set; }
 
         /// <summary>
         /// Gets or sets the label.
         /// </summary>
+        [JsonProperty("l")]
         public string Label { get; set; }
-
-        /// <summary>
-        /// Gets or sets the name.
-        /// </summary>
-        public string Name { get; set; }
 
         /// <summary>
         /// Gets or sets the type of the name claim.
         /// </summary>
+        [JsonProperty("nct")]
         public string NameClaimType { get; set; }
 
         /// <summary>
         /// Gets or sets the type of the role claim.
         /// </summary>
+        [JsonProperty("rct")]
         public string RoleClaimType { get; set; }
     }
 }

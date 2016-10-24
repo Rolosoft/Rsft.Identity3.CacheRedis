@@ -31,6 +31,14 @@ namespace Rsft.Identity3.CacheRedis.Entities
     public sealed class Caches
     {
         /// <summary>
+        /// Gets the authorization code store.
+        /// </summary>
+        /// <value>
+        /// The authorization code store.
+        /// </value>
+        public IAuthorizationCodeStore AuthorizationCodeStore { get; internal set; }
+
+        /// <summary>
         /// Gets the client cache.
         /// </summary>
         /// <value>
@@ -39,12 +47,28 @@ namespace Rsft.Identity3.CacheRedis.Entities
         public ICache<Client> ClientCache { get; internal set; }
 
         /// <summary>
+        /// Gets the refresh token store.
+        /// </summary>
+        /// <value>
+        /// The refresh token store.
+        /// </value>
+        public IRefreshTokenStore RefreshTokenStore { get; internal set; }
+
+        /// <summary>
         /// Gets the scopes cache.
         /// </summary>
         /// <value>
         /// The scopes cache.
         /// </value>
         public ICache<IEnumerable<Scope>> ScopesCache { get; internal set; }
+
+        /// <summary>
+        /// Gets the token handle store.
+        /// </summary>
+        /// <value>
+        /// The token handle store.
+        /// </value>
+        public ITokenHandleStore TokenHandleStore { get; internal set; }
 
         /// <summary>
         /// Gets the user service cache.

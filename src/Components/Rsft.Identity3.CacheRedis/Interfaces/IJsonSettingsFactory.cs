@@ -9,23 +9,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// <copyright file="RedisCacheConfigurationDefault.cs" company="Rolosoft Ltd">
+// <copyright file="IJsonSettingsFactory.cs" company="Rolosoft Ltd">
 // Copyright (c) Rolosoft Ltd. All rights reserved.
 // </copyright>
-
-namespace Rsft.Identity3.CacheRedis.Logic
+namespace Rsft.Identity3.CacheRedis.Interfaces
 {
-    using Entities;
-    using Interfaces;
+    using Newtonsoft.Json;
 
     /// <summary>
-    /// The default configuration.
+    /// The Converter Factory
     /// </summary>
-    internal sealed class RedisCacheConfigurationDefault : IConfiguration<RedisCacheConfigurationEntity>
+    public interface IJsonSettingsFactory
     {
         /// <summary>
-        /// Gets the configuration.
+        /// Creates this instance.
         /// </summary>
-        public RedisCacheConfigurationEntity Get => new RedisCacheConfigurationEntity();
+        /// <param name="useCompression">if set to <c>true</c> [use compression].</param>
+        /// <returns>
+        /// The <see cref="JsonSerializerSettings" />
+        /// </returns>
+        JsonSerializerSettings Create(bool useCompression);
     }
 }

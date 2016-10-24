@@ -9,21 +9,42 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// <copyright file="ClientConverter.cs" company="Rolosoft Ltd">
+// <copyright file="GenericConverter.cs" company="Rolosoft Ltd">
 // Copyright (c) Rolosoft Ltd. All rights reserved.
 // </copyright>
 namespace Rsft.Identity3.CacheRedis.Logic.Serialization
 {
     using System;
-    using IdentityServer3.Core.Models;
+    using System.Diagnostics.Contracts;
+    using Interfaces;
     using Newtonsoft.Json;
 
     /// <summary>
-    /// The Client Converter
+    /// The Generic Converter
     /// </summary>
-    /// <seealso cref="JsonConverter" />
-    internal sealed class ClientConverter : JsonConverter
+    /// <typeparam name="TSimpleEntity">The type of the simple entity.</typeparam>
+    /// <typeparam name="TComplexEntity">The type of the complex entity.</typeparam>
+    /// <seealso cref="Newtonsoft.Json.JsonConverter" />
+    public sealed class GenericConverter<TSimpleEntity, TComplexEntity> : JsonConverter
+        where TSimpleEntity : class
+        where TComplexEntity : class
     {
+        /// <summary>
+        /// The mapper
+        /// </summary>
+        private readonly IMapper<TSimpleEntity, TComplexEntity> mapper;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GenericConverter{TSimpleEntity, TComplexEntity}"/> class.
+        /// </summary>
+        /// <param name="mapper">The mapper.</param>
+        public GenericConverter(IMapper<TSimpleEntity, TComplexEntity> mapper)
+        {
+            Contract.Requires(mapper != null);
+
+            this.mapper = mapper;
+        }
+
         /// <summary>
         /// Determines whether this instance can convert the specified object type.
         /// </summary>
@@ -31,7 +52,7 @@ namespace Rsft.Identity3.CacheRedis.Logic.Serialization
         /// <returns>
         /// <c>true</c> if this instance can convert the specified object type; otherwise, <c>false</c>.
         /// </returns>
-        public override bool CanConvert(Type objectType) => objectType != null && typeof(Client) == objectType;
+        public override bool CanConvert(Type objectType) => objectType != null && (objectType == typeof(TComplexEntity));
 
         /// <summary>
         /// Reads the JSON representation of the object.
@@ -43,9 +64,16 @@ namespace Rsft.Identity3.CacheRedis.Logic.Serialization
         /// <returns>
         /// The object value.
         /// </returns>
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override object ReadJson(
+            JsonReader reader,
+            Type objectType,
+            object existingValue,
+            JsonSerializer serializer)
         {
-            throw new NotImplementedException();
+            var source = serializer.Deserialize<TSimpleEntity>(reader);
+            var target = this.mapper.ToComplexEntity(source);
+
+            return target;
         }
 
         /// <summary>
@@ -56,7 +84,10 @@ namespace Rsft.Identity3.CacheRedis.Logic.Serialization
         /// <param name="serializer">The calling serializer.</param>
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            throw new NotImplementedException();
+            var source = (TComplexEntity)value;
+            var target = this.mapper.ToSimpleEntity(source);
+
+            serializer.Serialize(writer, target);
         }
     }
 }

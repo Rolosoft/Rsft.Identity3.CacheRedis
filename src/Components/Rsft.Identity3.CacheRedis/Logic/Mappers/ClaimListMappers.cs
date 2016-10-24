@@ -9,32 +9,47 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// <copyright file="ClaimMappers.cs" company="Rolosoft Ltd">
+// <copyright file="ClaimListMappers.cs" company="Rolosoft Ltd">
 // Copyright (c) Rolosoft Ltd. All rights reserved.
 // </copyright>
 namespace Rsft.Identity3.CacheRedis.Logic.Mappers
 {
+    using System.Collections.Generic;
+    using System.Diagnostics.Contracts;
+    using System.Linq;
     using System.Security.Claims;
     using Entities.Serialization;
+    using Interfaces;
 
     /// <summary>
     /// The Claim Mappers
     /// </summary>
-    internal sealed class ClaimMappers : BaseMapper<SimpleClaim, Claim>
+    internal sealed class ClaimListMappers : BaseMapper<IEnumerable<SimpleClaim>, IEnumerable<Claim>>
     {
+        /// <summary>
+        /// The claim mapper
+        /// </summary>
+        private readonly IMapper<SimpleClaim, Claim> claimMapper;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ClaimListMappers"/> class.
+        /// </summary>
+        /// <param name="claimMapper">The claim mapper.</param>
+        public ClaimListMappers(IMapper<SimpleClaim, Claim> claimMapper)
+        {
+            Contract.Requires(claimMapper != null);
+
+            this.claimMapper = claimMapper;
+        }
+
         /// <summary>
         /// To the simple entity.
         /// </summary>
         /// <param name="source">The source.</param>
         /// <returns>The <see cref="Claim"/></returns>
-        public override Claim ToComplexEntity(SimpleClaim source)
+        public override IEnumerable<Claim> ToComplexEntity(IEnumerable<SimpleClaim> source)
         {
-            if (source == null)
-            {
-                return null;
-            }
-
-            return new Claim(source.Type, source.Value, source.ValueType, source.Issuer, source.OriginalIssuer);
+            return source?.Select(r => this.claimMapper.ToComplexEntity(r)) ?? new List<Claim>();
         }
 
         /// <summary>
@@ -42,22 +57,9 @@ namespace Rsft.Identity3.CacheRedis.Logic.Mappers
         /// </summary>
         /// <param name="source">The source.</param>
         /// <returns>The <see cref="SimpleClaim"/></returns>
-        public override SimpleClaim ToSimpleEntity(Claim source)
+        public override IEnumerable<SimpleClaim> ToSimpleEntity(IEnumerable<Claim> source)
         {
-            if (source == null)
-            {
-                return null;
-            }
-
-            return new SimpleClaim
-            {
-                ValueType = source.ValueType,
-                Issuer = source.Issuer,
-                OriginalIssuer = source.OriginalIssuer,
-                Properties = source.Properties,
-                Type = source.Type,
-                Value = source.Value
-            };
+            return source?.Select(r => this.claimMapper.ToSimpleEntity(r)) ?? new List<SimpleClaim>();
         }
     }
 }

@@ -14,32 +14,50 @@
 // </copyright>
 namespace Rsft.Identity3.CacheRedis.Logic.Mappers
 {
-    using System.Collections.Generic;
-    using System.Linq;
+    using System.Diagnostics.Contracts;
     using System.Security.Claims;
     using Entities.Serialization;
+    using Interfaces;
 
     /// <summary>
     /// The Claims Identity Mappers
     /// </summary>
-    internal static class ClaimsIdentityMappers
+    internal sealed class ClaimsIdentityMappers : BaseMapper<SimpleClaimsIdentity, ClaimsIdentity>
     {
+        /// <summary>
+        /// The claim mapper
+        /// </summary>
+        private readonly IMapper<SimpleClaim, Claim> claimMapper;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ClaimsIdentityMappers"/> class.
+        /// </summary>
+        /// <param name="claimMapper">The claim mapper.</param>
+        public ClaimsIdentityMappers(IMapper<SimpleClaim, Claim> claimMapper)
+        {
+            Contract.Requires(claimMapper != null);
+
+            this.claimMapper = claimMapper;
+        }
+
         /// <summary>
         /// To the complex entity.
         /// </summary>
         /// <param name="source">The source.</param>
         /// <returns>The <see cref="ClaimsIdentity"/></returns>
-        public static ClaimsIdentity ToComplexEntity(this SimpleClaimsIdentity source)
+        public override ClaimsIdentity ToComplexEntity(SimpleClaimsIdentity source)
         {
             if (source == null)
             {
                 return null;
             }
 
-            return new ClaimsIdentity(source.Claims, source.AuthenticationType, source.NameClaimType, source.RoleClaimType)
+            var claims = this.claimMapper.ToComplexEntity(source.Claims);
+            //     var actor = this.ToComplexEntity(source.Actor);
+
+            return new ClaimsIdentity(claims, source.AuthenticationType, source.NameClaimType, source.RoleClaimType)
             {
-                Actor = source.Actor.ToComplexEntity(),
-                Claims = { },
+                //       Actor = actor,
                 BootstrapContext = source.BootstrapContext,
                 Label = source.Label
             };
@@ -50,29 +68,22 @@ namespace Rsft.Identity3.CacheRedis.Logic.Mappers
         /// </summary>
         /// <param name="source">The source.</param>
         /// <returns>The <see cref="SimpleClaimsIdentity"/></returns>
-        public static SimpleClaimsIdentity ToSimpleEntity(this ClaimsIdentity source)
+        public override SimpleClaimsIdentity ToSimpleEntity(ClaimsIdentity source)
         {
             if (source == null)
             {
                 return null;
             }
 
+            var claims = this.claimMapper.ToSimpleEntity(source.Claims);
+            //      var actor = this.ToSimpleEntity(source.Actor);
+
             return new SimpleClaimsIdentity
             {
-                Claims = source.Claims.ToSimpleEntity(),
-                Actor = source.Actor.ToSimpleEntity(),
+                Claims = claims,
+                //       Actor = actor,
                 AuthenticationType = source.AuthenticationType
             };
-        }
-
-        /// <summary>
-        /// To the simple entity.
-        /// </summary>
-        /// <param name="source">The source.</param>
-        /// <returns>The <see cref="SimpleClaimsIdentity"/></returns>
-        public static IEnumerable<SimpleClaimsIdentity> ToSimpleEntity(this IEnumerable<ClaimsIdentity> source)
-        {
-            return source?.Select(r => r.ToSimpleEntity());
         }
     }
 }

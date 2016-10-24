@@ -9,23 +9,35 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// <copyright file="RedisCacheConfigurationDefault.cs" company="Rolosoft Ltd">
+// <copyright file="JsonHelpers.cs" company="Rolosoft Ltd">
 // Copyright (c) Rolosoft Ltd. All rights reserved.
 // </copyright>
-
-namespace Rsft.Identity3.CacheRedis.Logic
+namespace Rsft.Identity3.CacheRedis.Helpers
 {
-    using Entities;
-    using Interfaces;
+    using Newtonsoft.Json;
 
     /// <summary>
-    /// The default configuration.
+    /// The JSON Helpers
     /// </summary>
-    internal sealed class RedisCacheConfigurationDefault : IConfiguration<RedisCacheConfigurationEntity>
+    public static class JsonHelpers
     {
         /// <summary>
-        /// Gets the configuration.
+        /// Safes the deserialize.
         /// </summary>
-        public RedisCacheConfigurationEntity Get => new RedisCacheConfigurationEntity();
+        /// <typeparam name="T">The Type</typeparam>
+        /// <param name="serializer">The serializer.</param>
+        /// <param name="reader">The reader.</param>
+        /// <returns>
+        /// The T
+        /// </returns>
+        public static T SafeDeserialize<T>(this JsonSerializer serializer, JsonReader reader)
+        {
+            if (reader == null)
+            {
+                return default(T);
+            }
+
+            return serializer.Deserialize<T>(reader);
+        }
     }
 }

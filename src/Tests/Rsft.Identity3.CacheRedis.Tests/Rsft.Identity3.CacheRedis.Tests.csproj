@@ -66,6 +66,10 @@
       <HintPath>..\..\packages\Owin.1.0\lib\net40\Owin.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Rsft.Util.Compression, Version=1.0.0.0, Culture=neutral, PublicKeyToken=d925e0ac39c57389, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Rsft.Util.Compression.1.0.0\lib\net45\Rsft.Util.Compression.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="StackExchange.Redis, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\packages\StackExchange.Redis.1.1.603\lib\net45\StackExchange.Redis.dll</HintPath>
       <Private>True</Private>
@@ -88,7 +92,11 @@
     <Compile Include="TestHelpers\RedisHelpers.cs" />
     <Compile Include="Unit\Diagnostics\EventSources\ActivityLoggingEventSourceTests.cs" />
     <Compile Include="Unit\Diagnostics\EventSources\ExceptionLoggingEventSourceTests.cs" />
+    <Compile Include="Unit\Logic\Mappers\ClaimsPrincipalMappersTests.cs" />
+    <Compile Include="Unit\Logic\Mappers\ClientMappersTests.cs" />
+    <Compile Include="Unit\Logic\Mappers\ScopeMappersTests.cs" />
     <Compile Include="Unit\Logic\Stores\AuthorizationCodeStoreTests.cs" />
+    <Compile Include="Unit\SizeTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

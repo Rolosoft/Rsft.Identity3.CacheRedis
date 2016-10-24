@@ -23,16 +23,18 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic.Stores
     using CacheRedis.Logic;
     using CacheRedis.Stores;
     using Entities;
+    using Entities.Serialization;
     using IdentityServer3.Core.Models;
     using Interfaces;
     using Moq;
+    using Newtonsoft.Json;
     using NUnit.Framework;
     using TestHelpers;
 
     /// <summary>
     /// The Authorization CodeStore Tests
     /// </summary>
-    /// <seealso cref="Rsft.Identity3.CacheRedis.Tests.TestBase" />
+    /// <seealso cref="TestBase" />
     [TestFixture]
     public sealed class AuthorizationCodeStoreTests : TestBase
     {
@@ -43,29 +45,31 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic.Stores
         public void GetAsync_WhenCalled_ExpectResponse()
         {
             // Arrange
-            var cacheConfiguration = new RedisCacheConfigurationDefault
-            {
-                Get =
+            var mockCacheConfiguration = new Mock<IConfiguration<RedisCacheConfigurationEntity>>();
+            mockCacheConfiguration.Setup(r => r.Get).Returns(
+                new RedisCacheConfigurationEntity
                 {
                     CacheDuration = 10,
                     RefreshTokenCacheDuration = 10,
                     RedisCacheDefaultPrefix = "DEFAULT",
                     UseObjectCompression = false
-                }
-            };
+                });
+
+            var jsonSettingsFactory = new JsonSettingsFactory();
 
             var cacheManager = new RedisCacheManager<AuthorizationCode>(
                 RedisHelpers.ConnectionMultiplexer,
-                cacheConfiguration);
+                mockCacheConfiguration.Object,
+                jsonSettingsFactory);
 
             var authorizationCodeStore = new AuthorizationCodeStore(
                 cacheManager,
-                cacheConfiguration);
+                mockCacheConfiguration.Object);
 
             // Act
             var stopwatch = Stopwatch.StartNew();
 
-            var authorizationCode = authorizationCodeStore.GetAsync("string").Result;
+            var authorizationCode = authorizationCodeStore.GetAsync("Existing").Result;
 
             stopwatch.Stop();
 
@@ -73,6 +77,8 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic.Stores
             this.WriteTimeElapsed(stopwatch);
 
             Assert.That(authorizationCode, Is.Not.Null);
+
+            Assert.That(authorizationCode.Client, Is.Not.Null);
         }
 
         /// <summary>
@@ -154,29 +160,32 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic.Stores
                 }
             };
 
+            var jsonSettingsFactory = new JsonSettingsFactory();
+
             var cacheManager = new RedisCacheManager<AuthorizationCode>(
                 RedisHelpers.ConnectionMultiplexer,
-                cacheConfiguration);
+                cacheConfiguration,
+                jsonSettingsFactory);
 
             var authorizationCodeStore = new AuthorizationCodeStore(
                 cacheManager,
                 cacheConfiguration);
 
-            var subClaim = new Claim("sub", "kyle@tester.com");
-            var emailClaim = new Claim("email", "kyle@tester.com");
+            var claim1 = new Claim("claim1", "test@emailippo.com");
+            var claim2 = new Claim("claim2", "simon@emailhippo.com");
             var code = new AuthorizationCode
             {
                 Client = new Client
                 {
                     ClientId = "cid"
                 },
-                RequestedScopes = new List<Scope> { new Scope { Description = "this is description", Enabled = true, Name = "sname", DisplayName = "This is Name!" } },
-                Subject = new ClaimsPrincipal(new ClaimsIdentity(new List<Claim> { subClaim, emailClaim }))
+                RequestedScopes = new List<Scope> { new Scope { Description = "this is description", Enabled = true, Name = "Scope", DisplayName = "Display Name" } },
+                Subject = new ClaimsPrincipal(new ClaimsIdentity(new List<Claim> { claim1, claim2 }))
             };
 
             // Act
             var stopwatch = Stopwatch.StartNew();
-            authorizationCodeStore.StoreAsync("string", code).Wait();
+            authorizationCodeStore.StoreAsync("KeyToStore", code).Wait();
             stopwatch.Stop();
 
             // Assert
@@ -191,9 +200,25 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic.Stores
         {
             var database = RedisHelpers.ConnectionMultiplexer.GetDatabase();
 
-            var authorizationCode = new AuthorizationCode { RedirectUri = "Redirect" };
+            var claim1 = new SimpleClaim { Type = "claim1", Value = "test@emailippo.com" };
+            var claim2 = new SimpleClaim { Type = "claim2", Value = "simon@emailhippo.com" };
+            var code = new SimpleAuthorizationCode
+            {
+                Client = new SimpleClient
+                {
+                    ClientId = "cid"
+                },
+                RequestedScopes = new List<SimpleScope> { new SimpleScope { Description = "this is description", Enabled = true, Name = "Scope", DisplayName = "Display Name" } },
+                Subject = new SimpleClaimsPrincipal
+                {
+                    Claims = new List<SimpleClaim> { claim1, claim2 },
+                    Identities = new List<SimpleClaimsIdentity> { new SimpleClaimsIdentity { Claims = new List<SimpleClaim>() } }
+                },
+            };
 
-            database.StringSet("DEFAULT_ACS_Existing", "{RedirectUri: 'Redirect'}");
+            var settings = new JsonSettingsFactory().Create(false);
+
+            database.StringSet("DEFAULT_ACS_Existing", JsonConvert.SerializeObject(code, settings));
         }
 
         /// <summary>
@@ -205,6 +230,7 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic.Stores
             var database = RedisHelpers.ConnectionMultiplexer.GetDatabase();
 
             database.KeyDelete("DEFAULT_ACS_Existing");
+            database.KeyDelete("DEFAULT_ACS_KeyToStore");
         }
     }
 }

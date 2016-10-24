@@ -18,6 +18,7 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic
     using System;
     using System.Collections.Generic;
     using System.Diagnostics.Tracing;
+    using System.Linq;
     using System.Security.Claims;
     using System.Threading.Tasks;
 
@@ -77,17 +78,30 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic
             var timeSpan = TimeSpan.FromSeconds(10);
 
             var mockConfiguration = new Mock<IConfiguration<RedisCacheConfigurationEntity>>();
-            mockConfiguration.Setup(r => r.Get).Returns(() => new RedisCacheConfigurationEntity { CacheDuration = 3600, UseObjectCompression = true, RedisCacheDefaultPrefix = @"RedisCacheManagerTests" });
+            mockConfiguration.Setup(r => r.Get)
+                .Returns(
+                    () =>
+                        new RedisCacheConfigurationEntity
+                        {
+                            CacheDuration = 3600,
+                            UseObjectCompression = true,
+                            RedisCacheDefaultPrefix = @"RedisCacheManagerTests"
+                        });
+
+            var jsonSettingsFactory = new JsonSettingsFactory();
 
             // act
-            var redisCacheManager = new RedisCacheManager<IEnumerable<Claim>>(Singleton, mockConfiguration.Object);
+            var redisCacheManager = new RedisCacheManager<IEnumerable<Claim>>(
+                Singleton,
+                mockConfiguration.Object,
+                jsonSettingsFactory);
             redisCacheManager.SetAsync(Key, claims, timeSpan).Wait();
 
-            var result = redisCacheManager.GetAsync(Key).Result;
+            var result = redisCacheManager.GetAsync(Key).Result.ToList();
 
             // assert
             Console.WriteLine(@"Fetched From Cache:{0}", JsonConvert.SerializeObject(result));
-            Assert.That(result.GetType() == typeof(List<Claim>));
+            Assert.That(result.GetType(), Is.EqualTo(typeof(List<Claim>)));
         }
 
         [Test]
@@ -105,8 +119,13 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic
             var mockConfiguration = new Mock<IConfiguration<RedisCacheConfigurationEntity>>();
             mockConfiguration.Setup(r => r.Get).Returns(() => new RedisCacheConfigurationEntity { CacheDuration = 3600, UseObjectCompression = true, RedisCacheDefaultPrefix = @"RedisCacheManagerTests" });
 
+            var mockJsonSettingsFactory = new Mock<IJsonSettingsFactory>();
+
             // act
-            var redisCacheManager = new RedisCacheManager<IEnumerable<Claim>>(Singleton, mockConfiguration.Object);
+            var redisCacheManager = new RedisCacheManager<IEnumerable<Claim>>(
+                Singleton,
+                mockConfiguration.Object,
+                mockJsonSettingsFactory.Object);
             redisCacheManager.SetAsync(Key, claims, timeSpan).Wait();
 
             /*Wait 6 seconds for expiry*/
@@ -131,8 +150,13 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic
             var mockConfiguration = new Mock<IConfiguration<RedisCacheConfigurationEntity>>();
             mockConfiguration.Setup(r => r.Get).Returns(() => new RedisCacheConfigurationEntity { CacheDuration = 3600, UseObjectCompression = true, RedisCacheDefaultPrefix = @"RedisCacheManagerTests" });
 
+            var mockJsonSettingsFactory = new Mock<IJsonSettingsFactory>();
+
             // act
-            var redisCacheManager = new RedisCacheManager<Client>(Singleton, mockConfiguration.Object);
+            var redisCacheManager = new RedisCacheManager<Client>(
+                Singleton,
+                mockConfiguration.Object,
+                mockJsonSettingsFactory.Object);
             redisCacheManager.SetAsync(Key, client, timeSpan).Wait();
 
             var result = redisCacheManager.GetAsync(Key).Result;
@@ -156,8 +180,13 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic
             var mockConfiguration = new Mock<IConfiguration<RedisCacheConfigurationEntity>>();
             mockConfiguration.Setup(r => r.Get).Returns(() => new RedisCacheConfigurationEntity { CacheDuration = 3600, UseObjectCompression = true, RedisCacheDefaultPrefix = @"RedisCacheManagerTests" });
 
+            var mockJsonSettingsFactory = new Mock<IJsonSettingsFactory>();
+
             // act
-            var redisCacheManager = new RedisCacheManager<IEnumerable<Scope>>(Singleton, mockConfiguration.Object);
+            var redisCacheManager = new RedisCacheManager<IEnumerable<Scope>>(
+                Singleton,
+                mockConfiguration.Object,
+                mockJsonSettingsFactory.Object);
             redisCacheManager.SetAsync(Key, scopes, timeSpan).Wait();
 
             var result = redisCacheManager.GetAsync(Key).Result;

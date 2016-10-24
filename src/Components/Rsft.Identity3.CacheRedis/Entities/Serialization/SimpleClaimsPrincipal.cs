@@ -9,23 +9,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// <copyright file="RedisCacheConfigurationDefault.cs" company="Rolosoft Ltd">
+// <copyright file="SimpleClaimsPrincipal.cs" company="Rolosoft Ltd">
 // Copyright (c) Rolosoft Ltd. All rights reserved.
 // </copyright>
-
-namespace Rsft.Identity3.CacheRedis.Logic
+namespace Rsft.Identity3.CacheRedis.Entities.Serialization
 {
-    using Entities;
-    using Interfaces;
+    using System.Collections.Generic;
+    using Newtonsoft.Json;
 
     /// <summary>
-    /// The default configuration.
+    /// The Simple Claims Principal
     /// </summary>
-    internal sealed class RedisCacheConfigurationDefault : IConfiguration<RedisCacheConfigurationEntity>
+    internal sealed class SimpleClaimsPrincipal
     {
         /// <summary>
-        /// Gets the configuration.
+        /// Gets or sets the claims.
         /// </summary>
-        public RedisCacheConfigurationEntity Get => new RedisCacheConfigurationEntity();
+        [JsonProperty("c")]
+        public IEnumerable<SimpleClaim> Claims { get; set; }
+
+        /// <summary>
+        /// Gets or sets the identities.
+        /// </summary>
+        [JsonProperty("i")]
+        public IEnumerable<SimpleClaimsIdentity> Identities { get; set; }
     }
 }
