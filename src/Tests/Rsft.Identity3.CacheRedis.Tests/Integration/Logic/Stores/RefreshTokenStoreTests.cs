@@ -21,7 +21,6 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic.Stores
     using CacheRedis.Logic;
     using CacheRedis.Stores;
     using Entities;
-    using Entities.Serialization;
     using IdentityServer3.Core.Models;
     using Interfaces;
     using Moq;
@@ -77,7 +76,7 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic.Stores
             Assert.That(refreshToken.Subject, Is.Not.Null);
             Assert.That(refreshToken.AccessToken, Is.Not.Null);
             Assert.That(refreshToken.CreationTime, Is.EqualTo(new DateTimeOffset(new DateTime(2016, 1, 1))));
-            Assert.That(refreshToken.LifeTime, Is.EqualTo(1));
+            Assert.That(refreshToken.LifeTime, Is.EqualTo(1600));
             Assert.That(refreshToken.Scopes, Is.Not.Null);
             Assert.That(refreshToken.Version, Is.EqualTo(1));
         }
@@ -153,11 +152,14 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic.Stores
 
             var refreshToken = new RefreshToken
             {
-                Subject = new ClaimsPrincipal(),
-                AccessToken = new Token(),
+                AccessToken = new Token
+                {
+                    Client = new Client { ClientId = "cid", },
+                    Claims = new List<Claim> { new Claim("SubjectId", "sid") }
+                },
                 CreationTime = new DateTimeOffset(new DateTime(2016, 1, 1)),
                 LifeTime = 1600,
-                Version = 1
+                Version = 1,
             };
 
             // Act
@@ -182,13 +184,17 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic.Stores
         {
             var database = RedisHelpers.ConnectionMultiplexer.GetDatabase();
 
-            var refreshToken = new SimpleRefreshToken
+            var refreshToken = new RefreshToken
             {
-                Subject = new SimpleClaimsPrincipal { Identities = new List<SimpleClaimsIdentity>() },
+                AccessToken = new Token
+                {
+                    Client = new Client { ClientId = "cid", },
+                    Claims = new List<Claim> { new Claim("SubjectId", "sid") }
+                },
                 CreationTime = new DateTimeOffset(new DateTime(2016, 1, 1)),
-                AccessToken = new SimpleToken { Claims = new List<SimpleClaim>(), Client = new SimpleClient(), },
+                LifeTime = 1600,
                 Version = 1,
-                LifeTime = 1
+                Subject = new ClaimsPrincipal()
             };
 
             var settings = new JsonSettingsFactory().Create(false);

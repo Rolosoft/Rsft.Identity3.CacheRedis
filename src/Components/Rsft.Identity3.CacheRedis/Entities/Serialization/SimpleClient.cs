@@ -21,7 +21,7 @@ namespace Rsft.Identity3.CacheRedis.Entities.Serialization
     /// <summary>
     /// The Simple Client
     /// </summary>
-    internal sealed class SimpleClient
+    internal sealed class SimpleClient : Client
     {
         /// <summary>
         /// Gets or sets the absolute refresh token lifetime.

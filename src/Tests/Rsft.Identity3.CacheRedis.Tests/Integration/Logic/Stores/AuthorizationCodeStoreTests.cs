@@ -23,7 +23,7 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic.Stores
     using CacheRedis.Logic;
     using CacheRedis.Stores;
     using Entities;
-    using Entities.Serialization;
+    using IdentityServer3.Core;
     using IdentityServer3.Core.Models;
     using Interfaces;
     using Moq;
@@ -167,8 +167,17 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic.Stores
                 cacheManager,
                 mockCacheConfiguration.Object);
 
-            var claim1 = new Claim("claim1", "test@emailippo.com");
-            var claim2 = new Claim("claim2", "simon@emailhippo.com");
+            var subject =
+                new ClaimsPrincipal(
+                    new List<ClaimsIdentity>
+                    {
+                        new ClaimsIdentity(
+                            new List<Claim>
+                            {
+                                new Claim(Constants.ClaimTypes.Subject, "sid")
+                            })
+                    });
+
             var code = new AuthorizationCode
             {
                 Client = new Client
@@ -176,7 +185,7 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic.Stores
                     ClientId = "cid"
                 },
                 RequestedScopes = new List<Scope> { new Scope { Description = "this is description", Enabled = true, Name = "Scope", DisplayName = "Display Name" } },
-                Subject = new ClaimsPrincipal(new ClaimsIdentity(new List<Claim> { claim1, claim2 }))
+                Subject = subject
             };
 
             // Act
@@ -201,16 +210,27 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic.Stores
         {
             var database = RedisHelpers.ConnectionMultiplexer.GetDatabase();
 
-            var code = new SimpleAuthorizationCode
+            var subject =
+                new ClaimsPrincipal(
+                    new List<ClaimsIdentity>
+                    {
+                        new ClaimsIdentity(
+                            new List<Claim>
+                            {
+                                new Claim(Constants.ClaimTypes.Subject, "sid")
+                            })
+                    });
+
+            var code = new AuthorizationCode
             {
-                Client = new SimpleClient
+                Client = new Client
                 {
                     ClientId = "cid"
                 },
                 RequestedScopes =
-                    new List<SimpleScope>
+                    new List<Scope>
                     {
-                        new SimpleScope
+                        new Scope
                         {
                             Description = "this is description",
                             Enabled = true,
@@ -218,10 +238,7 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic.Stores
                             DisplayName = "Display Name"
                         }
                     },
-                Subject = new SimpleClaimsPrincipal
-                {
-                    Identities = new List<SimpleClaimsIdentity> { new SimpleClaimsIdentity { Claims = new List<SimpleClaim>() } }
-                },
+                Subject = subject,
                 CodeChallenge = "CodeChallenge",
                 CodeChallengeMethod = "CodeChallengeMethod",
                 CreationTime = new DateTimeOffset(new DateTime(2016, 1, 1)),

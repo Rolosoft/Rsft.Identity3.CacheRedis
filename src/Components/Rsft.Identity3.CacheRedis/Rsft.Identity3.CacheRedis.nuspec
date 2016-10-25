@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<package >
+<package>
   <metadata>
     <id>$id$</id>
     <version>$version$</version>
@@ -12,7 +12,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <summary>Redis Cache for Identity Server 3</summary>
     <description>$description$</description>
-    <releaseNotes>Minor updates to XML docs and TimeSpan init.</releaseNotes>
+    <releaseNotes>Added in new Token stores, and some work on the serialization to support this.</releaseNotes>
     <copyright>Copyright Rolosoft 2016</copyright>
     <language>en-US</language>
     <tags>IdentityServer Redis</tags>
@@ -27,7 +27,7 @@
     </frameworkAssemblies>
   </metadata>
   <files>
-    <file src="bin\$configuration$\$id$.xml" target="lib\net452"/>
+    <file src="bin\$configuration$\$id$.xml" target="lib\net452" />
     <file src="readme.txt" target="" />
   </files>
 </package>
