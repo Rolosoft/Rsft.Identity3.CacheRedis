@@ -132,6 +132,7 @@
     <Compile Include="Diagnostics\EventSources\ExceptionLoggingEventSource.cs" />
     <Compile Include="Diagnostics\EventSources\ExceptionLoggingEventSourceCore.cs" />
     <Compile Include="Entities\Caches.cs" />
+    <Compile Include="Entities\Serialization\SimpleRefreshToken.cs" />
     <Compile Include="Entities\Serialization\SimpleAuthorizationCode.cs" />
     <Compile Include="Entities\Serialization\SimpleClaimsIdentity.cs" />
     <Compile Include="Entities\Serialization\SimpleClaim.cs" />
@@ -139,6 +140,8 @@
     <Compile Include="Entities\Serialization\SimpleClaimsPrincipal.cs" />
     <Compile Include="Entities\Serialization\SimpleClient.cs" />
     <Compile Include="Entities\Serialization\SimpleScope.cs" />
+    <Compile Include="Entities\Serialization\SimpleToken.cs" />
+    <Compile Include="Helpers\CacheHelpers.cs" />
     <Compile Include="Helpers\ExceptionLogging.cs" />
     <Compile Include="Helpers\JsonHelpers.cs" />
     <Compile Include="Helpers\LoggingNaming.cs" />
@@ -151,12 +154,13 @@
     <Compile Include="Logic\JsonSettingsFactory.cs" />
     <Compile Include="Logic\Mappers\AuthorizationCodeMappers.cs" />
     <Compile Include="Logic\Mappers\BaseMapper.cs" />
-    <Compile Include="Logic\Mappers\ClaimListMappers.cs" />
     <Compile Include="Logic\Mappers\ClaimMappers.cs" />
     <Compile Include="Logic\Mappers\ClaimsIdentityMappers.cs" />
     <Compile Include="Logic\Mappers\ClaimsPrincipalMappers.cs" />
     <Compile Include="Logic\Mappers\ClientMappers.cs" />
+    <Compile Include="Logic\Mappers\RefreshTokenMappers.cs" />
     <Compile Include="Logic\Mappers\ScopeMappers.cs" />
+    <Compile Include="Logic\Mappers\TokenMapper.cs" />
     <Compile Include="Logic\RedisCacheConfigurationDefault.cs" />
     <Compile Include="Logic\RedisCacheManager.cs" />
     <Compile Include="Logic\Serialization\GenericConverter.cs" />

@@ -30,11 +30,6 @@ namespace Rsft.Identity3.CacheRedis.Logic.Mappers
         private readonly IMapper<SimpleClaimsIdentity, ClaimsIdentity> claimsIdentityMapper;
 
         /// <summary>
-        /// The claims mapper
-        /// </summary>
-        private readonly IMapper<SimpleClaim, Claim> claimsMapper;
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="ClaimsPrincipalMappers" /> class.
         /// </summary>
         /// <param name="claimsIdentityMapper">The claims identity mapper.</param>

@@ -12,7 +12,6 @@
 // <copyright file="RedisCacheManagerTests.cs" company="Rolosoft Ltd">
 // Copyright (c) Rolosoft Ltd. All rights reserved.
 // </copyright>
-
 namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic
 {
     using System;
@@ -34,17 +33,19 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic
     using Newtonsoft.Json;
 
     using NUnit.Framework;
-    using StackExchange.Redis;
+    using TestHelpers;
 
-    //    [Ignore("Enter your own Redis connection string. Tests verified passing 05/23/16, ROC")]
+    /// <summary>
+    /// The Redis Cache Manager Tests
+    /// </summary>
+    /// <seealso cref="TestBase" />
     [TestFixture]
+    [Ignore("Set REDIS Connection string in TestHelpers.RedisHelpers to your local dev store")]
     public class RedisCacheManagerTests : TestBase
     {
-        //    private const string RedisConnectionString = @"<INSERT CONNECTION STRING HERE>";
-        private const string RedisConnectionString = @"127.0.0.1:6379";
-
-        private static readonly Lazy<ConnectionMultiplexer> ConnectionMuxLazy = new Lazy<ConnectionMultiplexer>(() => ConnectionMultiplexer.Connect(RedisConnectionString));
-
+        /// <summary>
+        /// The activity event listener
+        /// </summary>
         private static ObservableEventListener activityEventListener;
 
         /// <summary>
@@ -58,13 +59,8 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic
         }
 
         /// <summary>
-        /// Gets the singleton.
+        /// Sets the asynchronous when claim object expect success.
         /// </summary>
-        /// <value>
-        /// The singleton.
-        /// </value>
-        private static ConnectionMultiplexer Singleton => ConnectionMuxLazy.Value;
-
         [Test]
         public void SetAsync_WhenClaimObject_ExpectSuccess()
         {
@@ -92,7 +88,7 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic
 
             // act
             var redisCacheManager = new RedisCacheManager<IEnumerable<Claim>>(
-                Singleton,
+                RedisHelpers.ConnectionMultiplexer,
                 mockConfiguration.Object,
                 jsonSettingsFactory);
             redisCacheManager.SetAsync(Key, claims, timeSpan).Wait();
@@ -123,7 +119,7 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic
 
             // act
             var redisCacheManager = new RedisCacheManager<IEnumerable<Claim>>(
-                Singleton,
+                RedisHelpers.ConnectionMultiplexer,
                 mockConfiguration.Object,
                 mockJsonSettingsFactory.Object);
             redisCacheManager.SetAsync(Key, claims, timeSpan).Wait();
@@ -154,7 +150,7 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic
 
             // act
             var redisCacheManager = new RedisCacheManager<Client>(
-                Singleton,
+                RedisHelpers.ConnectionMultiplexer,
                 mockConfiguration.Object,
                 mockJsonSettingsFactory.Object);
             redisCacheManager.SetAsync(Key, client, timeSpan).Wait();
@@ -184,7 +180,7 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic
 
             // act
             var redisCacheManager = new RedisCacheManager<IEnumerable<Scope>>(
-                Singleton,
+                RedisHelpers.ConnectionMultiplexer,
                 mockConfiguration.Object,
                 mockJsonSettingsFactory.Object);
             redisCacheManager.SetAsync(Key, scopes, timeSpan).Wait();
@@ -215,13 +211,6 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic
         public void TestFixtureTearDown()
         {
             activityEventListener.DisableEvents(ActivityLoggingEventSource.Log);
-
-            try
-            {
-                Singleton.Close();
-                Singleton.Dispose();
-            }
-            catch (Exception) { }
 
             activityEventListener.Dispose();
         }

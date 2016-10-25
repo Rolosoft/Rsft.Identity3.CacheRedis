@@ -70,6 +70,8 @@ namespace Rsft.Identity3.CacheRedis.Logic
             var claimsIdentityMapper = new ClaimsIdentityMappers(claimMapper);
             var claimsPrincipalMapper = new ClaimsPrincipalMappers(claimsIdentityMapper);
             var authorizationCodeMapper = new AuthorizationCodeMappers(claimsPrincipalMapper, clientMapper, scopeMapper);
+            var tokenMapper = new TokenMapper(claimMapper, clientMapper);
+            var refreshTokenMapper = new RefreshTokenMappers(claimsPrincipalMapper, tokenMapper);
 
             settings.Converters.Add(new GenericConverter<SimpleAuthorizationCode, AuthorizationCode>(authorizationCodeMapper));
             settings.Converters.Add(new GenericConverter<SimpleClaim, Claim>(claimMapper));
@@ -77,6 +79,8 @@ namespace Rsft.Identity3.CacheRedis.Logic
             settings.Converters.Add(new GenericConverter<SimpleClaimsPrincipal, ClaimsPrincipal>(claimsPrincipalMapper));
             settings.Converters.Add(new GenericConverter<SimpleClient, Client>(clientMapper));
             settings.Converters.Add(new GenericConverter<SimpleScope, Scope>(scopeMapper));
+            settings.Converters.Add(new GenericConverter<SimpleRefreshToken, RefreshToken>(refreshTokenMapper));
+            settings.Converters.Add(new GenericConverter<SimpleToken, Token>(tokenMapper));
 
             return settings;
         }

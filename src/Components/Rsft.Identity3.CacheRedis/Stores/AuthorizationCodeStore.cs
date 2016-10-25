@@ -34,12 +34,10 @@ namespace Rsft.Identity3.CacheRedis.Stores
         internal AuthorizationCodeStore(
             ICacheManager<AuthorizationCode> cacheManager,
             IConfiguration<RedisCacheConfigurationEntity> cacheConfiguration)
-            : base(cacheManager)
+            : base(cacheManager, cacheConfiguration)
         {
             Contract.Requires(cacheManager != null);
             Contract.Requires(cacheConfiguration != null);
-
-            this.ExpiryTime = cacheConfiguration.Get.CacheDuration;
         }
 
         /// <summary>

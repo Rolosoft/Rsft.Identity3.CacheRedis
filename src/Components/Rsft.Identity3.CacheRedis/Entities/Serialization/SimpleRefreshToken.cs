@@ -9,59 +9,47 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// <copyright file="SimpleClaimsIdentity.cs" company="Rolosoft Ltd">
+// <copyright file="SimpleRefreshToken.cs" company="Rolosoft Ltd">
 // Copyright (c) Rolosoft Ltd. All rights reserved.
 // </copyright>
 namespace Rsft.Identity3.CacheRedis.Entities.Serialization
 {
-    using System.Collections.Generic;
+    using System;
     using Newtonsoft.Json;
 
     /// <summary>
-    /// The Simple Claims Identity
+    /// The Simple Refresh Token
     /// </summary>
-    internal sealed class SimpleClaimsIdentity
+    internal sealed class SimpleRefreshToken
     {
         /// <summary>
-        /// Gets or sets the actor.
+        /// Gets or sets the access token.
         /// </summary>
         [JsonProperty("a")]
-        public SimpleClaimsIdentity Actor { get; set; }
+        public SimpleToken AccessToken { get; set; }
 
         /// <summary>
-        /// Gets or sets the type of the authentication.
-        /// </summary>
-        [JsonProperty("at")]
-        public string AuthenticationType { get; set; }
-
-        /// <summary>
-        /// Gets or sets the bootstrap context.
-        /// </summary>
-        [JsonProperty("bc")]
-        public object BootstrapContext { get; set; }
-
-        /// <summary>
-        /// Gets or sets the claims.
+        /// Gets or sets the creation time.
         /// </summary>
         [JsonProperty("c")]
-        public IEnumerable<SimpleClaim> Claims { get; set; }
+        public DateTimeOffset CreationTime { get; set; }
 
         /// <summary>
-        /// Gets or sets the label.
+        /// Gets or sets the life time.
         /// </summary>
         [JsonProperty("l")]
-        public string Label { get; set; }
+        public int LifeTime { get; set; }
 
         /// <summary>
-        /// Gets or sets the type of the name claim.
+        /// Gets or sets the subject.
         /// </summary>
-        [JsonProperty("nct")]
-        public string NameClaimType { get; set; }
+        [JsonProperty("s")]
+        public SimpleClaimsPrincipal Subject { get; set; }
 
         /// <summary>
-        /// Gets or sets the type of the role claim.
+        /// Gets or sets the version.
         /// </summary>
-        [JsonProperty("rct")]
-        public string RoleClaimType { get; set; }
+        [JsonProperty("v")]
+        public int Version { get; set; }
     }
 }

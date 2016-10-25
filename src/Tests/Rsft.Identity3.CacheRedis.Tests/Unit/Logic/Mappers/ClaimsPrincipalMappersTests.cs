@@ -16,6 +16,7 @@ namespace Rsft.Identity3.CacheRedis.Tests.Unit.Logic.Mappers
 {
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Linq;
     using System.Security.Claims;
     using CacheRedis.Logic.Mappers;
     using Entities.Serialization;
@@ -37,7 +38,8 @@ namespace Rsft.Identity3.CacheRedis.Tests.Unit.Logic.Mappers
         {
             // Arrange
             var mockClaimsIdentityMapper = new Mock<IMapper<SimpleClaimsIdentity, ClaimsIdentity>>();
-            mockClaimsIdentityMapper.Setup(r => r.ToComplexEntity(It.IsAny<SimpleClaimsIdentity>())).Returns(new ClaimsIdentity());
+            mockClaimsIdentityMapper.Setup(r => r.ToComplexEntity(It.IsAny<IEnumerable<SimpleClaimsIdentity>>()))
+                .Returns(new List<ClaimsIdentity> { new ClaimsIdentity() });
 
             var claimsPrincipalMappers = new ClaimsPrincipalMappers(mockClaimsIdentityMapper.Object);
 
@@ -56,7 +58,8 @@ namespace Rsft.Identity3.CacheRedis.Tests.Unit.Logic.Mappers
 
             Assert.That(claimsPrincipal, Is.Not.Null);
 
-            Assert.That(claimsPrincipal.Claims, Is.Not.Null);
+            Assert.That(claimsPrincipal.Identities, Is.Not.Null);
+            Assert.That(claimsPrincipal.Identities.Any(), Is.True);
         }
 
         /// <summary>
@@ -66,14 +69,26 @@ namespace Rsft.Identity3.CacheRedis.Tests.Unit.Logic.Mappers
         public void ToSimpleEntity_WhenComplexEntity_ExpectMapSuccess()
         {
             // Arrange
+            var mockClaimsIdentityMapper = new Mock<IMapper<SimpleClaimsIdentity, ClaimsIdentity>>();
+            mockClaimsIdentityMapper.Setup(r => r.ToSimpleEntity(It.IsAny<IEnumerable<ClaimsIdentity>>()))
+                .Returns(new List<SimpleClaimsIdentity> { new SimpleClaimsIdentity() });
+
+            var claimsPrincipalMappers = new ClaimsPrincipalMappers(mockClaimsIdentityMapper.Object);
+
+            var complexEntity = new ClaimsPrincipal(new List<ClaimsIdentity>());
 
             // Act
             var stopwatch = Stopwatch.StartNew();
-
+            var simpleEntity = claimsPrincipalMappers.ToSimpleEntity(complexEntity);
             stopwatch.Stop();
 
             // Assert
             this.WriteTimeElapsed(stopwatch);
+
+            Assert.That(simpleEntity, Is.Not.Null);
+
+            Assert.That(simpleEntity.Identities, Is.Not.Null);
+            Assert.That(simpleEntity.Identities.Any(), Is.True);
         }
     }
 }

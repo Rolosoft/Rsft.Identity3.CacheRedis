@@ -9,23 +9,32 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// <copyright file="SimpleClaimsPrincipal.cs" company="Rolosoft Ltd">
+// <copyright file="CacheHelpers.cs" company="Rolosoft Ltd">
 // Copyright (c) Rolosoft Ltd. All rights reserved.
 // </copyright>
-namespace Rsft.Identity3.CacheRedis.Entities.Serialization
+namespace Rsft.Identity3.CacheRedis.Helpers
 {
-    using System.Collections.Generic;
-    using Newtonsoft.Json;
+    using System;
 
     /// <summary>
-    /// The Simple Claims Principal
+    /// The Cache Helpers
     /// </summary>
-    internal sealed class SimpleClaimsPrincipal
+    public static class CacheHelpers
     {
         /// <summary>
-        /// Gets or sets the identities.
+        /// Gets the cache time span.
         /// </summary>
-        [JsonProperty("i")]
-        public IEnumerable<SimpleClaimsIdentity> Identities { get; set; }
+        /// <param name="seconds">The seconds.</param>
+        /// <returns>The <see cref="TimeSpan"/></returns>
+        public static TimeSpan GetCacheTimeSpan(int seconds)
+        {
+            var cacheSeconds = seconds - 5;
+            if (cacheSeconds < 5)
+            {
+                cacheSeconds = 5;
+            }
+
+            return TimeSpan.FromSeconds(cacheSeconds);
+        }
     }
 }

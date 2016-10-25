@@ -15,7 +15,9 @@
 namespace Rsft.Identity3.CacheRedis.Stores
 {
     using System.Diagnostics.Contracts;
+    using System.Threading.Tasks;
     using Entities;
+    using Helpers;
     using IdentityServer3.Core.Models;
     using IdentityServer3.Core.Services;
     using Interfaces;
@@ -23,22 +25,32 @@ namespace Rsft.Identity3.CacheRedis.Stores
     /// <summary>
     /// The Token Handle Store
     /// </summary>
-    public sealed class RedisHandleStore : RedisStoreBase<Token>, ITokenHandleStore
+    public sealed class TokenHandleStore : RedisStoreBase<Token>, ITokenHandleStore
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="RedisHandleStore"/> class.
+        /// Initializes a new instance of the <see cref="TokenHandleStore" /> class.
         /// </summary>
         /// <param name="cacheManager">The cache manager.</param>
         /// <param name="cacheConfiguration">The cache configuration.</param>
-        internal RedisHandleStore(
-            ICacheManager<Token> cacheManager,
-            IConfiguration<RedisCacheConfigurationEntity> cacheConfiguration)
-            : base(cacheManager)
+        internal TokenHandleStore(ICacheManager<Token> cacheManager, IConfiguration<RedisCacheConfigurationEntity> cacheConfiguration)
+            : base(cacheManager, cacheConfiguration)
         {
             Contract.Requires(cacheManager != null);
             Contract.Requires(cacheConfiguration != null);
+        }
 
-            this.ExpiryTime = cacheConfiguration.Get.CacheDuration;
+        /// <summary>
+        /// Stores the data.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>
+        /// The <see cref="T:System.Threading.Tasks.Task" />
+        /// </returns>
+        public override Task StoreAsync(string key, Token value)
+        {
+            var timespan = CacheHelpers.GetCacheTimeSpan(value.Lifetime);
+            return this.StoreAsync(key, value, timespan);
         }
 
         /// <summary>

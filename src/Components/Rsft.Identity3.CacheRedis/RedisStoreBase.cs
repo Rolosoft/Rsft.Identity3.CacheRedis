@@ -18,6 +18,7 @@ namespace Rsft.Identity3.CacheRedis
     using System.Collections.Generic;
     using System.Diagnostics.Contracts;
     using System.Threading.Tasks;
+    using Entities;
     using IdentityServer3.Core.Models;
     using IdentityServer3.Core.Services;
     using Interfaces;
@@ -31,6 +32,11 @@ namespace Rsft.Identity3.CacheRedis
         where TEntity : ITokenMetadata
     {
         /// <summary>
+        /// The cache configuration
+        /// </summary>
+        private readonly IConfiguration<RedisCacheConfigurationEntity> cacheConfiguration;
+
+        /// <summary>
         /// The cache manager
         /// </summary>
         private readonly ICacheManager<TEntity> cacheManager;
@@ -39,20 +45,17 @@ namespace Rsft.Identity3.CacheRedis
         /// Initializes a new instance of the <see cref="RedisStoreBase{TEntity}" /> class.
         /// </summary>
         /// <param name="cacheManager">The cache manager.</param>
-        internal RedisStoreBase(ICacheManager<TEntity> cacheManager)
+        /// <param name="cacheConfiguration">The cache configuration.</param>
+        internal RedisStoreBase(
+            ICacheManager<TEntity> cacheManager,
+            IConfiguration<RedisCacheConfigurationEntity> cacheConfiguration)
         {
             Contract.Requires(cacheManager != null);
+            Contract.Requires(cacheConfiguration != null);
 
             this.cacheManager = cacheManager;
+            this.cacheConfiguration = cacheConfiguration;
         }
-
-        /// <summary>
-        /// Sets the expiry time.
-        /// </summary>
-        /// <value>
-        /// The expiry time.
-        /// </value>
-        protected int ExpiryTime { private get; set; }
 
         /// <summary>
         /// Retrieves all data for a subject identifier.
@@ -111,10 +114,8 @@ namespace Rsft.Identity3.CacheRedis
         /// <returns>The <see cref="Task"/></returns>
         public virtual async Task StoreAsync(string key, TEntity value)
         {
-            var cacheKey = this.PrefixKey(key);
-            var timeSpan = TimeSpan.FromSeconds(this.ExpiryTime);
-
-            await this.cacheManager.SetAsync(cacheKey, value, timeSpan).ConfigureAwait(false);
+            var timeSpan = TimeSpan.FromSeconds(this.cacheConfiguration.Get.CacheDuration);
+            await this.StoreLocalAsync(key, value, timeSpan).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -123,5 +124,31 @@ namespace Rsft.Identity3.CacheRedis
         /// <param name="key">The key.</param>
         /// <returns>The <see cref="PrefixKey"/></returns>
         protected abstract string PrefixKey(string key);
+
+        /// <summary>
+        /// Stores the asynchronous.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <param name="value">The value.</param>
+        /// <param name="expiry">The expiry.</param>
+        /// <returns>The <see cref="Task"/></returns>
+        protected async Task StoreAsync(string key, TEntity value, TimeSpan expiry)
+        {
+            await this.StoreLocalAsync(key, value, expiry).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Stores the local asynchronous.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <param name="value">The value.</param>
+        /// <param name="expiry">The expiry.</param>
+        /// <returns>The <see cref="Task"/></returns>
+        private async Task StoreLocalAsync(string key, TEntity value, TimeSpan expiry)
+        {
+            var cacheKey = this.PrefixKey(key);
+
+            await this.cacheManager.SetAsync(cacheKey, value, expiry).ConfigureAwait(false);
+        }
     }
 }

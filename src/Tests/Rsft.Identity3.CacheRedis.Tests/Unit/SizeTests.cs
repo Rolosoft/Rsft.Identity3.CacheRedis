@@ -17,11 +17,12 @@ namespace Rsft.Identity3.CacheRedis.Tests.Unit
     [TestFixture]
     public class SizeTests : TestBase
     {
+        /// <summary>
+        /// Tests the sizes compress.
+        /// </summary>
         [Test]
         public void TestSizesCompress()
         {
-            var claim1 = new SimpleClaim { Type = "claim1", Value = "test@emailippo.com" };
-            var claim2 = new SimpleClaim { Type = "claim2", Value = "simon@emailhippo.com" };
             var code = new SimpleAuthorizationCode
             {
                 Client = new SimpleClient
@@ -31,23 +32,31 @@ namespace Rsft.Identity3.CacheRedis.Tests.Unit
                 RequestedScopes = new List<SimpleScope> { new SimpleScope { Description = "this is description", Enabled = true, Name = "Scope", DisplayName = "Display Name" } },
                 Subject = new SimpleClaimsPrincipal
                 {
-                    Claims = new List<SimpleClaim> { claim1, claim2 },
                     Identities = new List<SimpleClaimsIdentity> { new SimpleClaimsIdentity { Claims = new List<SimpleClaim>() } }
                 },
+                CodeChallenge = "CodeChallenge",
+                CodeChallengeMethod = "CodeChallengeMethod",
+                CreationTime = new DateTimeOffset(new DateTime(2016, 1, 1)),
+                IsOpenId = true,
+                Nonce = "Nonce",
+                RedirectUri = "RedirectUri",
+                SessionId = "SessionId",
+                WasConsentShown = true
             };
 
             var jsonSettingsFactory = new JsonSettingsFactory().Create(true);
 
             var serializeObject = JsonConvert.SerializeObject(code, jsonSettingsFactory);
 
-            Console.WriteLine(Encoding.UTF8.GetByteCount(serializeObject.Compress()));
+            Console.WriteLine($"{Encoding.UTF8.GetByteCount(serializeObject.Compress())} bytes");
         }
 
+        /// <summary>
+        /// Tests the sizes no compress.
+        /// </summary>
         [Test]
         public void TestSizesNoCompress()
         {
-            var claim1 = new SimpleClaim { Type = "claim1", Value = "test@emailippo.com" };
-            var claim2 = new SimpleClaim { Type = "claim2", Value = "simon@emailhippo.com" };
             var code = new SimpleAuthorizationCode
             {
                 Client = new SimpleClient
@@ -57,16 +66,23 @@ namespace Rsft.Identity3.CacheRedis.Tests.Unit
                 RequestedScopes = new List<SimpleScope> { new SimpleScope { Description = "this is description", Enabled = true, Name = "Scope", DisplayName = "Display Name" } },
                 Subject = new SimpleClaimsPrincipal
                 {
-                    Claims = new List<SimpleClaim> { claim1, claim2 },
                     Identities = new List<SimpleClaimsIdentity> { new SimpleClaimsIdentity { Claims = new List<SimpleClaim>() } }
                 },
+                CodeChallenge = "CodeChallenge",
+                CodeChallengeMethod = "CodeChallengeMethod",
+                CreationTime = new DateTimeOffset(new DateTime(2016, 1, 1)),
+                IsOpenId = true,
+                Nonce = "Nonce",
+                RedirectUri = "RedirectUri",
+                SessionId = "SessionId",
+                WasConsentShown = true
             };
 
             var jsonSettingsFactory = new JsonSettingsFactory().Create(false);
 
             var serializeObject = JsonConvert.SerializeObject(code, jsonSettingsFactory);
 
-            Console.WriteLine(Encoding.UTF8.GetByteCount(serializeObject));
+            Console.WriteLine($"{Encoding.UTF8.GetByteCount(serializeObject)} bytes");
         }
     }
 }

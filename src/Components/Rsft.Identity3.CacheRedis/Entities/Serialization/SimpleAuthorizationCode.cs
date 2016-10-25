@@ -62,7 +62,7 @@ namespace Rsft.Identity3.CacheRedis.Entities.Serialization
         /// <summary>
         /// Gets or sets the redirect URI.
         /// </summary>
-        [JsonProperty("ru")]
+        [JsonProperty("r")]
         public string RedirectUri { get; set; }
 
         /// <summary>
@@ -86,7 +86,7 @@ namespace Rsft.Identity3.CacheRedis.Entities.Serialization
         /// <summary>
         /// Gets or sets a value indicating whether [was consent shown].
         /// </summary>
-        [JsonProperty("wcs")]
+        [JsonProperty("w")]
         public bool WasConsentShown { get; set; }
     }
 }

@@ -85,16 +85,25 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Integration\Logic\RedisCacheManagerTests.cs" />
+    <Compile Include="Integration\Logic\Stores\RefreshTokenStoreTests.cs" />
     <Compile Include="Integration\Logic\Stores\AuthorizationCodeStoreTests.cs" />
+    <Compile Include="Integration\Logic\Stores\TokenHandleStoreTests.cs" />
     <Compile Include="Integration\RedisCacheFactoryTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestBase.cs" />
     <Compile Include="TestHelpers\RedisHelpers.cs" />
     <Compile Include="Unit\Diagnostics\EventSources\ActivityLoggingEventSourceTests.cs" />
     <Compile Include="Unit\Diagnostics\EventSources\ExceptionLoggingEventSourceTests.cs" />
+    <Compile Include="Unit\Logic\Mappers\AuthorizationCodeMappersTests.cs" />
+    <Compile Include="Unit\Logic\Mappers\ClaimMappersTests.cs" />
+    <Compile Include="Unit\Logic\Mappers\ClaimsIdentityMappersTests.cs" />
     <Compile Include="Unit\Logic\Mappers\ClaimsPrincipalMappersTests.cs" />
     <Compile Include="Unit\Logic\Mappers\ClientMappersTests.cs" />
+    <Compile Include="Unit\Logic\Mappers\TokenMappersTests.cs" />
+    <Compile Include="Unit\Logic\Mappers\RefreshTokenMappersTests.cs" />
     <Compile Include="Unit\Logic\Mappers\ScopeMappersTests.cs" />
+    <Compile Include="Unit\Logic\Stores\RefreshTokenStoreTests.cs" />
+    <Compile Include="Unit\Logic\Stores\TokenHandleStoreTests.cs" />
     <Compile Include="Unit\Logic\Stores\AuthorizationCodeStoreTests.cs" />
     <Compile Include="Unit\SizeTests.cs" />
   </ItemGroup>

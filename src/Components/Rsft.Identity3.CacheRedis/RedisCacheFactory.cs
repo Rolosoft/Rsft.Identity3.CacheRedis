@@ -228,7 +228,7 @@ namespace Rsft.Identity3.CacheRedis
                 Configuration,
                 jsonSettingsFactory);
 
-            var tokenHandleStore = new RedisHandleStore(
+            var tokenHandleStore = new TokenHandleStore(
                 redisHandleCacheManager,
                 Configuration);
 

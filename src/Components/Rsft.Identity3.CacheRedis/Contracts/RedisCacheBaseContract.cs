@@ -20,6 +20,11 @@ namespace Rsft.Identity3.CacheRedis.Contracts
     using Entities;
     using Interfaces;
 
+    /// <summary>
+    /// The Redis Cache Base Contracts
+    /// </summary>
+    /// <typeparam name="T">The Type</typeparam>
+    /// <seealso cref="Rsft.Identity3.CacheRedis.RedisCacheBase{T}" />
     [ContractClassFor(typeof(RedisCacheBase<>))]
     internal abstract class RedisCacheBaseContract<T> : RedisCacheBase<T>
         where T : class
@@ -34,12 +39,27 @@ namespace Rsft.Identity3.CacheRedis.Contracts
         {
         }
 
+        /// <summary>
+        /// Gets the cached data based upon a key index.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <returns>
+        /// The cached item, or <c>null</c> if no item matches the key.
+        /// </returns>
         public override Task<T> GetAsync(string key)
         {
             Contract.Requires(!string.IsNullOrWhiteSpace(key));
             return base.GetAsync(key);
         }
 
+        /// <summary>
+        /// Caches the data based upon a key
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <param name="item">The item.</param>
+        /// <returns>
+        /// The <see cref="T:System.Threading.Tasks.Task" />
+        /// </returns>
         public override Task SetAsync(string key, T item)
         {
             Contract.Requires(!string.IsNullOrWhiteSpace(key));

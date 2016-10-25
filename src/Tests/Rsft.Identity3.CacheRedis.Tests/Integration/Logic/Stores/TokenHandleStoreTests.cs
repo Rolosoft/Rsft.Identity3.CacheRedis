@@ -9,16 +9,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// <copyright file="AuthorizationCodeStoreTests.cs" company="Rolosoft Ltd">
+// <copyright file="TokenHandleStoreTests.cs" company="Rolosoft Ltd">
 // Copyright (c) Rolosoft Ltd. All rights reserved.
 // </copyright>
-
 namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic.Stores
 {
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using System.Linq;
     using System.Security.Claims;
     using CacheRedis.Logic;
     using CacheRedis.Stores;
@@ -32,12 +30,11 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic.Stores
     using TestHelpers;
 
     /// <summary>
-    /// The Authorization CodeStore Tests
+    /// The Token Handle Store Tests
     /// </summary>
-    /// <seealso cref="TestBase" />
     [TestFixture]
     [Ignore("Set REDIS Connection string in TestHelpers.RedisHelpers to your local dev store")]
-    public sealed class AuthorizationCodeStoreTests : TestBase
+    public sealed class TokenHandleStoreTests : TestBase
     {
         /// <summary>
         /// Gets the asynchronous when called expect response.
@@ -58,45 +55,24 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic.Stores
 
             var jsonSettingsFactory = new JsonSettingsFactory();
 
-            var cacheManager = new RedisCacheManager<AuthorizationCode>(
+            var cacheManager = new RedisCacheManager<Token>(
                 RedisHelpers.ConnectionMultiplexer,
                 mockCacheConfiguration.Object,
                 jsonSettingsFactory);
 
-            var authorizationCodeStore = new AuthorizationCodeStore(
+            var tokenStore = new TokenHandleStore(
                 cacheManager,
                 mockCacheConfiguration.Object);
 
             // Act
             var stopwatch = Stopwatch.StartNew();
-
-            var authorizationCode = authorizationCodeStore.GetAsync("Existing").Result;
-
+            var token = tokenStore.GetAsync("Existing").Result;
             stopwatch.Stop();
 
             // Assert
             this.WriteTimeElapsed(stopwatch);
 
-            Assert.That(authorizationCode, Is.Not.Null);
-
-            Assert.That(authorizationCode.Client, Is.Not.Null);
-            Assert.That(authorizationCode.ClientId, Is.EqualTo("cid"));
-            Assert.That(authorizationCode.CodeChallenge, Is.EqualTo("CodeChallenge"));
-            Assert.That(authorizationCode.CodeChallengeMethod, Is.EqualTo("CodeChallengeMethod"));
-            Assert.That(authorizationCode.CreationTime, Is.EqualTo(new DateTimeOffset(new DateTime(2016, 1, 1))));
-            Assert.That(authorizationCode.IsOpenId, Is.True);
-            Assert.That(authorizationCode.Nonce, Is.EqualTo("Nonce"));
-            Assert.That(authorizationCode.RedirectUri, Is.EqualTo("RedirectUri"));
-
-            Assert.That(authorizationCode.RequestedScopes, Is.Not.Null);
-            Assert.That(authorizationCode.RequestedScopes.Count(), Is.EqualTo(1));
-
-            Assert.That(authorizationCode.Scopes, Is.Not.Null);
-            Assert.That(authorizationCode.Scopes.Count(), Is.EqualTo(1));
-
-            Assert.That(authorizationCode.SessionId, Is.EqualTo("SessionId"));
-            Assert.That(authorizationCode.WasConsentShown, Is.True);
-            Assert.That(authorizationCode.Subject, Is.Not.Null);
+            Assert.That(token, Is.Not.Null);
         }
 
         /// <summary>
@@ -118,26 +94,26 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic.Stores
 
             var jsonSettingsFactory = new JsonSettingsFactory();
 
-            var cacheManager = new RedisCacheManager<AuthorizationCode>(
+            var cacheManager = new RedisCacheManager<Token>(
                 RedisHelpers.ConnectionMultiplexer,
                 mockCacheConfiguration.Object,
                 jsonSettingsFactory);
 
-            var authorizationCodeStore = new AuthorizationCodeStore(
+            var tokenStore = new TokenHandleStore(
                 cacheManager,
                 mockCacheConfiguration.Object);
 
             // Act
             var stopwatch = Stopwatch.StartNew();
 
-            authorizationCodeStore.RemoveAsync("Delete").Wait();
+            tokenStore.RemoveAsync("Delete").Wait();
 
             stopwatch.Stop();
 
             // Assert
             this.WriteTimeElapsed(stopwatch);
 
-            var redisValue = RedisHelpers.ConnectionMultiplexer.GetDatabase().StringGet("DEFAULT_ACS_Delete");
+            var redisValue = RedisHelpers.ConnectionMultiplexer.GetDatabase().StringGet("DEFAULT_RTS_Delete");
 
             Assert.That(redisValue.HasValue, Is.False);
         }
@@ -161,36 +137,44 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic.Stores
 
             var jsonSettingsFactory = new JsonSettingsFactory();
 
-            var cacheManager = new RedisCacheManager<AuthorizationCode>(
+            var cacheManager = new RedisCacheManager<Token>(
                 RedisHelpers.ConnectionMultiplexer,
                 mockCacheConfiguration.Object,
                 jsonSettingsFactory);
 
-            var authorizationCodeStore = new AuthorizationCodeStore(
+            var tokenStore = new TokenHandleStore(
                 cacheManager,
                 mockCacheConfiguration.Object);
 
-            var claim1 = new Claim("claim1", "test@emailippo.com");
-            var claim2 = new Claim("claim2", "simon@emailhippo.com");
-            var code = new AuthorizationCode
+            var claim1 = new Claim("Type1", "Value1");
+            var claim2 = new Claim("Type2", "Value2");
+
+            var client = new Client
             {
-                Client = new Client
-                {
-                    ClientId = "cid"
-                },
-                RequestedScopes = new List<Scope> { new Scope { Description = "this is description", Enabled = true, Name = "Scope", DisplayName = "Display Name" } },
-                Subject = new ClaimsPrincipal(new ClaimsIdentity(new List<Claim> { claim1, claim2 }))
+                Claims = new List<Claim> { claim1, claim2 }
+            };
+
+            var token = new Token
+            {
+                Claims = new List<Claim> { claim1, claim2 },
+                Client = client,
+                Type = "Type",
+                CreationTime = new DateTimeOffset(new DateTime(2016, 1, 1)),
+                Version = 1,
+                Issuer = "Issuer",
+                Lifetime = 120,
+                Audience = "Audience"
             };
 
             // Act
             var stopwatch = Stopwatch.StartNew();
-            authorizationCodeStore.StoreAsync("KeyToStore", code).Wait();
+            tokenStore.StoreAsync("KeyToStore", token).Wait();
             stopwatch.Stop();
 
             // Assert
             this.WriteTimeElapsed(stopwatch);
 
-            var redisValue = RedisHelpers.ConnectionMultiplexer.GetDatabase().StringGet("DEFAULT_ACS_KeyToStore");
+            var redisValue = RedisHelpers.ConnectionMultiplexer.GetDatabase().StringGet("DEFAULT_THS_KeyToStore");
 
             Assert.That(redisValue.HasValue, Is.True);
             Console.WriteLine(redisValue);
@@ -204,43 +188,32 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic.Stores
         {
             var database = RedisHelpers.ConnectionMultiplexer.GetDatabase();
 
-            var code = new SimpleAuthorizationCode
+            var claim1 = new SimpleClaim { Type = "Type1", Value = "Value1" };
+            var claim2 = new SimpleClaim { Type = "Type2", Value = "Value2" };
+
+            var client = new SimpleClient
             {
-                Client = new SimpleClient
-                {
-                    ClientId = "cid"
-                },
-                RequestedScopes =
-                    new List<SimpleScope>
-                    {
-                        new SimpleScope
-                        {
-                            Description = "this is description",
-                            Enabled = true,
-                            Name = "Scope",
-                            DisplayName = "Display Name"
-                        }
-                    },
-                Subject = new SimpleClaimsPrincipal
-                {
-                    Identities = new List<SimpleClaimsIdentity> { new SimpleClaimsIdentity { Claims = new List<SimpleClaim>() } }
-                },
-                CodeChallenge = "CodeChallenge",
-                CodeChallengeMethod = "CodeChallengeMethod",
+                Claims = new List<SimpleClaim> { claim1, claim2 }
+            };
+
+            var token = new SimpleToken
+            {
+                Claims = new List<SimpleClaim> { claim1, claim2 },
+                Client = client,
+                Type = "Type",
                 CreationTime = new DateTimeOffset(new DateTime(2016, 1, 1)),
-                IsOpenId = true,
-                Nonce = "Nonce",
-                RedirectUri = "RedirectUri",
-                SessionId = "SessionId",
-                WasConsentShown = true
+                Version = 1,
+                Issuer = "Issuer",
+                Lifetime = 120,
+                Audience = "Audience"
             };
 
             var settings = new JsonSettingsFactory().Create(false);
 
-            var serialized = JsonConvert.SerializeObject(code, settings);
+            var serialized = JsonConvert.SerializeObject(token, settings);
 
-            database.StringSet("DEFAULT_ACS_Existing", serialized);
-            database.StringSet("DEFAULT_ACS_Delete", serialized);
+            database.StringSet("DEFAULT_THS_Existing", serialized);
+            database.StringSet("DEFAULT_THS_Delete", serialized);
         }
 
         /// <summary>
@@ -251,9 +224,9 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic.Stores
         {
             var database = RedisHelpers.ConnectionMultiplexer.GetDatabase();
 
-            database.KeyDelete("DEFAULT_ACS_Existing");
-            database.KeyDelete("DEFAULT_ACS_KeyToStore");
-            database.KeyDelete("DEFAULT_ACS_Delete");
+            database.KeyDelete("DEFAULT_THS_Existing");
+            database.KeyDelete("DEFAULT_THS_KeyToStore");
+            database.KeyDelete("DEFAULT_THS_Delete");
         }
     }
 }

@@ -16,6 +16,7 @@ namespace Rsft.Identity3.CacheRedis.Logic.Serialization
 {
     using System;
     using System.Diagnostics.Contracts;
+    using Helpers;
     using Interfaces;
     using Newtonsoft.Json;
 
@@ -70,7 +71,7 @@ namespace Rsft.Identity3.CacheRedis.Logic.Serialization
             object existingValue,
             JsonSerializer serializer)
         {
-            var source = serializer.Deserialize<TSimpleEntity>(reader);
+            var source = serializer.SafeDeserialize<TSimpleEntity>(reader);
             var target = this.mapper.ToComplexEntity(source);
 
             return target;

@@ -15,7 +15,6 @@
 
 namespace Rsft.Identity3.CacheRedis.Tests.Integration
 {
-    using System;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Diagnostics.Tracing;
@@ -30,17 +29,16 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration
 
     using Microsoft.Practices.EnterpriseLibrary.SemanticLogging;
     using NUnit.Framework;
-    using StackExchange.Redis;
+    using TestHelpers;
 
-    //    [Ignore("Supply a valid Redis connection string to test. Tests verified passing on 05/23/16 - ROC")]
+    /// <summary>
+    /// The Redis Cache Factory Tests
+    /// </summary>
+    /// <seealso cref="TestBase" />
     [TestFixture]
+    [Ignore("Set REDIS Connection string in TestHelpers.RedisHelpers to your local dev store")]
     public class RedisCacheFactoryTests : TestBase
     {
-        //       private const string RedisConnectionString = @"<INSERT CONNECTION STRING HERE>";
-        private const string RedisConnectionString = @"127.0.0.1:6379";
-
-        private static readonly Lazy<ConnectionMultiplexer> ConnectionMuxLazy = new Lazy<ConnectionMultiplexer>(() => ConnectionMultiplexer.Connect(RedisConnectionString));
-
         private static ObservableEventListener activityEventListener;
 
         /// <summary>
@@ -53,15 +51,16 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration
             activityEventListener.LogToConsole();
         }
 
-        private static ConnectionMultiplexer Singleton => ConnectionMuxLazy.Value;
-
+        /// <summary>
+        /// Creates the when connection string expect caches created.
+        /// </summary>
         [Test]
         public void Create_WhenConnectionString_ExpectCachesCreated()
         {
             // arrange
 
             // act
-            var caches = RedisCacheFactory.Create(RedisConnectionString);
+            var caches = RedisCacheFactory.Create(RedisHelpers.RedisConnectionString);
 
             // assert
             Assert.IsNotNull(caches);
@@ -78,7 +77,7 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration
         public void IdentityServer_Configure_WhenFactory_ExpectNoExceptions()
         {
             // arrange
-            var caches = RedisCacheFactory.Create(RedisConnectionString);
+            var caches = RedisCacheFactory.Create(RedisHelpers.RedisConnectionString);
 
             var clientCache = caches.ClientCache;
             var scopesCache = caches.ScopesCache;
@@ -117,13 +116,6 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration
         public void TestFixtureTearDown()
         {
             activityEventListener.DisableEvents(ActivityLoggingEventSource.Log);
-
-            try
-            {
-                Singleton.Close();
-                Singleton.Dispose();
-            }
-            catch (Exception) { }
 
             activityEventListener.Dispose();
         }

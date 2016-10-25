@@ -53,13 +53,13 @@ namespace Rsft.Identity3.CacheRedis.Logic.Mappers
             }
 
             var claims = this.claimMapper.ToComplexEntity(source.Claims);
-            //     var actor = this.ToComplexEntity(source.Actor);
+            var actor = this.ToComplexEntity(source.Actor);
 
             return new ClaimsIdentity(claims, source.AuthenticationType, source.NameClaimType, source.RoleClaimType)
             {
-                //       Actor = actor,
                 BootstrapContext = source.BootstrapContext,
-                Label = source.Label
+                Label = source.Label,
+                Actor = actor
             };
         }
 
@@ -76,13 +76,17 @@ namespace Rsft.Identity3.CacheRedis.Logic.Mappers
             }
 
             var claims = this.claimMapper.ToSimpleEntity(source.Claims);
-            //      var actor = this.ToSimpleEntity(source.Actor);
+            var actor = this.ToSimpleEntity(source.Actor);
 
             return new SimpleClaimsIdentity
             {
                 Claims = claims,
-                //       Actor = actor,
-                AuthenticationType = source.AuthenticationType
+                AuthenticationType = source.AuthenticationType,
+                Label = source.Label,
+                BootstrapContext = source.BootstrapContext,
+                RoleClaimType = source.RoleClaimType,
+                NameClaimType = source.NameClaimType,
+                Actor = actor
             };
         }
     }
