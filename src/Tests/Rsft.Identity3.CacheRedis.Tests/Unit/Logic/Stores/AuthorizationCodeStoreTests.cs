@@ -42,7 +42,7 @@ namespace Rsft.Identity3.CacheRedis.Tests.Unit.Logic.Stores
             var mockCacheManager = new Mock<ICacheManager<AuthorizationCode>>();
             var mockCacheConfiguration = new Mock<IConfiguration<RedisCacheConfigurationEntity>>();
 
-            mockCacheConfiguration.Setup(r => r.Get).Returns(new RedisCacheConfigurationEntity { CacheDuration = 1, RefreshTokenCacheDuration = 1 });
+            mockCacheConfiguration.Setup(r => r.Get).Returns(new RedisCacheConfigurationEntity { CacheDuration = 1 });
 
             var authorizationCodeStore = new AuthorizationCodeStore(
                 mockCacheManager.Object,
@@ -68,7 +68,7 @@ namespace Rsft.Identity3.CacheRedis.Tests.Unit.Logic.Stores
             var mockCacheManager = new Mock<ICacheManager<AuthorizationCode>>();
             var mockCacheConfiguration = new Mock<IConfiguration<RedisCacheConfigurationEntity>>();
 
-            mockCacheConfiguration.Setup(r => r.Get).Returns(new RedisCacheConfigurationEntity { CacheDuration = 1, RefreshTokenCacheDuration = 1 });
+            mockCacheConfiguration.Setup(r => r.Get).Returns(new RedisCacheConfigurationEntity { CacheDuration = 1 });
 
             var keyCallback = default(string);
             mockCacheManager.Setup(r => r.GetAsync(It.IsAny<string>()))
@@ -103,7 +103,7 @@ namespace Rsft.Identity3.CacheRedis.Tests.Unit.Logic.Stores
             var mockCacheManager = new Mock<ICacheManager<AuthorizationCode>>();
             var mockCacheConfiguration = new Mock<IConfiguration<RedisCacheConfigurationEntity>>();
 
-            mockCacheConfiguration.Setup(r => r.Get).Returns(new RedisCacheConfigurationEntity { CacheDuration = 1, RefreshTokenCacheDuration = 1 });
+            mockCacheConfiguration.Setup(r => r.Get).Returns(new RedisCacheConfigurationEntity { CacheDuration = 1 });
 
             var keyCallback = default(string);
             mockCacheManager.Setup(r => r.DeleteAsync(It.IsAny<string>()))
@@ -138,7 +138,7 @@ namespace Rsft.Identity3.CacheRedis.Tests.Unit.Logic.Stores
             var mockCacheManager = new Mock<ICacheManager<AuthorizationCode>>();
             var mockCacheConfiguration = new Mock<IConfiguration<RedisCacheConfigurationEntity>>();
 
-            mockCacheConfiguration.Setup(r => r.Get).Returns(new RedisCacheConfigurationEntity { CacheDuration = 1, RefreshTokenCacheDuration = 1 });
+            mockCacheConfiguration.Setup(r => r.Get).Returns(new RedisCacheConfigurationEntity { CacheDuration = 1 });
 
             var authorizationCodeStore = new AuthorizationCodeStore(
                 mockCacheManager.Object,
@@ -164,7 +164,7 @@ namespace Rsft.Identity3.CacheRedis.Tests.Unit.Logic.Stores
             var mockCacheManager = new Mock<ICacheManager<AuthorizationCode>>();
             var mockCacheConfiguration = new Mock<IConfiguration<RedisCacheConfigurationEntity>>();
 
-            mockCacheConfiguration.Setup(r => r.Get).Returns(new RedisCacheConfigurationEntity { CacheDuration = 1, RefreshTokenCacheDuration = 2 });
+            mockCacheConfiguration.Setup(r => r.Get).Returns(new RedisCacheConfigurationEntity { CacheDuration = 1 });
 
             var keyCallback = default(string);
             var timespanCallback = default(TimeSpan);

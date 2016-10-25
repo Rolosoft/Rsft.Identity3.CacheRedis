@@ -49,7 +49,6 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic.Stores
                 new RedisCacheConfigurationEntity
                 {
                     CacheDuration = 10,
-                    RefreshTokenCacheDuration = 10,
                     RedisCacheDefaultPrefix = "DEFAULT",
                     UseObjectCompression = false
                 });
@@ -95,7 +94,6 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic.Stores
                 new RedisCacheConfigurationEntity
                 {
                     CacheDuration = 10,
-                    RefreshTokenCacheDuration = 10,
                     RedisCacheDefaultPrefix = "DEFAULT",
                     UseObjectCompression = false
                 });
@@ -138,7 +136,6 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic.Stores
                 new RedisCacheConfigurationEntity
                 {
                     CacheDuration = 10,
-                    RefreshTokenCacheDuration = 10,
                     RedisCacheDefaultPrefix = "DEFAULT",
                     UseObjectCompression = false
                 });
