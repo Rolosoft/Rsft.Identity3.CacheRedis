@@ -9,24 +9,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// <copyright file="IJsonSettingsFactory.cs" company="Rolosoft Ltd">
+// <copyright file="IClientMapper.cs" company="Rolosoft Ltd">
 // Copyright (c) Rolosoft Ltd. All rights reserved.
 // </copyright>
+
 namespace Rsft.Identity3.CacheRedis.Interfaces
 {
-    using Newtonsoft.Json;
+    using Entities.Serialization;
+    using IdentityServer3.Core.Models;
 
     /// <summary>
-    /// The Converter Factory
+    /// The Client Mpper Interface
     /// </summary>
-    public interface IJsonSettingsFactory
+    /// <typeparam name="TType">The type of the type.</typeparam>
+    public interface IClientMapper<out TType>
+        where TType : Client
     {
         /// <summary>
-        /// Creates this instance.
+        /// Maps the specified cached client.
         /// </summary>
-        /// <returns>
-        /// The <see cref="JsonSerializerSettings" />
-        /// </returns>
-        JsonSerializerSettings Create();
+        /// <param name="cachedClient">The cached client.</param>
+        /// <returns>The TType</returns>
+        TType Map(SimpleClient cachedClient);
     }
 }

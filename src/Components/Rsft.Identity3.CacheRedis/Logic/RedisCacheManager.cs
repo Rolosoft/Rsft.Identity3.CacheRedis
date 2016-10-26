@@ -74,8 +74,7 @@ namespace Rsft.Identity3.CacheRedis.Logic
 
             this.connectionMultiplexer = connectionMultiplexer;
             this.cacheConfiguration = cacheConfiguration;
-
-            this.jsonSerializerSettings = jsonSettingsFactory.Create(cacheConfiguration.Get.UseObjectCompression);
+            this.jsonSerializerSettings = jsonSettingsFactory.Create();
         }
 
         /// <summary>
@@ -234,6 +233,7 @@ namespace Rsft.Identity3.CacheRedis.Logic
             var decompressOrNo = this.cacheConfiguration.Get.UseObjectCompression ? s1.Decompress() : s1;
 
             ActivityLoggingEventSource.Log.CacheGetObject(fqMethodLogName, decompressOrNo);
+
             var x = typeof(T);
 
             var deserializedObject = JsonConvert.DeserializeObject<T>(decompressOrNo, this.jsonSerializerSettings);

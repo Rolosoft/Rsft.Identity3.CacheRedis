@@ -10,6 +10,7 @@ namespace Rsft.Identity3.CacheRedis.Tests.Unit
     using System.Text;
     using CacheRedis.Logic;
     using Entities.Serialization;
+    using IdentityServer3.Core.Models;
     using Newtonsoft.Json;
     using NUnit.Framework;
     using Util.Compression;
@@ -44,7 +45,7 @@ namespace Rsft.Identity3.CacheRedis.Tests.Unit
                 WasConsentShown = true
             };
 
-            var jsonSettingsFactory = new JsonSettingsFactory().Create(true);
+            var jsonSettingsFactory = new JsonSettingsFactory(new ClientMapperBase<Client>()).Create();
 
             var serializeObject = JsonConvert.SerializeObject(code, jsonSettingsFactory);
 
@@ -78,7 +79,7 @@ namespace Rsft.Identity3.CacheRedis.Tests.Unit
                 WasConsentShown = true
             };
 
-            var jsonSettingsFactory = new JsonSettingsFactory().Create(false);
+            var jsonSettingsFactory = new JsonSettingsFactory(new ClientMapperBase<Client>()).Create();
 
             var serializeObject = JsonConvert.SerializeObject(code, jsonSettingsFactory);
 

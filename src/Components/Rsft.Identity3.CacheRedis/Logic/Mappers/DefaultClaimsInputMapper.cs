@@ -9,24 +9,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// <copyright file="IJsonSettingsFactory.cs" company="Rolosoft Ltd">
+// <copyright file="DefaultClaimsInputMapper.cs" company="Rolosoft Ltd">
 // Copyright (c) Rolosoft Ltd. All rights reserved.
 // </copyright>
-namespace Rsft.Identity3.CacheRedis.Interfaces
+namespace Rsft.Identity3.CacheRedis.Logic.Mappers
 {
-    using Newtonsoft.Json;
-
     /// <summary>
-    /// The Converter Factory
+    /// The Default Claims Input Mapper
     /// </summary>
-    public interface IJsonSettingsFactory
+    public class DefaultClaimsInputMapper
     {
-        /// <summary>
-        /// Creates this instance.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="JsonSerializerSettings" />
-        /// </returns>
-        JsonSerializerSettings Create();
     }
 }

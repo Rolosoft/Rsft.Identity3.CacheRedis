@@ -40,7 +40,7 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic
     /// </summary>
     /// <seealso cref="TestBase" />
     [TestFixture]
-    [Ignore("Set REDIS Connection string in TestHelpers.RedisHelpers to your local dev store")]
+    //   [Ignore("Set REDIS Connection string in TestHelpers.RedisHelpers to your local dev store")]
     public class RedisCacheManagerTests : TestBase
     {
         /// <summary>
@@ -84,7 +84,7 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic
                             RedisCacheDefaultPrefix = @"RedisCacheManagerTests"
                         });
 
-            var jsonSettingsFactory = new JsonSettingsFactory();
+            var jsonSettingsFactory = new JsonSettingsFactory(new ClientMapperBase<Client>());
 
             // act
             var redisCacheManager = new RedisCacheManager<IEnumerable<Claim>>(

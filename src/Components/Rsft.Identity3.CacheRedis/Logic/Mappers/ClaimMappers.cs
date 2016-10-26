@@ -20,7 +20,7 @@ namespace Rsft.Identity3.CacheRedis.Logic.Mappers
     /// <summary>
     /// The Claim Mappers
     /// </summary>
-    internal sealed class ClaimMappers : BaseMapper<SimpleClaim, Claim>
+    public sealed class ClaimMappers : BaseMapper<SimpleClaim, Claim>
     {
         /// <summary>
         /// To the simple entity.

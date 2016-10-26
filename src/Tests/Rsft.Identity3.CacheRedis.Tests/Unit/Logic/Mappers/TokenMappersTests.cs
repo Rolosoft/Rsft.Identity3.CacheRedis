@@ -49,7 +49,7 @@ namespace Rsft.Identity3.CacheRedis.Tests.Unit.Logic.Mappers
             var simpleEntity = new SimpleToken
             {
                 Claims = new List<SimpleClaim>(),
-                Client = new SimpleClient(),
+                Client = new Client(),
                 Type = "Type",
                 CreationTime = new DateTimeOffset(new DateTime(2016, 1, 1)),
                 Issuer = "Issuer",

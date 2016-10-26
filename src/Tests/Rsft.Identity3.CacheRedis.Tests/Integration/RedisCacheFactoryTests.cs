@@ -36,7 +36,7 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration
     /// </summary>
     /// <seealso cref="TestBase" />
     [TestFixture]
-    [Ignore("Set REDIS Connection string in TestHelpers.RedisHelpers to your local dev store")]
+    //   [Ignore("Set REDIS Connection string in TestHelpers.RedisHelpers to your local dev store")]
     public class RedisCacheFactoryTests : TestBase
     {
         private static ObservableEventListener activityEventListener;

@@ -185,7 +185,7 @@ namespace Rsft.Identity3.CacheRedis
         /// <returns>The <see cref="Caches"/></returns>
         private static Entities.Caches Initialize()
         {
-            var jsonSettingsFactory = new JsonSettingsFactory();
+            var jsonSettingsFactory = new JsonSettingsFactory(new ClientMapperBase<Client>());
 
             var authorizationCacheManager = new RedisCacheManager<AuthorizationCode>(
                 ConnectionMultiplexer,

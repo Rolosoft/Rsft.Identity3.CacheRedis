@@ -9,7 +9,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// <copyright file="ClientMappers.cs" company="Rolosoft Ltd">
+// <copyright file="DefaultClientOutputMapper.cs" company="Rolosoft Ltd">
 // Copyright (c) Rolosoft Ltd. All rights reserved.
 // </copyright>
 namespace Rsft.Identity3.CacheRedis.Logic.Mappers
@@ -22,23 +22,23 @@ namespace Rsft.Identity3.CacheRedis.Logic.Mappers
     using Interfaces;
 
     /// <summary>
-    /// The Client Mappers
+    /// The Default Client Mapper
     /// </summary>
-    /// <typeparam name="Client">The type of the lient.</typeparam>
-    /// <seealso cref="SimpleClient" />
-    internal sealed class ClientMappers<TClient> : BaseMapper<SimpleClient, TClient>
+    /// <typeparam name="TClient">The type of the client.</typeparam>
+    /// <seealso cref="IConfigMapper{SimpleClient, TClient}" />
+    public class DefaultClientOutputMapper<TClient> : IOutputMapper<SimpleClient, TClient>
         where TClient : Client, new()
     {
         /// <summary>
         /// The claims mapper
         /// </summary>
-        private readonly IMapper<SimpleClaim, Claim> claimsMapper;
+        private readonly IOutputMapper<SimpleClaim, Claim> claimsMapper;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ClientMappers"/> class.
+        /// Initializes a new instance of the <see cref="DefaultClientOutputMapper{TClient}"/> class.
         /// </summary>
         /// <param name="claimsMapper">The claims mapper.</param>
-        public ClientMappers(IMapper<SimpleClaim, Claim> claimsMapper)
+        protected DefaultClientOutputMapper(IOutputMapper<SimpleClaim, Claim> claimsMapper)
         {
             Contract.Requires(claimsMapper != null);
 
@@ -46,75 +46,20 @@ namespace Rsft.Identity3.CacheRedis.Logic.Mappers
         }
 
         /// <summary>
-        /// To the complex entity.
+        /// Maps the specified source.
         /// </summary>
         /// <param name="source">The source.</param>
-        /// <returns>The <see cref="TClient"/></returns>
-        public override TClient ToComplexEntity(SimpleClient source)
+        /// <returns>The TClient</returns>
+        public virtual TClient Map(SimpleClient source)
         {
             if (source == null)
             {
                 return null;
             }
 
-            var claims = this.claimsMapper.ToComplexEntity(source.Claims).ToList();
+            var claims = source.Claims.Select(r => this.claimsMapper.Map(r)).ToList();
 
             return new TClient
-            {
-                Claims = claims,
-                AbsoluteRefreshTokenLifetime = source.AbsoluteRefreshTokenLifetime,
-                AccessTokenLifetime = source.AccessTokenLifetime,
-                AccessTokenType = source.AccessTokenType,
-                AllowAccessToAllCustomGrantTypes = source.AllowAccessToAllCustomGrantTypes,
-                AllowAccessToAllScopes = source.AllowAccessToAllScopes,
-                AllowAccessTokensViaBrowser = source.AllowAccessTokensViaBrowser,
-                AllowClientCredentialsOnly = source.AllowClientCredentialsOnly,
-                AllowRememberConsent = source.AllowRememberConsent,
-                AllowedCorsOrigins = source.AllowedCorsOrigins,
-                AllowedCustomGrantTypes = source.AllowedCustomGrantTypes,
-                AllowedScopes = source.AllowedScopes,
-                AlwaysSendClientClaims = source.AlwaysSendClientClaims,
-                AuthorizationCodeLifetime = source.AuthorizationCodeLifetime,
-                ClientId = source.ClientId,
-                ClientName = source.ClientName,
-                ClientSecrets = source.ClientSecrets,
-                ClientUri = source.ClientUri,
-                EnableLocalLogin = source.EnableLocalLogin,
-                Enabled = source.Enabled,
-                Flow = source.Flow,
-                IdentityProviderRestrictions = source.IdentityProviderRestrictions,
-                IdentityTokenLifetime = source.IdentityTokenLifetime,
-                IncludeJwtId = source.IncludeJwtId,
-                LogoUri = source.LogoUri,
-                LogoutSessionRequired = source.LogoutSessionRequired,
-                LogoutUri = source.LogoutUri,
-                PostLogoutRedirectUris = source.PostLogoutRedirectUris,
-                PrefixClientClaims = source.PrefixClientClaims,
-                RedirectUris = source.RedirectUris,
-                RefreshTokenExpiration = source.RefreshTokenExpiration,
-                RefreshTokenUsage = source.RefreshTokenUsage,
-                RequireConsent = source.RequireConsent,
-                RequireSignOutPrompt = source.RequireSignOutPrompt,
-                SlidingRefreshTokenLifetime = source.SlidingRefreshTokenLifetime,
-                UpdateAccessTokenClaimsOnRefresh = source.UpdateAccessTokenClaimsOnRefresh
-            };
-        }
-
-        /// <summary>
-        /// To the simple entity.
-        /// </summary>
-        /// <param name="source">The source.</param>
-        /// <returns>The <see cref="SimpleClient"/></returns>
-        public override SimpleClient ToSimpleEntity(TClient source)
-        {
-            if (source == null)
-            {
-                return null;
-            }
-
-            var claims = this.claimsMapper.ToSimpleEntity(source.Claims).ToList();
-
-            return new SimpleClient
             {
                 Claims = claims,
                 AbsoluteRefreshTokenLifetime = source.AbsoluteRefreshTokenLifetime,

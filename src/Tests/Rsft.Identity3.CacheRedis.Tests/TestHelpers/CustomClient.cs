@@ -9,24 +9,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// <copyright file="IJsonSettingsFactory.cs" company="Rolosoft Ltd">
+// <copyright file="CustomClient.cs" company="Rolosoft Ltd">
 // Copyright (c) Rolosoft Ltd. All rights reserved.
 // </copyright>
-namespace Rsft.Identity3.CacheRedis.Interfaces
+namespace Rsft.Identity3.CacheRedis.Tests.TestHelpers
 {
-    using Newtonsoft.Json;
+    using IdentityServer3.Core.Models;
 
     /// <summary>
-    /// The Converter Factory
+    /// The Custom Client
     /// </summary>
-    public interface IJsonSettingsFactory
+    public sealed class CustomClient : Client
     {
         /// <summary>
-        /// Creates this instance.
+        /// Gets or sets the application identifier.
         /// </summary>
-        /// <returns>
-        /// The <see cref="JsonSerializerSettings" />
-        /// </returns>
-        JsonSerializerSettings Create();
+        public int AppId { get; set; }
     }
 }

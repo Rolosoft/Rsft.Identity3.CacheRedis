@@ -9,24 +9,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// <copyright file="IJsonSettingsFactory.cs" company="Rolosoft Ltd">
+// <copyright file="CustomClientInputMapper.cs" company="Rolosoft Ltd">
 // Copyright (c) Rolosoft Ltd. All rights reserved.
 // </copyright>
-namespace Rsft.Identity3.CacheRedis.Interfaces
+namespace Rsft.Identity3.CacheRedis.Tests.Unit.SuperSimpleTests
 {
-    using Newtonsoft.Json;
+    using System.Security.Claims;
+    using CacheRedis.Logic.Mappers;
+    using Entities.Serialization;
+    using IdentityServer3.Core.Models;
+    using Interfaces;
 
-    /// <summary>
-    /// The Converter Factory
-    /// </summary>
-    public interface IJsonSettingsFactory
+    public sealed class CustomClientInputMapper : DefaultClientInputMapper<Client>
     {
         /// <summary>
-        /// Creates this instance.
+        /// Initializes a new instance of the <see cref="CustomClientInputMapper"/> class.
         /// </summary>
-        /// <returns>
-        /// The <see cref="JsonSerializerSettings" />
-        /// </returns>
-        JsonSerializerSettings Create();
+        /// <param name="claimsMapper">The claims mapper.</param>
+        public CustomClientInputMapper(IInputMapper<SimpleClaim, Claim> claimsMapper)
+            : base(claimsMapper)
+        {
+        }
     }
 }

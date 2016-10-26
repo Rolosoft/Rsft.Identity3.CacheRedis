@@ -16,6 +16,7 @@ namespace Rsft.Identity3.CacheRedis.Entities.Serialization
 {
     using System;
     using System.Collections.Generic;
+    using IdentityServer3.Core.Models;
     using Newtonsoft.Json;
 
     /// <summary>
@@ -39,7 +40,7 @@ namespace Rsft.Identity3.CacheRedis.Entities.Serialization
         /// Gets or sets the client.
         /// </summary>
         [JsonProperty("cl")]
-        public SimpleClient Client { get; set; }
+        public Client Client { get; set; }
 
         /// <summary>
         /// Gets or sets the creation time.

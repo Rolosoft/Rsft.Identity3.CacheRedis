@@ -33,8 +33,8 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic.Stores
     /// The Token Handle Store Tests
     /// </summary>
     [TestFixture]
-    //    [Ignore("Set REDIS Connection string in TestHelpers.RedisHelpers to your local dev store")]
-    public sealed class TokenHandleStoreTests : TestBase
+    // [Ignore("Set REDIS Connection string in TestHelpers.RedisHelpers to your local dev store")]
+    public sealed class CustomTokenHandleStoreTests : TestBase
     {
         /// <summary>
         /// Gets the asynchronous when called expect response.
@@ -72,6 +72,8 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic.Stores
             this.WriteTimeElapsed(stopwatch);
 
             Assert.That(token, Is.Not.Null);
+
+            Assert.That(token.Client.GetType(), Is.EqualTo(typeof(CustomClient)));
         }
 
         /// <summary>
@@ -188,9 +190,10 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic.Stores
             var claim1 = new Claim("Type1", "Value1");
             var claim2 = new Claim("Type2", "Value2");
 
-            var client = new Client
+            var client = new CustomClient
             {
-                Claims = new List<Claim> { claim1, claim2 }
+                Claims = new List<Claim> { claim1, claim2 },
+                AppId = 12
             };
 
             var token = new SimpleToken

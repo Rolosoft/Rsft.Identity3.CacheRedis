@@ -43,7 +43,7 @@ namespace Rsft.Identity3.CacheRedis.Tests.Unit.Logic.Mappers
 
             mockClaimsMapper.Setup(r => r.ToComplexEntity(It.IsAny<IEnumerable<SimpleClaim>>())).Returns(new List<Claim> { new Claim("DEFAULT", "DEFAULT") });
 
-            var clientMappers = new ClientMappers(mockClaimsMapper.Object);
+            var clientMappers = new ClientMappers<Client>(mockClaimsMapper.Object);
 
             var secret = new Secret("Value", "Description", new DateTimeOffset(new DateTime(2016, 1, 1))) { Type = "Type" };
 
@@ -109,7 +109,7 @@ namespace Rsft.Identity3.CacheRedis.Tests.Unit.Logic.Mappers
 
             mockClaimsMapper.Setup(r => r.ToSimpleEntity(It.IsAny<IEnumerable<Claim>>())).Returns(new List<SimpleClaim> { new SimpleClaim() });
 
-            var clientMappers = new ClientMappers(mockClaimsMapper.Object);
+            var clientMappers = new ClientMappers<Client>(mockClaimsMapper.Object);
 
             var secret = new Secret("Value", "Description", new DateTimeOffset(new DateTime(2016, 1, 1))) { Type = "Type" };
 

@@ -15,6 +15,7 @@
 namespace Rsft.Identity3.CacheRedis.Logic
 {
     using System;
+    using System.Diagnostics.Contracts;
     using System.Security.Claims;
     using Entities.Serialization;
     using IdentityServer3.Core.Models;
@@ -28,25 +29,38 @@ namespace Rsft.Identity3.CacheRedis.Logic
         /// <summary>
         /// The lazy settings
         /// </summary>
-        private static readonly Lazy<JsonSerializerSettings> LazySettings = new Lazy<JsonSerializerSettings>(Initialize);
+        private static Lazy<JsonSerializerSettings> lazySettings;
 
         /// <summary>
-        /// The cache configuration
+        /// The client mapper
         /// </summary>
-        private static bool useCompressionLocal;
+        private readonly IClientMapper<Client> clientMapper;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="JsonSettingsFactory"/> class.
+        /// </summary>
+        /// <param name="clientMapper">The client mapper.</param>
+        public JsonSettingsFactory(IClientMapper<Client> clientMapper)
+        {
+            Contract.Requires(clientMapper != null);
+
+            this.clientMapper = clientMapper;
+        }
 
         /// <summary>
         /// Creates this instance.
         /// </summary>
-        /// <param name="useCompression">if set to <c>true</c> [use compression].</param>
         /// <returns>
         /// The <see cref="JsonSerializerSettings" />
         /// </returns>
-        public JsonSerializerSettings Create(bool useCompression)
+        public JsonSerializerSettings Create()
         {
-            useCompressionLocal = useCompression;
+            if (lazySettings == null)
+            {
+                lazySettings = new Lazy<JsonSerializerSettings>(this.Initialize);
+            }
 
-            return LazySettings.Value;
+            return lazySettings.Value;
         }
 
         /// <summary>
@@ -55,20 +69,18 @@ namespace Rsft.Identity3.CacheRedis.Logic
         /// <returns>
         /// The <see cref="JsonSerializerSettings" />
         /// </returns>
-        private static JsonSerializerSettings Initialize()
+        private JsonSerializerSettings Initialize()
         {
             var settings = new JsonSerializerSettings();
 
             var scopeMapper = new ScopeMappers();
             var claimMapper = new ClaimMappers();
-            var clientMapper = new ClientMappers(claimMapper);
             var claimsIdentityMapper = new ClaimsIdentityMappers(claimMapper);
             var claimsPrincipalMapper = new ClaimsPrincipalMappers(claimsIdentityMapper);
 
             settings.Converters.Add(new GenericConverter<SimpleClaim, Claim>(claimMapper));
             settings.Converters.Add(new GenericConverter<SimpleClaimsIdentity, ClaimsIdentity>(claimsIdentityMapper));
             settings.Converters.Add(new GenericConverter<SimpleClaimsPrincipal, ClaimsPrincipal>(claimsPrincipalMapper));
-            settings.Converters.Add(new GenericConverter<SimpleClient, Client>(clientMapper));
             settings.Converters.Add(new GenericConverter<SimpleScope, Scope>(scopeMapper));
 
             return settings;

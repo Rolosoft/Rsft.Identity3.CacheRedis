@@ -36,7 +36,7 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic.Stores
     /// </summary>
     /// <seealso cref="TestBase" />
     [TestFixture]
-    [Ignore("Set REDIS Connection string in TestHelpers.RedisHelpers to your local dev store")]
+    //  [Ignore("Set REDIS Connection string in TestHelpers.RedisHelpers to your local dev store")]
     public sealed class AuthorizationCodeStoreTests : TestBase
     {
         /// <summary>
@@ -55,7 +55,7 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic.Stores
                     UseObjectCompression = false
                 });
 
-            var jsonSettingsFactory = new JsonSettingsFactory();
+            var jsonSettingsFactory = new JsonSettingsFactory(new ClientMapperBase<Client>());
 
             var cacheManager = new RedisCacheManager<AuthorizationCode>(
                 RedisHelpers.ConnectionMultiplexer,
@@ -114,7 +114,7 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic.Stores
                     UseObjectCompression = false
                 });
 
-            var jsonSettingsFactory = new JsonSettingsFactory();
+            var jsonSettingsFactory = new JsonSettingsFactory(new ClientMapperBase<Client>());
 
             var cacheManager = new RedisCacheManager<AuthorizationCode>(
                 RedisHelpers.ConnectionMultiplexer,
@@ -156,7 +156,7 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic.Stores
                     UseObjectCompression = false
                 });
 
-            var jsonSettingsFactory = new JsonSettingsFactory();
+            var jsonSettingsFactory = new JsonSettingsFactory(new ClientMapperBase<Client>());
 
             var cacheManager = new RedisCacheManager<AuthorizationCode>(
                 RedisHelpers.ConnectionMultiplexer,
@@ -249,7 +249,7 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic.Stores
                 WasConsentShown = true
             };
 
-            var settings = new JsonSettingsFactory().Create(false);
+            var settings = new JsonSettingsFactory(new ClientMapperBase<Client>()).Create();
 
             var serialized = JsonConvert.SerializeObject(code, settings);
 

@@ -21,7 +21,7 @@ namespace Rsft.Identity3.CacheRedis.Interfaces
     /// </summary>
     /// <typeparam name="TSimpleEntity">The type of the simple entity.</typeparam>
     /// <typeparam name="TComplexEntity">The type of the complex entity.</typeparam>
-    public interface IMapper<TSimpleEntity, TComplexEntity>
+    internal interface IMapper<TSimpleEntity, TComplexEntity>
         where TSimpleEntity : class
         where TComplexEntity : class
     {

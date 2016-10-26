@@ -65,12 +65,11 @@ namespace Rsft.Identity3.CacheRedis.Logic.Mappers
             }
 
             var claims = this.claimsMapper.ToComplexEntity(source.Claims);
-            var client = this.clientMapper.ToComplexEntity(source.Client);
 
             return new Token
             {
                 Claims = claims.ToList(),
-                Client = client,
+                Client = source.Client,
                 Type = source.Type,
                 CreationTime = source.CreationTime,
                 Audience = source.Audience,
@@ -95,12 +94,11 @@ namespace Rsft.Identity3.CacheRedis.Logic.Mappers
             }
 
             var claims = this.claimsMapper.ToSimpleEntity(source.Claims);
-            var client = this.clientMapper.ToSimpleEntity(source.Client);
 
             return new SimpleToken
             {
                 Claims = claims.ToList(),
-                Client = client,
+                Client = source.Client,
                 Type = source.Type,
                 CreationTime = source.CreationTime,
                 Version = source.Version,

@@ -9,24 +9,32 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// <copyright file="IJsonSettingsFactory.cs" company="Rolosoft Ltd">
+// <copyright file="IPropertGetSetters.cs" company="Rolosoft Ltd">
 // Copyright (c) Rolosoft Ltd. All rights reserved.
 // </copyright>
-namespace Rsft.Identity3.CacheRedis.Interfaces
+
+namespace Rsft.Identity3.CacheRedis.Interfaces.Serialization
 {
-    using Newtonsoft.Json;
+    using System;
+    using System.Collections.Generic;
 
     /// <summary>
-    /// The Converter Factory
+    /// The Property Get Setters
     /// </summary>
-    public interface IJsonSettingsFactory
+    public interface IPropertGetSetters
     {
         /// <summary>
-        /// Creates this instance.
+        /// Gets the getters.
         /// </summary>
-        /// <returns>
-        /// The <see cref="JsonSerializerSettings" />
-        /// </returns>
-        JsonSerializerSettings Create();
+        /// <param name="t">The t.</param>
+        /// <returns>The <see cref="IEnumerable{T}"/></returns>
+        Dictionary<string, Func<object, object>> GetGetters(Type t);
+
+        /// <summary>
+        /// Gets the setters.
+        /// </summary>
+        /// <param name="t">The t.</param>
+        /// <returns>The <see cref="IEnumerable{T}"/></returns>
+        Dictionary<string, Action<object, object>> GetSetters(Type t);
     }
 }

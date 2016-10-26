@@ -9,24 +9,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// <copyright file="IJsonSettingsFactory.cs" company="Rolosoft Ltd">
+// <copyright file="PropertyInfoStoreTestEntity.cs" company="Rolosoft Ltd">
 // Copyright (c) Rolosoft Ltd. All rights reserved.
 // </copyright>
-namespace Rsft.Identity3.CacheRedis.Interfaces
+namespace Rsft.Identity3.CacheRedis.Tests.Unit.Serialization.TestEntities
 {
-    using Newtonsoft.Json;
-
-    /// <summary>
-    /// The Converter Factory
-    /// </summary>
-    public interface IJsonSettingsFactory
+    public sealed class PropertyInfoStoreTestEntity : GetSetterTestEntity
     {
         /// <summary>
-        /// Creates this instance.
+        /// Gets or sets the new value.
         /// </summary>
-        /// <returns>
-        /// The <see cref="JsonSerializerSettings" />
-        /// </returns>
-        JsonSerializerSettings Create();
+        public string NewValue { get; set; }
     }
 }

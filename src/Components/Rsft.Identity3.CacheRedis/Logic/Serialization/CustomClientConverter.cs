@@ -9,41 +9,49 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// <copyright file="GenericConverter.cs" company="Rolosoft Ltd">
+// <copyright file="CustomClientConverter.cs" company="Rolosoft Ltd">
 // Copyright (c) Rolosoft Ltd. All rights reserved.
 // </copyright>
 namespace Rsft.Identity3.CacheRedis.Logic.Serialization
 {
     using System;
     using System.Diagnostics.Contracts;
+    using Entities.Serialization;
     using Helpers;
+    using IdentityServer3.Core.Models;
     using Interfaces;
     using Newtonsoft.Json;
 
     /// <summary>
     /// The Generic Converter
     /// </summary>
-    /// <typeparam name="TSimpleEntity">The type of the simple entity.</typeparam>
-    /// <typeparam name="TComplexEntity">The type of the complex entity.</typeparam>
     /// <seealso cref="Newtonsoft.Json.JsonConverter" />
-    internal sealed class GenericConverter<TSimpleEntity, TComplexEntity> : JsonConverter
-        where TSimpleEntity : class
-        where TComplexEntity : class
+    internal sealed class CustomClientConverter : JsonConverter
     {
         /// <summary>
-        /// The mapper
+        /// The input mapper
         /// </summary>
-        private readonly IMapper<TSimpleEntity, TComplexEntity> mapper;
+        private readonly IInputMapper<SimpleClient, Client> inputMapper;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="GenericConverter{TSimpleEntity, TComplexEntity}"/> class.
+        /// The output mapper
         /// </summary>
-        /// <param name="mapper">The mapper.</param>
-        public GenericConverter(IMapper<TSimpleEntity, TComplexEntity> mapper)
-        {
-            Contract.Requires(mapper != null);
+        private readonly IOutputMapper<SimpleClient, Client> outputMapper;
 
-            this.mapper = mapper;
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CustomClientConverter"/> class.
+        /// </summary>
+        /// <param name="inputMapper">The input mapper.</param>
+        /// <param name="outputMapper">The output mapper.</param>
+        public CustomClientConverter(
+            IInputMapper<SimpleClient, Client> inputMapper,
+            IOutputMapper<SimpleClient, Client> outputMapper)
+        {
+            Contract.Requires(inputMapper != null);
+            Contract.Requires(outputMapper != null);
+
+            this.inputMapper = inputMapper;
+            this.outputMapper = outputMapper;
         }
 
         /// <summary>
@@ -55,11 +63,7 @@ namespace Rsft.Identity3.CacheRedis.Logic.Serialization
         /// </returns>
         public override bool CanConvert(Type objectType)
         {
-            var complexType = typeof(TComplexEntity);
-
-            var x = objectType.IsSubclassOf(typeof(TComplexEntity));
-
-            return objectType != null && (objectType == typeof(TComplexEntity) || objectType.IsSubclassOf(typeof(TComplexEntity)));
+            return objectType != null && (objectType == typeof(Client) || objectType.IsSubclassOf(typeof(Client)));
         }
 
         /// <summary>
@@ -78,10 +82,11 @@ namespace Rsft.Identity3.CacheRedis.Logic.Serialization
             object existingValue,
             JsonSerializer serializer)
         {
-            var source = serializer.SafeDeserialize<TSimpleEntity>(reader);
-            var target = this.mapper.ToComplexEntity(source);
+            var source = serializer.SafeDeserialize<SimpleClient>(reader);
 
-            return target;
+            var rtn = this.outputMapper.Map(source);
+
+            return rtn;
         }
 
         /// <summary>
@@ -92,8 +97,9 @@ namespace Rsft.Identity3.CacheRedis.Logic.Serialization
         /// <param name="serializer">The calling serializer.</param>
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            var source = (TComplexEntity)value;
-            var target = this.mapper.ToSimpleEntity(source);
+            var source = (Client)value;
+
+            var target = this.inputMapper.Map(source);
 
             serializer.Serialize(writer, target);
         }

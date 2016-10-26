@@ -9,24 +9,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// <copyright file="IJsonSettingsFactory.cs" company="Rolosoft Ltd">
+// <copyright file="IInputMapper.cs" company="Rolosoft Ltd">
 // Copyright (c) Rolosoft Ltd. All rights reserved.
 // </copyright>
 namespace Rsft.Identity3.CacheRedis.Interfaces
 {
-    using Newtonsoft.Json;
-
     /// <summary>
-    /// The Converter Factory
+    /// The Config Mapper Interface
     /// </summary>
-    public interface IJsonSettingsFactory
+    /// <typeparam name="TSimple">The type of the simple.</typeparam>
+    /// <typeparam name="TComplex">The type of the complex.</typeparam>
+    public interface IOutputMapper<in TSimple, out TComplex>
     {
         /// <summary>
-        /// Creates this instance.
+        /// Maps the specified simple.
         /// </summary>
+        /// <param name="source">The source.</param>
         /// <returns>
-        /// The <see cref="JsonSerializerSettings" />
+        /// The TComplex
         /// </returns>
-        JsonSerializerSettings Create();
+        TComplex Map(TSimple source);
     }
 }
