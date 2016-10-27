@@ -55,10 +55,6 @@ namespace Rsft.Identity3.CacheRedis.Logic.Serialization
         /// </returns>
         public override bool CanConvert(Type objectType)
         {
-            var complexType = typeof(TComplexEntity);
-
-            var x = objectType.IsSubclassOf(typeof(TComplexEntity));
-
             return objectType != null && (objectType == typeof(TComplexEntity) || objectType.IsSubclassOf(typeof(TComplexEntity)));
         }
 

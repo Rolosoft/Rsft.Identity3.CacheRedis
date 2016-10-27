@@ -14,42 +14,58 @@
 // </copyright>
 namespace Rsft.Identity3.CacheRedis.Logic.Mappers
 {
+    using System.Diagnostics.Contracts;
     using Entities.Serialization;
     using IdentityServer3.Core.Models;
+    using Interfaces.Serialization;
 
     /// <summary>
     /// The Scope Mappers
     /// </summary>
-    internal sealed class ScopeMappers : BaseMapper<SimpleScope, Scope>
+    /// <typeparam name="TScope">The type of the scope.</typeparam>
+    /// <seealso cref="GenericMapper{SimpleScope, TScope}" />
+    internal sealed class ScopeMappers<TScope> : GenericMapper<SimpleScope, TScope>
+        where TScope : Scope, new()
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ScopeMappers{TScope}"/> class.
+        /// </summary>
+        /// <param name="propertyMapper">The property mapper.</param>
+        public ScopeMappers(IPropertyGetSettersTyped<TScope> propertyMapper)
+            : base(propertyMapper)
+        {
+            Contract.Requires(propertyMapper != null);
+        }
+
         /// <summary>
         /// To the complex entity.
         /// </summary>
         /// <param name="source">The source.</param>
         /// <returns>The <see cref="ToComplexEntity"/></returns>
-        public override Scope ToComplexEntity(SimpleScope source)
+        public override TScope ToComplexEntity(SimpleScope source)
         {
             if (source == null)
             {
                 return null;
             }
 
-            return new Scope
-            {
-                Claims = source.Claims,
-                Type = source.Type,
-                Enabled = source.Enabled,
-                AllowUnrestrictedIntrospection = source.AllowUnrestrictedIntrospection,
-                Required = source.Required,
-                Emphasize = source.Emphasize,
-                IncludeAllClaimsForUser = source.IncludeAllClaimsForUser,
-                ShowInDiscoveryDocument = source.ShowInDiscoveryDocument,
-                ScopeSecrets = source.ScopeSecrets,
-                ClaimsRule = source.ClaimsRule,
-                Name = source.Name,
-                Description = source.Description,
-                DisplayName = source.DisplayName
-            };
+            var scope = base.ToComplexEntity(source);
+
+            scope.Claims = source.Claims;
+            scope.Type = source.Type;
+            scope.Enabled = source.Enabled;
+            scope.AllowUnrestrictedIntrospection = source.AllowUnrestrictedIntrospection;
+            scope.Required = source.Required;
+            scope.Emphasize = source.Emphasize;
+            scope.IncludeAllClaimsForUser = source.IncludeAllClaimsForUser;
+            scope.ShowInDiscoveryDocument = source.ShowInDiscoveryDocument;
+            scope.ScopeSecrets = source.ScopeSecrets;
+            scope.ClaimsRule = source.ClaimsRule;
+            scope.Name = source.Name;
+            scope.Description = source.Description;
+            scope.DisplayName = source.DisplayName;
+
+            return scope;
         }
 
         /// <summary>
@@ -57,29 +73,32 @@ namespace Rsft.Identity3.CacheRedis.Logic.Mappers
         /// </summary>
         /// <param name="source">The source.</param>
         /// <returns>The <see cref="SimpleScope"/></returns>
-        public override SimpleScope ToSimpleEntity(Scope source)
+        public override SimpleScope ToSimpleEntity(object source)
         {
             if (source == null)
             {
                 return null;
             }
 
-            return new SimpleScope
-            {
-                Claims = source.Claims,
-                Enabled = source.Enabled,
-                Type = source.Type,
-                Name = source.Name,
-                AllowUnrestrictedIntrospection = source.AllowUnrestrictedIntrospection,
-                ClaimsRule = source.ClaimsRule,
-                Description = source.Description,
-                DisplayName = source.DisplayName,
-                Emphasize = source.Emphasize,
-                IncludeAllClaimsForUser = source.IncludeAllClaimsForUser,
-                Required = source.Required,
-                ScopeSecrets = source.ScopeSecrets,
-                ShowInDiscoveryDocument = source.ShowInDiscoveryDocument
-            };
+            var scopeSource = (TScope)source;
+
+            var scope = base.ToSimpleEntity(source);
+
+            scope.Claims = scopeSource.Claims;
+            scope.Enabled = scopeSource.Enabled;
+            scope.Type = scopeSource.Type;
+            scope.Name = scopeSource.Name;
+            scope.AllowUnrestrictedIntrospection = scopeSource.AllowUnrestrictedIntrospection;
+            scope.ClaimsRule = scopeSource.ClaimsRule;
+            scope.Description = scopeSource.Description;
+            scope.DisplayName = scopeSource.DisplayName;
+            scope.Emphasize = scopeSource.Emphasize;
+            scope.IncludeAllClaimsForUser = scopeSource.IncludeAllClaimsForUser;
+            scope.Required = scopeSource.Required;
+            scope.ScopeSecrets = scopeSource.ScopeSecrets;
+            scope.ShowInDiscoveryDocument = scopeSource.ShowInDiscoveryDocument;
+
+            return scope;
         }
     }
 }

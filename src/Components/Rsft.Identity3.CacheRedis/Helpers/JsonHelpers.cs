@@ -14,6 +14,7 @@
 // </copyright>
 namespace Rsft.Identity3.CacheRedis.Helpers
 {
+    using System;
     using Newtonsoft.Json;
 
     /// <summary>
@@ -21,6 +22,22 @@ namespace Rsft.Identity3.CacheRedis.Helpers
     /// </summary>
     public static class JsonHelpers
     {
+        /// <summary>
+        /// Maps the json number.
+        /// </summary>
+        /// <param name="originalType">Type of the original.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>The Corrected Type</returns>
+        public static object MapJsonNumber(Type originalType, object value)
+        {
+            if (originalType == typeof(int) && value is long)
+            {
+                return (int)(long)value;
+            }
+
+            return value;
+        }
+
         /// <summary>
         /// Safes the deserialize.
         /// </summary>

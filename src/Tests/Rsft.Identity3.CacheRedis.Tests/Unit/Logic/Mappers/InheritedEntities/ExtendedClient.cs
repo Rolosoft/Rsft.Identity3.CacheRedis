@@ -9,25 +9,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// <copyright file="IInputMapper.cs" company="Rolosoft Ltd">
+// <copyright file="ExtendedClient.cs" company="Rolosoft Ltd">
 // Copyright (c) Rolosoft Ltd. All rights reserved.
 // </copyright>
-namespace Rsft.Identity3.CacheRedis.Interfaces
+namespace Rsft.Identity3.CacheRedis.Tests.Unit.Logic.Mappers.InheritedEntities
 {
+    using System;
+    using IdentityServer3.Core.Models;
+
     /// <summary>
-    /// The Config Mapper Interface
+    /// The Extended Client
     /// </summary>
-    /// <typeparam name="TSimple">The type of the simple.</typeparam>
-    /// <typeparam name="TComplex">The type of the complex.</typeparam>
-    public interface IInputMapper<out TSimple, in TComplex>
+    public sealed class ExtendedClient : Client
     {
         /// <summary>
-        /// Maps the specified simple.
+        /// Gets or sets the custom date.
         /// </summary>
-        /// <param name="source">The source.</param>
-        /// <returns>
-        /// The TComplex
-        /// </returns>
-        TSimple Map(TComplex source);
+        public DateTime CustomDate { get; set; }
     }
 }

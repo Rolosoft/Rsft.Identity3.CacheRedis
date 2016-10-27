@@ -22,6 +22,7 @@ namespace Rsft.Identity3.CacheRedis.Tests.Unit.Logic.Mappers
     using Entities.Serialization;
     using IdentityServer3.Core.Models;
     using Interfaces;
+    using Interfaces.Serialization;
     using Moq;
     using NUnit.Framework;
 
@@ -38,18 +39,19 @@ namespace Rsft.Identity3.CacheRedis.Tests.Unit.Logic.Mappers
         public void ToComplexEntity_WhenSimpleEntity_ExpectCorrectMap()
         {
             // Arrange
+            var mockPropertyMapper = new Mock<IPropertyGetSettersTyped<Token>>();
             var mockClaimsMapper = new Mock<IMapper<SimpleClaim, Claim>>();
             var mockClientMapper = new Mock<IMapper<SimpleClient, Client>>();
 
             mockClaimsMapper.Setup(r => r.ToComplexEntity(It.IsAny<SimpleClaim>())).Returns(new Claim("Val1", "Val2"));
             mockClientMapper.Setup(r => r.ToComplexEntity(It.IsAny<SimpleClient>())).Returns(new Client());
 
-            var tokenMappers = new TokenMapper(mockClaimsMapper.Object, mockClientMapper.Object);
+            var tokenMappers = new TokenMapper<Token>(mockPropertyMapper.Object, mockClaimsMapper.Object, mockClientMapper.Object);
 
             var simpleEntity = new SimpleToken
             {
                 Claims = new List<SimpleClaim>(),
-                Client = new Client(),
+                Client = new SimpleClient(),
                 Type = "Type",
                 CreationTime = new DateTimeOffset(new DateTime(2016, 1, 1)),
                 Issuer = "Issuer",
@@ -85,13 +87,21 @@ namespace Rsft.Identity3.CacheRedis.Tests.Unit.Logic.Mappers
         public void ToSimpleEntity_WhenComplexEntity_ExpectCorrectMap()
         {
             // Arrange
+            var mockPropertyMapper = new Mock<IPropertyGetSettersTyped<Token>>();
+
             var mockClaimsMapper = new Mock<IMapper<SimpleClaim, Claim>>();
             var mockClientMapper = new Mock<IMapper<SimpleClient, Client>>();
+
+            mockPropertyMapper.Setup(r => r.GetGetters(It.IsAny<Type>()))
+                .Returns(new Dictionary<string, Func<Token, object>>());
 
             mockClaimsMapper.Setup(r => r.ToSimpleEntity(It.IsAny<Claim>())).Returns(new SimpleClaim());
             mockClientMapper.Setup(r => r.ToSimpleEntity(It.IsAny<Client>())).Returns(new SimpleClient());
 
-            var tokenMappers = new TokenMapper(mockClaimsMapper.Object, mockClientMapper.Object);
+            var tokenMappers = new TokenMapper<Token>(
+                mockPropertyMapper.Object,
+                mockClaimsMapper.Object,
+                mockClientMapper.Object);
 
             var complexEntity = new Token
             {

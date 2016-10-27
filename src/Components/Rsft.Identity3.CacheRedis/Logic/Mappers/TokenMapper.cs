@@ -20,11 +20,15 @@ namespace Rsft.Identity3.CacheRedis.Logic.Mappers
     using Entities.Serialization;
     using IdentityServer3.Core.Models;
     using Interfaces;
+    using Interfaces.Serialization;
 
     /// <summary>
     /// The Token Mapper
     /// </summary>
-    internal sealed class TokenMapper : BaseMapper<SimpleToken, Token>
+    /// <typeparam name="TToken">The type of the token.</typeparam>
+    /// <seealso cref="GenericMapper{SimpleToken, TToken}" />
+    internal sealed class TokenMapper<TToken> : GenericMapper<SimpleToken, TToken>
+        where TToken : Token, new()
     {
         /// <summary>
         /// The claims mapper
@@ -37,12 +41,18 @@ namespace Rsft.Identity3.CacheRedis.Logic.Mappers
         private readonly IMapper<SimpleClient, Client> clientMapper;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="TokenMapper" /> class.
+        /// Initializes a new instance of the <see cref="TokenMapper{TToken}"/> class.
         /// </summary>
+        /// <param name="propertyMapper">The property mapper.</param>
         /// <param name="claimsMapper">The claims mapper.</param>
         /// <param name="clientMapper">The client mapper.</param>
-        public TokenMapper(IMapper<SimpleClaim, Claim> claimsMapper, IMapper<SimpleClient, Client> clientMapper)
+        public TokenMapper(
+            IPropertyGetSettersTyped<TToken> propertyMapper,
+            IMapper<SimpleClaim, Claim> claimsMapper,
+            IMapper<SimpleClient, Client> clientMapper)
+            : base(propertyMapper)
         {
+            Contract.Requires(propertyMapper != null);
             Contract.Requires(claimsMapper != null);
             Contract.Requires(clientMapper != null);
 
@@ -57,7 +67,7 @@ namespace Rsft.Identity3.CacheRedis.Logic.Mappers
         /// <returns>
         /// The TComplexEntity
         /// </returns>
-        public override Token ToComplexEntity(SimpleToken source)
+        public override TToken ToComplexEntity(SimpleToken source)
         {
             if (source == null)
             {
@@ -65,18 +75,20 @@ namespace Rsft.Identity3.CacheRedis.Logic.Mappers
             }
 
             var claims = this.claimsMapper.ToComplexEntity(source.Claims);
+            var client = this.clientMapper.ToComplexEntity(source.Client);
 
-            return new Token
-            {
-                Claims = claims.ToList(),
-                Client = source.Client,
-                Type = source.Type,
-                CreationTime = source.CreationTime,
-                Audience = source.Audience,
-                Issuer = source.Issuer,
-                Lifetime = source.Lifetime,
-                Version = source.Version
-            };
+            var token = base.ToComplexEntity(source);
+
+            token.Claims = claims.ToList();
+            token.Client = client;
+            token.Type = source.Type;
+            token.CreationTime = source.CreationTime;
+            token.Audience = source.Audience;
+            token.Issuer = source.Issuer;
+            token.Lifetime = source.Lifetime;
+            token.Version = source.Version;
+
+            return token;
         }
 
         /// <summary>
@@ -86,26 +98,30 @@ namespace Rsft.Identity3.CacheRedis.Logic.Mappers
         /// <returns>
         /// The TSimpleEntity
         /// </returns>
-        public override SimpleToken ToSimpleEntity(Token source)
+        public override SimpleToken ToSimpleEntity(object source)
         {
             if (source == null)
             {
                 return null;
             }
 
-            var claims = this.claimsMapper.ToSimpleEntity(source.Claims);
+            var tokenSource = (TToken)source;
 
-            return new SimpleToken
-            {
-                Claims = claims.ToList(),
-                Client = source.Client,
-                Type = source.Type,
-                CreationTime = source.CreationTime,
-                Version = source.Version,
-                Issuer = source.Issuer,
-                Lifetime = source.Lifetime,
-                Audience = source.Audience
-            };
+            var claims = this.claimsMapper.ToSimpleEntity(tokenSource.Claims);
+            var client = this.clientMapper.ToSimpleEntity(tokenSource.Client);
+
+            var token = base.ToSimpleEntity(source);
+
+            token.Claims = claims.ToList();
+            token.Client = client;
+            token.Type = tokenSource.Type;
+            token.CreationTime = tokenSource.CreationTime;
+            token.Version = tokenSource.Version;
+            token.Issuer = tokenSource.Issuer;
+            token.Lifetime = tokenSource.Lifetime;
+            token.Audience = tokenSource.Audience;
+
+            return token;
         }
     }
 }

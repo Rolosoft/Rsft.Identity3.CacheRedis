@@ -68,24 +68,26 @@ namespace Rsft.Identity3.CacheRedis.Logic.Mappers
         /// </summary>
         /// <param name="source">The source.</param>
         /// <returns>The <see cref="SimpleClaimsIdentity"/></returns>
-        public override SimpleClaimsIdentity ToSimpleEntity(ClaimsIdentity source)
+        public override SimpleClaimsIdentity ToSimpleEntity(object source)
         {
             if (source == null)
             {
                 return null;
             }
 
-            var claims = this.claimMapper.ToSimpleEntity(source.Claims);
-            var actor = this.ToSimpleEntity(source.Actor);
+            var claimsIdentity = (ClaimsIdentity)source;
+
+            var claims = this.claimMapper.ToSimpleEntity(claimsIdentity.Claims);
+            var actor = this.ToSimpleEntity(claimsIdentity.Actor);
 
             return new SimpleClaimsIdentity
             {
                 Claims = claims,
-                AuthenticationType = source.AuthenticationType,
-                Label = source.Label,
-                BootstrapContext = source.BootstrapContext,
-                RoleClaimType = source.RoleClaimType,
-                NameClaimType = source.NameClaimType,
+                AuthenticationType = claimsIdentity.AuthenticationType,
+                Label = claimsIdentity.Label,
+                BootstrapContext = claimsIdentity.BootstrapContext,
+                RoleClaimType = claimsIdentity.RoleClaimType,
+                NameClaimType = claimsIdentity.NameClaimType,
                 Actor = actor
             };
         }

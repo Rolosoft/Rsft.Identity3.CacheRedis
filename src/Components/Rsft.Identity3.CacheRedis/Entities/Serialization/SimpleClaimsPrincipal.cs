@@ -20,7 +20,7 @@ namespace Rsft.Identity3.CacheRedis.Entities.Serialization
     /// <summary>
     /// The Simple Claims Principal
     /// </summary>
-    internal sealed class SimpleClaimsPrincipal
+    public sealed class SimpleClaimsPrincipal
     {
         /// <summary>
         /// Gets or sets the identities.

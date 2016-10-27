@@ -9,46 +9,68 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// <copyright file="PropertGetSetters.cs" company="Rolosoft Ltd">
+// <copyright file="PropertyGetSettersTyped.cs" company="Rolosoft Ltd">
 // Copyright (c) Rolosoft Ltd. All rights reserved.
 // </copyright>
 namespace Rsft.Identity3.CacheRedis.Logic.Serialization
 {
     using System;
-    using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using System.Diagnostics.Contracts;
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
+    using Entities;
     using Interfaces.Serialization;
 
     /// <summary>
-    /// The Propert Get Setters
+    /// The PropertGetSettersTyped
     /// </summary>
-    public sealed class PropertGetSetters : IPropertGetSetters
+    /// <typeparam name="TType">The type of the type.</typeparam>
+    /// <seealso cref="IPropertyGetSettersTyped{TType}" />
+    internal sealed class PropertyGetSettersTyped<TType> : IPropertyGetSettersTyped<TType>
     {
         /// <summary>
         /// The getters
         /// </summary>
-        private static readonly ConcurrentDictionary<Type, Dictionary<string, Func<object, object>>> Getters =
-            new ConcurrentDictionary<Type, Dictionary<string, Func<object, object>>>();
+        private static Dictionary<string, Func<TType, object>> getters;
 
         /// <summary>
         /// The setters
         /// </summary>
-        private static readonly ConcurrentDictionary<Type, Dictionary<string, Action<object, object>>> Setters =
-            new ConcurrentDictionary<Type, Dictionary<string, Action<object, object>>>();
+        private static Dictionary<string, TypedSetter<TType>> setters;
+
+        /// <summary>
+        /// The property information store
+        /// </summary>
+        private readonly IPropertyInfoStore propertyInfoStore;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PropertyGetSettersTyped{TType}"/> class.
+        /// </summary>
+        /// <param name="propertyInfoStore">The property information store.</param>
+        public PropertyGetSettersTyped(IPropertyInfoStore propertyInfoStore)
+        {
+            Contract.Requires(propertyInfoStore != null);
+
+            this.propertyInfoStore = propertyInfoStore;
+        }
 
         /// <summary>
         /// Gets the getters.
         /// </summary>
         /// <param name="t">The t.</param>
         /// <returns>
-        /// The <see cref="IEnumerable{T}" />
+        /// The <see cref="T:System.Collections.Generic.IEnumerable`1" />
         /// </returns>
-        public Dictionary<string, Func<object, object>> GetGetters(Type t)
+        public Dictionary<string, Func<TType, object>> GetGetters(Type t)
         {
-            return Getters.GetOrAdd(t, GetValueFactory(t));
+            if (getters == null)
+            {
+                getters = this.GetValueFactory(t);
+            }
+
+            return getters;
         }
 
         /// <summary>
@@ -56,30 +78,32 @@ namespace Rsft.Identity3.CacheRedis.Logic.Serialization
         /// </summary>
         /// <param name="t">The t.</param>
         /// <returns>
-        /// The <see cref="IEnumerable{T}" />
+        /// The <see cref="T:System.Collections.Generic.IEnumerable`1" />
         /// </returns>
-        public Dictionary<string, Action<object, object>> GetSetters(Type t)
+        public Dictionary<string, TypedSetter<TType>> GetSetters(Type t)
         {
-            return Setters.GetOrAdd(t, SetValueFactory(t));
+            if (setters == null)
+            {
+                setters = this.SetValueFactory(t);
+            }
+
+            return setters;
         }
 
         /// <summary>
         /// Gets the getter.
         /// </summary>
-        /// <param name="sourceType">Type of the source.</param>
-        /// <param name="propertyName">Name of the property.</param>
+        /// <param name="propertyInfo">The property information.</param>
         /// <returns>
         /// The <see cref="" />
         /// </returns>
-        private static Func<object, object> GetGetter(PropertyInfo propertyInfo)
+        private static Func<TType, object> GetGetter(PropertyInfo propertyInfo)
         {
             var instance = Expression.Parameter(propertyInfo.DeclaringType, "i");
-
             var property = Expression.Property(instance, propertyInfo);
-
             var convert = Expression.TypeAs(property, typeof(object));
 
-            return Expression.Lambda<Func<object, object>>(convert, instance).Compile();
+            return Expression.Lambda<Func<TType, object>>(convert, instance).Compile();
         }
 
         /// <summary>
@@ -88,7 +112,7 @@ namespace Rsft.Identity3.CacheRedis.Logic.Serialization
         /// <param name="targetType">Type of the target.</param>
         /// <param name="propertyName">Name of the property.</param>
         /// <returns>The <see cref="Action{T,T}"/></returns>
-        private static Action<object, object> GetSetter(Type targetType, string propertyName)
+        private static Action<TType, object> GetSetter(Type targetType, string propertyName)
         {
             var target = Expression.Parameter(typeof(object), "obj");
             var value = Expression.Parameter(typeof(object), "value");
@@ -97,7 +121,7 @@ namespace Rsft.Identity3.CacheRedis.Logic.Serialization
                 Expression.Property(Expression.Convert(target, property.DeclaringType), property),
                 Expression.Convert(value, property.PropertyType));
 
-            var lambda = Expression.Lambda<Action<object, object>>(body, target, value);
+            var lambda = Expression.Lambda<Action<TType, object>>(body, target, value);
             return lambda.Compile();
         }
 
@@ -105,11 +129,13 @@ namespace Rsft.Identity3.CacheRedis.Logic.Serialization
         /// Gets the value factory.
         /// </summary>
         /// <param name="t">The t.</param>
-        /// <returns></returns>
-        private static Dictionary<string, Func<object, object>> GetValueFactory(Type t)
+        /// <returns>
+        /// The <see cref="Dictionary{TKey,TValue}" />
+        /// </returns>
+        private Dictionary<string, Func<TType, object>> GetValueFactory(Type t)
         {
-            var props = t.GetProperties(BindingFlags.Public | BindingFlags.DeclaredOnly | BindingFlags.Instance);
-            var dictionary = props.ToDictionary(r => r.Name, r => GetGetter(r));
+            var props = this.propertyInfoStore.GetDeclaredProperties(t);
+            var dictionary = props.ToDictionary(r => r.Name, GetGetter);
             return dictionary;
         }
 
@@ -117,11 +143,15 @@ namespace Rsft.Identity3.CacheRedis.Logic.Serialization
         /// Sets the value factory.
         /// </summary>
         /// <param name="t">The t.</param>
-        /// <returns></returns>
-        private static Dictionary<string, Action<object, object>> SetValueFactory(Type t)
+        /// <returns>The <see cref="Dictionary{TKey,TValue}"/></returns>
+        private Dictionary<string, TypedSetter<TType>> SetValueFactory(Type t)
         {
-            var props = t.GetProperties(BindingFlags.Public | BindingFlags.DeclaredOnly | BindingFlags.Instance);
-            var dictionary = props.ToDictionary(r => r.Name, r => GetSetter(t, r.Name));
+            var props = this.propertyInfoStore.GetDeclaredProperties(t);
+            var dictionary = props.ToDictionary(r => r.Name, r => new TypedSetter<TType>
+            {
+                OriginalType = r.PropertyType,
+                Setter = GetSetter(t, r.Name)
+            });
             return dictionary;
         }
     }

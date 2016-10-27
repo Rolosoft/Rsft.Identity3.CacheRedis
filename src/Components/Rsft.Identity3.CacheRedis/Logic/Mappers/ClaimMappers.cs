@@ -14,13 +14,15 @@
 // </copyright>
 namespace Rsft.Identity3.CacheRedis.Logic.Mappers
 {
+    using System.Collections.Generic;
     using System.Security.Claims;
     using Entities.Serialization;
 
     /// <summary>
     /// The Claim Mappers
     /// </summary>
-    public sealed class ClaimMappers : BaseMapper<SimpleClaim, Claim>
+    /// <seealso cref="BaseMapper{SimpleClaim, TClaim}" />
+    internal sealed class ClaimMappers : BaseMapper<SimpleClaim, Claim>
     {
         /// <summary>
         /// To the simple entity.
@@ -42,21 +44,24 @@ namespace Rsft.Identity3.CacheRedis.Logic.Mappers
         /// </summary>
         /// <param name="source">The source.</param>
         /// <returns>The <see cref="SimpleClaim"/></returns>
-        public override SimpleClaim ToSimpleEntity(Claim source)
+        public override SimpleClaim ToSimpleEntity(object source)
         {
             if (source == null)
             {
                 return null;
             }
 
+            var claim = (Claim)source;
+
             return new SimpleClaim
             {
-                ValueType = source.ValueType,
-                Issuer = source.Issuer,
-                OriginalIssuer = source.OriginalIssuer,
-                Properties = source.Properties,
-                Type = source.Type,
-                Value = source.Value
+                ValueType = claim.ValueType,
+                Issuer = claim.Issuer,
+                OriginalIssuer = claim.OriginalIssuer,
+                Properties = claim.Properties,
+                Type = claim.Type,
+                Value = claim.Value,
+                DataBag = new Dictionary<string, object>()
             };
         }
     }

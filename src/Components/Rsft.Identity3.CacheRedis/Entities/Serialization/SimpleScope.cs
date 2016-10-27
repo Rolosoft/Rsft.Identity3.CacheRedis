@@ -21,7 +21,7 @@ namespace Rsft.Identity3.CacheRedis.Entities.Serialization
     /// <summary>
     /// The Simple Scope
     /// </summary>
-    internal sealed class SimpleScope
+    public sealed class SimpleScope : SimpleBase
     {
         /// <summary>
         /// Gets or sets a value indicating whether [allow unrestricted introspection].

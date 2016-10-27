@@ -17,7 +17,9 @@ namespace Rsft.Identity3.CacheRedis.Logic.Serialization
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Reflection;
+    using IdentityServer3.Core.Models;
     using Interfaces.Serialization;
 
     /// <summary>
@@ -60,16 +62,39 @@ namespace Rsft.Identity3.CacheRedis.Logic.Serialization
         }
 
         /// <summary>
+        /// Determines if the specified type is a standard type (i.e. not inherited).
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <returns>
+        ///   <c>true</c> if [is base type] [the specified type]; otherwise, <c>false</c>.
+        /// </returns>
+        private static bool IsBaseType(Type type)
+        {
+            return type == typeof(AuthorizationCode) || type == typeof(Client) || type == typeof(ScopeClaim) ||
+                   type == typeof(Scope) || type == typeof(Token) || type == typeof(RefreshToken);
+        }
+
+        /// <summary>
         /// Values the factory.
         /// </summary>
         /// <param name="type">The type.</param>
         /// <returns>
         /// The <see cref="PropertyInfo" />
         /// </returns>
-        private static Lazy<IEnumerable<PropertyInfo>> ValueFactory(IReflect type)
+        private static Lazy<IEnumerable<PropertyInfo>> ValueFactory(Type type)
         {
-            return new Lazy<IEnumerable<PropertyInfo>>(
-                () => type.GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public));
+            // If the type is not inherited from a base type, we do not need to get the custom properties (as there are none)
+            if (IsBaseType(type))
+            {
+                return new Lazy<IEnumerable<PropertyInfo>>(() => new List<PropertyInfo>());
+            }
+
+            var rtn = new Lazy<IEnumerable<PropertyInfo>>(
+                () => type.GetProperties(
+                    BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public |
+                    BindingFlags.SetProperty).Where(r => r.CanWrite));
+
+            return rtn;
         }
     }
 }

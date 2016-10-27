@@ -21,7 +21,7 @@ namespace Rsft.Identity3.CacheRedis.Entities.Serialization
     /// <summary>
     /// The Simple Client
     /// </summary>
-    public sealed class SimpleClient
+    public sealed class SimpleClient : SimpleBase
     {
         /// <summary>
         /// Gets or sets the absolute refresh token lifetime.
@@ -130,11 +130,6 @@ namespace Rsft.Identity3.CacheRedis.Entities.Serialization
         /// </summary>
         [JsonProperty("cu")]
         public string ClientUri { get; set; }
-
-        /// <summary>
-        /// Gets or sets the data bag.
-        /// </summary>
-        public Dictionary<string, object> DataBag { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether this <see cref="SimpleClient"/> is enabled.

@@ -21,7 +21,7 @@ namespace Rsft.Identity3.CacheRedis.Entities.Serialization
     /// <summary>
     /// The Simple Authorization Code
     /// </summary>
-    internal sealed class SimpleAuthorizationCode
+    public sealed class SimpleAuthorizationCode : SimpleBase
     {
         /// <summary>
         /// Gets or sets the client.

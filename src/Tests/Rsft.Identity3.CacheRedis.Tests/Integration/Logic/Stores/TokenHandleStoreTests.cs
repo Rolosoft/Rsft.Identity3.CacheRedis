@@ -52,7 +52,7 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic.Stores
                     UseObjectCompression = false
                 });
 
-            var jsonSettingsFactory = new JsonSettingsFactory(new ClientMapperBase<Client>());
+            var jsonSettingsFactory = new JsonSettingsFactory(new CustomMappersConfiguration());
 
             var cacheManager = new RedisCacheManager<Token>(
                 RedisHelpers.ConnectionMultiplexer,
@@ -90,7 +90,7 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic.Stores
                     UseObjectCompression = false
                 });
 
-            var jsonSettingsFactory = new JsonSettingsFactory(new ClientMapperBase<Client>());
+            var jsonSettingsFactory = new JsonSettingsFactory(new CustomMappersConfiguration());
 
             var cacheManager = new RedisCacheManager<Token>(
                 RedisHelpers.ConnectionMultiplexer,
@@ -132,7 +132,7 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic.Stores
                     UseObjectCompression = false
                 });
 
-            var jsonSettingsFactory = new JsonSettingsFactory(new ClientMapperBase<Client>());
+            var jsonSettingsFactory = new JsonSettingsFactory(new CustomMappersConfiguration());
 
             var cacheManager = new RedisCacheManager<Token>(
                 RedisHelpers.ConnectionMultiplexer,
@@ -185,17 +185,17 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic.Stores
         {
             var database = RedisHelpers.ConnectionMultiplexer.GetDatabase();
 
-            var claim1 = new Claim("Type1", "Value1");
-            var claim2 = new Claim("Type2", "Value2");
+            var claim1 = new SimpleClaim { Type = "Type1", Value = "Value1" };
+            var claim2 = new SimpleClaim { Type = "Type2", Value = "Value2" };
 
-            var client = new Client
+            var client = new SimpleClient
             {
-                Claims = new List<Claim> { claim1, claim2 }
+                Claims = new List<SimpleClaim> { claim1, claim2 }
             };
 
             var token = new SimpleToken
             {
-                Claims = new List<SimpleClaim> { new SimpleClaim(), new SimpleClaim() },
+                Claims = new List<SimpleClaim> { claim1, claim2 },
                 Client = client,
                 Type = "Type",
                 CreationTime = new DateTimeOffset(new DateTime(2016, 1, 1)),
@@ -205,7 +205,7 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic.Stores
                 Audience = "Audience"
             };
 
-            var settings = new JsonSettingsFactory(new ClientMapperBase<Client>()).Create();
+            var settings = new JsonSettingsFactory(new CustomMappersConfiguration()).Create();
 
             var serialized = JsonConvert.SerializeObject(token, settings);
 

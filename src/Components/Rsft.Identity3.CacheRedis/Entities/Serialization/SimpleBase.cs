@@ -9,15 +9,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// <copyright file="DefaultClaimsInputMapper.cs" company="Rolosoft Ltd">
+// <copyright file="SimpleBase.cs" company="Rolosoft Ltd">
 // Copyright (c) Rolosoft Ltd. All rights reserved.
 // </copyright>
-namespace Rsft.Identity3.CacheRedis.Logic.Mappers
+namespace Rsft.Identity3.CacheRedis.Entities.Serialization
 {
+    using System.Collections.Generic;
+
     /// <summary>
-    /// The Default Claims Input Mapper
+    /// Base class for all REDIS cache entities, containing a Databag for storing any additional data in inherited methods.
     /// </summary>
-    public class DefaultClaimsInputMapper
+    public abstract class SimpleBase
     {
+        /// <summary>
+        /// Gets or sets the databag.
+        /// </summary>
+        public Dictionary<string, object> DataBag { get; set; }
     }
 }

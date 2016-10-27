@@ -19,28 +19,39 @@ namespace Rsft.Identity3.CacheRedis.Logic.Mappers
     using Entities.Serialization;
     using IdentityServer3.Core.Models;
     using Interfaces;
+    using Interfaces.Serialization;
 
     /// <summary>
     /// The Refresh Token Mappers
     /// </summary>
-    internal sealed class RefreshTokenMappers : BaseMapper<SimpleRefreshToken, RefreshToken>
+    /// <typeparam name="TRefreshToken">The type of the refresh token.</typeparam>
+    /// <seealso cref="GenericMapper{SimpleRefreshToken, TRefreshToken}" />
+    internal sealed class RefreshTokenMappers<TRefreshToken> : GenericMapper<SimpleRefreshToken, TRefreshToken>
+        where TRefreshToken : RefreshToken, new()
     {
         /// <summary>
         /// The claims principal mapper
         /// </summary>
         private readonly IMapper<SimpleClaimsPrincipal, ClaimsPrincipal> claimsPrincipalMapper;
 
+        /// <summary>
+        /// The token mapper
+        /// </summary>
         private readonly IMapper<SimpleToken, Token> tokenMapper;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="RefreshTokenMappers" /> class.
+        /// Initializes a new instance of the <see cref="RefreshTokenMappers{TRefreshToken}"/> class.
         /// </summary>
+        /// <param name="propertyMapper">The property mapper.</param>
         /// <param name="claimsPrincipalMapper">The claims principal mapper.</param>
         /// <param name="tokenMapper">The token mapper.</param>
         public RefreshTokenMappers(
+            IPropertyGetSettersTyped<TRefreshToken> propertyMapper,
             IMapper<SimpleClaimsPrincipal, ClaimsPrincipal> claimsPrincipalMapper,
             IMapper<SimpleToken, Token> tokenMapper)
+            : base(propertyMapper)
         {
+            Contract.Requires(propertyMapper != null);
             Contract.Requires(claimsPrincipalMapper != null);
             Contract.Requires(tokenMapper != null);
 
@@ -55,7 +66,7 @@ namespace Rsft.Identity3.CacheRedis.Logic.Mappers
         /// <returns>
         /// The TComplexEntity
         /// </returns>
-        public override RefreshToken ToComplexEntity(SimpleRefreshToken source)
+        public override TRefreshToken ToComplexEntity(SimpleRefreshToken source)
         {
             if (source == null)
             {
@@ -65,14 +76,15 @@ namespace Rsft.Identity3.CacheRedis.Logic.Mappers
             var subject = this.claimsPrincipalMapper.ToComplexEntity(source.Subject);
             var token = this.tokenMapper.ToComplexEntity(source.AccessToken);
 
-            return new RefreshToken
-            {
-                Subject = subject,
-                CreationTime = source.CreationTime,
-                AccessToken = token,
-                LifeTime = source.LifeTime,
-                Version = source.Version
-            };
+            var refreshToken = base.ToComplexEntity(source);
+
+            refreshToken.Subject = subject;
+            refreshToken.CreationTime = source.CreationTime;
+            refreshToken.AccessToken = token;
+            refreshToken.LifeTime = source.LifeTime;
+            refreshToken.Version = source.Version;
+
+            return refreshToken;
         }
 
         /// <summary>
@@ -82,24 +94,27 @@ namespace Rsft.Identity3.CacheRedis.Logic.Mappers
         /// <returns>
         /// The TSimpleEntity
         /// </returns>
-        public override SimpleRefreshToken ToSimpleEntity(RefreshToken source)
+        public override SimpleRefreshToken ToSimpleEntity(object source)
         {
             if (source == null)
             {
                 return null;
             }
 
-            var subject = this.claimsPrincipalMapper.ToSimpleEntity(source.Subject);
-            var token = this.tokenMapper.ToSimpleEntity(source.AccessToken);
+            var refreshTokenSource = (TRefreshToken)source;
 
-            return new SimpleRefreshToken
-            {
-                Subject = subject,
-                CreationTime = source.CreationTime,
-                AccessToken = token,
-                LifeTime = source.LifeTime,
-                Version = source.Version
-            };
+            var subject = this.claimsPrincipalMapper.ToSimpleEntity(refreshTokenSource.Subject);
+            var token = this.tokenMapper.ToSimpleEntity(refreshTokenSource.AccessToken);
+
+            var refreshToken = base.ToSimpleEntity(refreshTokenSource);
+
+            refreshToken.Subject = subject;
+            refreshToken.CreationTime = refreshTokenSource.CreationTime;
+            refreshToken.AccessToken = token;
+            refreshToken.LifeTime = refreshTokenSource.LifeTime;
+            refreshToken.Version = refreshTokenSource.Version;
+
+            return refreshToken;
         }
     }
 }

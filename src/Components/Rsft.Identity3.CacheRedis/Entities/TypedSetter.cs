@@ -9,25 +9,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// <copyright file="IInputMapper.cs" company="Rolosoft Ltd">
+// <copyright file="TypedSetter.cs" company="Rolosoft Ltd">
 // Copyright (c) Rolosoft Ltd. All rights reserved.
 // </copyright>
-namespace Rsft.Identity3.CacheRedis.Interfaces
+namespace Rsft.Identity3.CacheRedis.Entities
 {
+    using System;
+
     /// <summary>
-    /// The Config Mapper Interface
+    /// The Typed Setter
     /// </summary>
-    /// <typeparam name="TSimple">The type of the simple.</typeparam>
-    /// <typeparam name="TComplex">The type of the complex.</typeparam>
-    public interface IOutputMapper<in TSimple, out TComplex>
+    /// <typeparam name="TType">The type of the type.</typeparam>
+    internal sealed class TypedSetter<TType>
     {
         /// <summary>
-        /// Maps the specified simple.
+        /// Gets or sets the type of the original.
         /// </summary>
-        /// <param name="source">The source.</param>
-        /// <returns>
-        /// The TComplex
-        /// </returns>
-        TComplex Map(TSimple source);
+        public Type OriginalType { get; set; }
+
+        /// <summary>
+        /// Gets or sets the setter.
+        /// </summary>
+        public Action<TType, object> Setter { get; set; }
     }
 }

@@ -20,7 +20,7 @@ namespace Rsft.Identity3.CacheRedis.Entities.Serialization
     /// <summary>
     /// The Simple Claims Identity
     /// </summary>
-    internal sealed class SimpleClaimsIdentity
+    public sealed class SimpleClaimsIdentity
     {
         /// <summary>
         /// Gets or sets the actor.

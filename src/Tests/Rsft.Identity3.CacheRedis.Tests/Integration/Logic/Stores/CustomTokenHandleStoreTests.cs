@@ -52,7 +52,12 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic.Stores
                     UseObjectCompression = false
                 });
 
-            var jsonSettingsFactory = new JsonSettingsFactory(new ClientMapperBase<Client>());
+            var customMappersConfiguration = new CustomMappersConfiguration
+            {
+                ClientMapper = CustomMapperFactory.CreateClientMapper<CustomClient>()
+            };
+
+            var jsonSettingsFactory = new JsonSettingsFactory(customMappersConfiguration);
 
             var cacheManager = new RedisCacheManager<Token>(
                 RedisHelpers.ConnectionMultiplexer,
@@ -74,6 +79,9 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic.Stores
             Assert.That(token, Is.Not.Null);
 
             Assert.That(token.Client.GetType(), Is.EqualTo(typeof(CustomClient)));
+
+            var customClient = (CustomClient)token.Client;
+            Assert.That(customClient.AppId, Is.EqualTo(12));
         }
 
         /// <summary>
@@ -92,7 +100,7 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic.Stores
                     UseObjectCompression = false
                 });
 
-            var jsonSettingsFactory = new JsonSettingsFactory(new ClientMapperBase<Client>());
+            var jsonSettingsFactory = new JsonSettingsFactory(new CustomMappersConfiguration());
 
             var cacheManager = new RedisCacheManager<Token>(
                 RedisHelpers.ConnectionMultiplexer,
@@ -134,7 +142,12 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic.Stores
                     UseObjectCompression = false
                 });
 
-            var jsonSettingsFactory = new JsonSettingsFactory(new ClientMapperBase<Client>());
+            var customMappersConfiguration = new CustomMappersConfiguration
+            {
+                ClientMapper = CustomMapperFactory.CreateClientMapper<CustomClient>()
+            };
+
+            var jsonSettingsFactory = new JsonSettingsFactory(customMappersConfiguration);
 
             var cacheManager = new RedisCacheManager<Token>(
                 RedisHelpers.ConnectionMultiplexer,
@@ -187,18 +200,18 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic.Stores
         {
             var database = RedisHelpers.ConnectionMultiplexer.GetDatabase();
 
-            var claim1 = new Claim("Type1", "Value1");
-            var claim2 = new Claim("Type2", "Value2");
+            var claim1 = new SimpleClaim { Type = "Type1", Value = "Value1" };
+            var claim2 = new SimpleClaim { Type = "Type2", Value = "Value2" };
 
-            var client = new CustomClient
+            var client = new SimpleClient
             {
-                Claims = new List<Claim> { claim1, claim2 },
-                AppId = 12
+                Claims = new List<SimpleClaim> { claim1, claim2 },
+                DataBag = new Dictionary<string, object> { { "AppId", 12 } }
             };
 
             var token = new SimpleToken
             {
-                Claims = new List<SimpleClaim> { new SimpleClaim(), new SimpleClaim() },
+                Claims = new List<SimpleClaim> { claim1, claim2 },
                 Client = client,
                 Type = "Type",
                 CreationTime = new DateTimeOffset(new DateTime(2016, 1, 1)),
@@ -208,7 +221,7 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic.Stores
                 Audience = "Audience"
             };
 
-            var settings = new JsonSettingsFactory(new ClientMapperBase<Client>()).Create();
+            var settings = new JsonSettingsFactory(new CustomMappersConfiguration { ClientMapper = CustomMapperFactory.CreateClientMapper<CustomClient>() }).Create();
 
             var serialized = JsonConvert.SerializeObject(token, settings);
 

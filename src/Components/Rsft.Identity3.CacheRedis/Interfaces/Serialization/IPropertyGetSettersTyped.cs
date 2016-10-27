@@ -9,7 +9,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// <copyright file="IPropertGetSetters.cs" company="Rolosoft Ltd">
+// <copyright file="IPropertGetSettersTyped.cs" company="Rolosoft Ltd">
 // Copyright (c) Rolosoft Ltd. All rights reserved.
 // </copyright>
 
@@ -17,24 +17,26 @@ namespace Rsft.Identity3.CacheRedis.Interfaces.Serialization
 {
     using System;
     using System.Collections.Generic;
+    using Entities;
 
     /// <summary>
-    /// The Property Get Setters
+    /// The Property Get Setters Typed
     /// </summary>
-    public interface IPropertGetSetters
+    /// <typeparam name="TType">The type of the type.</typeparam>
+    internal interface IPropertyGetSettersTyped<TType>
     {
         /// <summary>
         /// Gets the getters.
         /// </summary>
         /// <param name="t">The t.</param>
         /// <returns>The <see cref="IEnumerable{T}"/></returns>
-        Dictionary<string, Func<object, object>> GetGetters(Type t);
+        Dictionary<string, Func<TType, object>> GetGetters(Type t);
 
         /// <summary>
         /// Gets the setters.
         /// </summary>
         /// <param name="t">The t.</param>
         /// <returns>The <see cref="IEnumerable{T}"/></returns>
-        Dictionary<string, Action<object, object>> GetSetters(Type t);
+        Dictionary<string, TypedSetter<TType>> GetSetters(Type t);
     }
 }

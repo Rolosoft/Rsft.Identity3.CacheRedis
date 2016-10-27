@@ -61,6 +61,11 @@ namespace Rsft.Identity3.CacheRedis
         private static ConnectionMultiplexer incomingConnectionMultiplexer;
 
         /// <summary>
+        /// The incoming mappers
+        /// </summary>
+        private static CustomMappersConfiguration incomingMappers;
+
+        /// <summary>
         /// The incoming redis connection string
         /// </summary>
         private static string incomingRedisConnectionString;
@@ -152,6 +157,7 @@ namespace Rsft.Identity3.CacheRedis
         /// <param name="redisConnectionString">The redis connection string.</param>
         /// <param name="connectionMultiplexer">The connection multiplexer.</param>
         /// <param name="configuration">The configuration.</param>
+        /// <param name="mappers">The mappers.</param>
         /// <returns>
         /// <see cref="Tuple" /> containing singleton instances of objects to be used with Identity Server.
         /// <para>Item 1: Client store cache (<see cref="ICache{T}" />)</para><para>Item 2: Scope store cache (<see cref="ICache{T}" />)</para><para>Item 3: User service cache (<see cref="ICache{T}" />)</para>
@@ -159,7 +165,8 @@ namespace Rsft.Identity3.CacheRedis
         public static Entities.Caches Create(
             string redisConnectionString = null,
             ConnectionMultiplexer connectionMultiplexer = null,
-            IConfiguration<RedisCacheConfigurationEntity> configuration = null)
+            IConfiguration<RedisCacheConfigurationEntity> configuration = null,
+            CustomMappersConfiguration mappers = null)
         {
             if (incomingRedisConnectionString == null)
             {
@@ -176,6 +183,11 @@ namespace Rsft.Identity3.CacheRedis
                 incomingConfiguration = configuration;
             }
 
+            if (incomingMappers == null)
+            {
+                incomingMappers = mappers ?? new CustomMappersConfiguration();
+            }
+
             return LazyCaches.Value;
         }
 
@@ -185,7 +197,7 @@ namespace Rsft.Identity3.CacheRedis
         /// <returns>The <see cref="Caches"/></returns>
         private static Entities.Caches Initialize()
         {
-            var jsonSettingsFactory = new JsonSettingsFactory(new ClientMapperBase<Client>());
+            var jsonSettingsFactory = new JsonSettingsFactory(incomingMappers);
 
             var authorizationCacheManager = new RedisCacheManager<AuthorizationCode>(
                 ConnectionMultiplexer,

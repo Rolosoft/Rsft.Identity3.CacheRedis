@@ -9,27 +9,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// <copyright file="IClientMapper.cs" company="Rolosoft Ltd">
+// <copyright file="ExtendedAuthenticationCode.cs" company="Rolosoft Ltd">
 // Copyright (c) Rolosoft Ltd. All rights reserved.
 // </copyright>
-
-namespace Rsft.Identity3.CacheRedis.Interfaces
+namespace Rsft.Identity3.CacheRedis.Tests.Unit.Logic.Mappers.InheritedEntities
 {
-    using Entities.Serialization;
     using IdentityServer3.Core.Models;
 
     /// <summary>
-    /// The Client Mpper Interface
+    /// The Extended Authentication Code
     /// </summary>
-    /// <typeparam name="TType">The type of the type.</typeparam>
-    public interface IClientMapper<out TType>
-        where TType : Client
+    public sealed class ExtendedAuthorizationCode : AuthorizationCode
     {
         /// <summary>
-        /// Maps the specified cached client.
+        /// Gets or sets the custom number.
         /// </summary>
-        /// <param name="cachedClient">The cached client.</param>
-        /// <returns>The TType</returns>
-        TType Map(SimpleClient cachedClient);
+        public int CustomNumber { get; set; }
     }
 }

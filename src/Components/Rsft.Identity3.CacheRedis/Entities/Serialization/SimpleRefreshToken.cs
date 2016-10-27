@@ -20,7 +20,7 @@ namespace Rsft.Identity3.CacheRedis.Entities.Serialization
     /// <summary>
     /// The Simple Refresh Token
     /// </summary>
-    internal sealed class SimpleRefreshToken
+    public sealed class SimpleRefreshToken : SimpleBase
     {
         /// <summary>
         /// Gets or sets the access token.

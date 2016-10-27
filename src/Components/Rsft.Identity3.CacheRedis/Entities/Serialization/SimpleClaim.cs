@@ -20,7 +20,7 @@ namespace Rsft.Identity3.CacheRedis.Entities.Serialization
     /// <summary>
     /// The Simple Claim
     /// </summary>
-    public sealed class SimpleClaim
+    public sealed class SimpleClaim : SimpleBase
     {
         /// <summary>
         /// Gets or sets the issuer.

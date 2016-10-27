@@ -16,13 +16,12 @@ namespace Rsft.Identity3.CacheRedis.Entities.Serialization
 {
     using System;
     using System.Collections.Generic;
-    using IdentityServer3.Core.Models;
     using Newtonsoft.Json;
 
     /// <summary>
     /// The Simple Token
     /// </summary>
-    internal sealed class SimpleToken
+    public sealed class SimpleToken : SimpleBase
     {
         /// <summary>
         /// Gets or sets the audience.
@@ -40,7 +39,7 @@ namespace Rsft.Identity3.CacheRedis.Entities.Serialization
         /// Gets or sets the client.
         /// </summary>
         [JsonProperty("cl")]
-        public Client Client { get; set; }
+        public SimpleClient Client { get; set; }
 
         /// <summary>
         /// Gets or sets the creation time.

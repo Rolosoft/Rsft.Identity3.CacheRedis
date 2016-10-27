@@ -14,16 +14,19 @@
 // </copyright>
 namespace Rsft.Identity3.CacheRedis.Logic.Mappers
 {
-    using System.Diagnostics.Contracts;
     using System.Security.Claims;
     using Entities.Serialization;
     using IdentityServer3.Core.Models;
     using Interfaces;
+    using Interfaces.Serialization;
 
     /// <summary>
     /// Teh Authorization Code Mappers
     /// </summary>
-    internal sealed class AuthorizationCodeMappers : BaseMapper<SimpleAuthorizationCode, AuthorizationCode>
+    /// <typeparam name="TAuthorizationCode">The type of the authorization code.</typeparam>
+    /// <seealso cref="GenericMapper{SimpleAuthorizationCode, TAuthorizationCode}" />
+    internal sealed class AuthorizationCodeMappers<TAuthorizationCode> : GenericMapper<SimpleAuthorizationCode, TAuthorizationCode>
+        where TAuthorizationCode : AuthorizationCode, new()
     {
         /// <summary>
         /// The claims principal mapper
@@ -41,20 +44,19 @@ namespace Rsft.Identity3.CacheRedis.Logic.Mappers
         private readonly IMapper<SimpleScope, Scope> scopeMapper;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AuthorizationCodeMappers"/> class.
+        /// Initializes a new instance of the <see cref="AuthorizationCodeMappers{TAuthorizationCode}" /> class.
         /// </summary>
+        /// <param name="propertyMapper">The property mapper.</param>
         /// <param name="claimsPrincipalMapper">The claims principal mapper.</param>
         /// <param name="clientMapper">The client mapper.</param>
         /// <param name="scopeMapper">The scope mapper.</param>
         public AuthorizationCodeMappers(
+            IPropertyGetSettersTyped<TAuthorizationCode> propertyMapper,
             IMapper<SimpleClaimsPrincipal, ClaimsPrincipal> claimsPrincipalMapper,
             IMapper<SimpleClient, Client> clientMapper,
             IMapper<SimpleScope, Scope> scopeMapper)
+            : base(propertyMapper)
         {
-            Contract.Requires(claimsPrincipalMapper != null);
-            Contract.Requires(clientMapper != null);
-            Contract.Requires(scopeMapper != null);
-
             this.claimsPrincipalMapper = claimsPrincipalMapper;
             this.clientMapper = clientMapper;
             this.scopeMapper = scopeMapper;
@@ -65,7 +67,7 @@ namespace Rsft.Identity3.CacheRedis.Logic.Mappers
         /// </summary>
         /// <param name="source">The source.</param>
         /// <returns>The <see cref="AuthorizationCode"/></returns>
-        public override AuthorizationCode ToComplexEntity(SimpleAuthorizationCode source)
+        public override TAuthorizationCode ToComplexEntity(SimpleAuthorizationCode source)
         {
             if (source == null)
             {
@@ -76,20 +78,21 @@ namespace Rsft.Identity3.CacheRedis.Logic.Mappers
             var client = this.clientMapper.ToComplexEntity(source.Client);
             var requestedScopes = this.scopeMapper.ToComplexEntity(source.RequestedScopes);
 
-            return new AuthorizationCode
-            {
-                Subject = subject,
-                Client = client,
-                Nonce = source.Nonce,
-                RedirectUri = source.RedirectUri,
-                CodeChallenge = source.CodeChallenge,
-                CodeChallengeMethod = source.CodeChallengeMethod,
-                CreationTime = source.CreationTime,
-                IsOpenId = source.IsOpenId,
-                RequestedScopes = requestedScopes,
-                SessionId = source.SessionId,
-                WasConsentShown = source.WasConsentShown
-            };
+            var rtn = base.ToComplexEntity(source);
+
+            rtn.Subject = subject;
+            rtn.Client = client;
+            rtn.Nonce = source.Nonce;
+            rtn.RedirectUri = source.RedirectUri;
+            rtn.CodeChallenge = source.CodeChallenge;
+            rtn.CodeChallengeMethod = source.CodeChallengeMethod;
+            rtn.CreationTime = source.CreationTime;
+            rtn.IsOpenId = source.IsOpenId;
+            rtn.RequestedScopes = requestedScopes;
+            rtn.SessionId = source.SessionId;
+            rtn.WasConsentShown = source.WasConsentShown;
+
+            return rtn;
         }
 
         /// <summary>
@@ -97,31 +100,34 @@ namespace Rsft.Identity3.CacheRedis.Logic.Mappers
         /// </summary>
         /// <param name="source">The source.</param>
         /// <returns>The <see cref="SimpleAuthorizationCode"/></returns>
-        public override SimpleAuthorizationCode ToSimpleEntity(AuthorizationCode source)
+        public override SimpleAuthorizationCode ToSimpleEntity(object source)
         {
             if (source == null)
             {
                 return null;
             }
 
-            var subject = this.claimsPrincipalMapper.ToSimpleEntity(source.Subject);
-            var client = this.clientMapper.ToSimpleEntity(source.Client);
-            var requestedScopes = this.scopeMapper.ToSimpleEntity(source.RequestedScopes);
+            var authorizationCodeSource = (TAuthorizationCode)source;
 
-            return new SimpleAuthorizationCode
-            {
-                Subject = subject,
-                Client = client,
-                Nonce = source.Nonce,
-                RedirectUri = source.RedirectUri,
-                CodeChallenge = source.CodeChallenge,
-                CodeChallengeMethod = source.CodeChallengeMethod,
-                CreationTime = source.CreationTime,
-                IsOpenId = source.IsOpenId,
-                RequestedScopes = requestedScopes,
-                SessionId = source.SessionId,
-                WasConsentShown = source.WasConsentShown
-            };
+            var subject = this.claimsPrincipalMapper.ToSimpleEntity(authorizationCodeSource.Subject);
+            var client = this.clientMapper.ToSimpleEntity(authorizationCodeSource.Client);
+            var requestedScopes = this.scopeMapper.ToSimpleEntity(authorizationCodeSource.RequestedScopes);
+
+            var rtn = base.ToSimpleEntity(source);
+
+            rtn.Subject = subject;
+            rtn.Client = client;
+            rtn.Nonce = authorizationCodeSource.Nonce;
+            rtn.RedirectUri = authorizationCodeSource.RedirectUri;
+            rtn.CodeChallenge = authorizationCodeSource.CodeChallenge;
+            rtn.CodeChallengeMethod = authorizationCodeSource.CodeChallengeMethod;
+            rtn.CreationTime = authorizationCodeSource.CreationTime;
+            rtn.IsOpenId = authorizationCodeSource.IsOpenId;
+            rtn.RequestedScopes = requestedScopes;
+            rtn.SessionId = authorizationCodeSource.SessionId;
+            rtn.WasConsentShown = authorizationCodeSource.WasConsentShown;
+
+            return rtn;
         }
     }
 }

@@ -18,6 +18,8 @@ namespace Rsft.Identity3.CacheRedis.Tests.Unit.Serialization
     using System.Collections.Generic;
     using System.Diagnostics;
     using CacheRedis.Logic.Serialization;
+    using Interfaces.Serialization;
+    using Moq;
     using NUnit.Framework;
     using TestEntities;
 
@@ -34,7 +36,11 @@ namespace Rsft.Identity3.CacheRedis.Tests.Unit.Serialization
         public void GetGetters_WhenTypePassedIn_ExpectWorkingGetters()
         {
             // Arrange
-            var propertGetSetters = new PropertGetSetters();
+            var mockPropertyInfoStore = new Mock<IPropertyInfoStore>();
+            var propertGetSetters = new PropertyGetSettersTyped<GetSetterTestEntity>(mockPropertyInfoStore.Object);
+
+            mockPropertyInfoStore.Setup(r => r.GetDeclaredProperties(It.IsAny<Type>()))
+                .Returns(typeof(GetSetterTestEntity).GetProperties());
 
             var testEntity = new GetSetterTestEntity
             {
@@ -70,7 +76,13 @@ namespace Rsft.Identity3.CacheRedis.Tests.Unit.Serialization
         public void GetSetters_PerformanceTest()
         {
             // Arrange
-            var propertGetSetters = new PropertGetSetters();
+            const int TimesToRun = 1000000;
+
+            var mockPropertyInfoStore = new Mock<IPropertyInfoStore>();
+            var propertGetSetters = new PropertyGetSettersTyped<GetSetterTestEntity>(mockPropertyInfoStore.Object);
+
+            mockPropertyInfoStore.Setup(r => r.GetDeclaredProperties(It.IsAny<Type>()))
+                .Returns(typeof(GetSetterTestEntity).GetProperties());
 
             var testEntity = new GetSetterTestEntity();
 
@@ -84,11 +96,11 @@ namespace Rsft.Identity3.CacheRedis.Tests.Unit.Serialization
             var setters = propertGetSetters.GetSetters(typeof(GetSetterTestEntity));
             var stopwatch = Stopwatch.StartNew();
 
-            for (var i = 0; i < 100000; i++)
+            for (var i = 0; i < TimesToRun; i++)
             {
                 foreach (var setter in setters)
                 {
-                    setter.Value(testEntity, propertyDictionary[setter.Key]);
+                    setter.Value.Setter(testEntity, propertyDictionary[setter.Key]);
                 }
             }
 
@@ -97,7 +109,7 @@ namespace Rsft.Identity3.CacheRedis.Tests.Unit.Serialization
 
             stopwatch.Restart();
 
-            for (var i = 0; i < 100000; i++)
+            for (var i = 0; i < TimesToRun; i++)
             {
                 testEntity.Int1 = (int)propertyDictionary["Int1"];
                 testEntity.String1 = (string)propertyDictionary["String1"];
@@ -115,7 +127,11 @@ namespace Rsft.Identity3.CacheRedis.Tests.Unit.Serialization
         public void GetSetters_WhenTypePassedIn_ExpectWorkingSetters()
         {
             // Arrange
-            var propertGetSetters = new PropertGetSetters();
+            var mockPropertyInfoStore = new Mock<IPropertyInfoStore>();
+            var propertGetSetters = new PropertyGetSettersTyped<GetSetterTestEntity>(mockPropertyInfoStore.Object);
+
+            mockPropertyInfoStore.Setup(r => r.GetDeclaredProperties(It.IsAny<Type>()))
+                .Returns(typeof(GetSetterTestEntity).GetProperties());
 
             var testEntity = new GetSetterTestEntity();
 
@@ -131,7 +147,7 @@ namespace Rsft.Identity3.CacheRedis.Tests.Unit.Serialization
 
             foreach (var setter in setters)
             {
-                setter.Value(testEntity, propertyDictionary[setter.Key]);
+                setter.Value.Setter(testEntity, propertyDictionary[setter.Key]);
             }
 
             stopwatch.Stop();

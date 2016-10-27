@@ -17,11 +17,9 @@ namespace Rsft.Identity3.CacheRedis.Tests.Unit.Serialization
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using CacheRedis.Logic.Serialization;
     using IdentityServer3.Core.Models;
     using Newtonsoft.Json;
     using NUnit.Framework;
-    using SuperSimpleTests;
     using TestHelpers;
 
     /// <summary>
@@ -63,11 +61,6 @@ namespace Rsft.Identity3.CacheRedis.Tests.Unit.Serialization
             };
 
             var jsonSerializerSettings = new JsonSerializerSettings();
-
-            var inputMapper = new CustomClientInputMapper(null);
-            var outputMapper = new CustomClientOutputMapper(null);
-
-            jsonSerializerSettings.Converters.Add(new CustomClientConverter(inputMapper, outputMapper));
 
             var serializeObject = JsonConvert.SerializeObject(simple, jsonSerializerSettings);
 

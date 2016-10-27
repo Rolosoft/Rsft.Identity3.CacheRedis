@@ -55,7 +55,7 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic.Stores
                     UseObjectCompression = false
                 });
 
-            var jsonSettingsFactory = new JsonSettingsFactory(new ClientMapperBase<Client>());
+            var jsonSettingsFactory = new JsonSettingsFactory(new CustomMappersConfiguration());
 
             var cacheManager = new RedisCacheManager<AuthorizationCode>(
                 RedisHelpers.ConnectionMultiplexer,
@@ -114,7 +114,7 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic.Stores
                     UseObjectCompression = false
                 });
 
-            var jsonSettingsFactory = new JsonSettingsFactory(new ClientMapperBase<Client>());
+            var jsonSettingsFactory = new JsonSettingsFactory(new CustomMappersConfiguration());
 
             var cacheManager = new RedisCacheManager<AuthorizationCode>(
                 RedisHelpers.ConnectionMultiplexer,
@@ -156,7 +156,7 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic.Stores
                     UseObjectCompression = false
                 });
 
-            var jsonSettingsFactory = new JsonSettingsFactory(new ClientMapperBase<Client>());
+            var jsonSettingsFactory = new JsonSettingsFactory(new CustomMappersConfiguration());
 
             var cacheManager = new RedisCacheManager<AuthorizationCode>(
                 RedisHelpers.ConnectionMultiplexer,
@@ -249,7 +249,7 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic.Stores
                 WasConsentShown = true
             };
 
-            var settings = new JsonSettingsFactory(new ClientMapperBase<Client>()).Create();
+            var settings = new JsonSettingsFactory(new CustomMappersConfiguration()).Create();
 
             var serialized = JsonConvert.SerializeObject(code, settings);
 

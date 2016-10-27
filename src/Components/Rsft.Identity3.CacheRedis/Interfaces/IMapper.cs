@@ -21,7 +21,7 @@ namespace Rsft.Identity3.CacheRedis.Interfaces
     /// </summary>
     /// <typeparam name="TSimpleEntity">The type of the simple entity.</typeparam>
     /// <typeparam name="TComplexEntity">The type of the complex entity.</typeparam>
-    internal interface IMapper<TSimpleEntity, TComplexEntity>
+    public interface IMapper<TSimpleEntity, out TComplexEntity>
         where TSimpleEntity : class
         where TComplexEntity : class
     {
@@ -44,13 +44,13 @@ namespace Rsft.Identity3.CacheRedis.Interfaces
         /// </summary>
         /// <param name="source">The source.</param>
         /// <returns>The TSimpleEntity</returns>
-        TSimpleEntity ToSimpleEntity(TComplexEntity source);
+        TSimpleEntity ToSimpleEntity(object source);
 
         /// <summary>
         /// To the simple entity.
         /// </summary>
         /// <param name="source">The source.</param>
         /// <returns>The <see cref="IEnumerable{T}"/></returns>
-        IEnumerable<TSimpleEntity> ToSimpleEntity(IEnumerable<TComplexEntity> source);
+        IEnumerable<TSimpleEntity> ToSimpleEntity(IEnumerable<object> source);
     }
 }

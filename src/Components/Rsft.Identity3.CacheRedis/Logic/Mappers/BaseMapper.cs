@@ -56,7 +56,7 @@ namespace Rsft.Identity3.CacheRedis.Logic.Mappers
         /// <returns>
         /// The TSimpleEntity
         /// </returns>
-        public abstract TSimpleEntity ToSimpleEntity(TComplexEntity source);
+        public abstract TSimpleEntity ToSimpleEntity(object source);
 
         /// <summary>
         /// To the simple entity.
@@ -65,7 +65,7 @@ namespace Rsft.Identity3.CacheRedis.Logic.Mappers
         /// <returns>
         /// The <see cref="T:System.Collections.Generic.IEnumerable`1" />
         /// </returns>
-        public IEnumerable<TSimpleEntity> ToSimpleEntity(IEnumerable<TComplexEntity> source)
+        public IEnumerable<TSimpleEntity> ToSimpleEntity(IEnumerable<object> source)
         {
             return source?.Select(this.ToSimpleEntity) ?? new List<TSimpleEntity>();
         }

@@ -84,7 +84,7 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic
                             RedisCacheDefaultPrefix = @"RedisCacheManagerTests"
                         });
 
-            var jsonSettingsFactory = new JsonSettingsFactory(new ClientMapperBase<Client>());
+            var jsonSettingsFactory = new JsonSettingsFactory(new CustomMappersConfiguration());
 
             // act
             var redisCacheManager = new RedisCacheManager<IEnumerable<Claim>>(

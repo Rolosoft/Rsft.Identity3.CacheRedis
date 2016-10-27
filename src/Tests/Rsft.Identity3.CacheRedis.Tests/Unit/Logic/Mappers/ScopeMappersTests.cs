@@ -20,6 +20,8 @@ namespace Rsft.Identity3.CacheRedis.Tests.Unit.Logic.Mappers
     using CacheRedis.Logic.Mappers;
     using Entities.Serialization;
     using IdentityServer3.Core.Models;
+    using Interfaces.Serialization;
+    using Moq;
     using NUnit.Framework;
 
     /// <summary>
@@ -35,7 +37,9 @@ namespace Rsft.Identity3.CacheRedis.Tests.Unit.Logic.Mappers
         public void ToComplexEntity_WhenSimpleEntity_ExpectMapSuccess()
         {
             // Arrange
-            var scopeMappers = new ScopeMappers();
+            var mockPropertyMapper = new Mock<IPropertyGetSettersTyped<Scope>>();
+
+            var scopeMappers = new ScopeMappers<Scope>(mockPropertyMapper.Object);
 
             var scopeClaim = new ScopeClaim("Name", true) { Description = "Description" };
             var secret = new Secret("Value", "Description", new DateTimeOffset(new DateTime(2016, 1, 1))) { Type = "Type" };
@@ -94,7 +98,9 @@ namespace Rsft.Identity3.CacheRedis.Tests.Unit.Logic.Mappers
         public void ToSimpleEntity_WhenComplexEntity_ExpectMapSuccess()
         {
             // Arrange#
-            var scopeMappers = new ScopeMappers();
+            var mockPropertyMapper = new Mock<IPropertyGetSettersTyped<Scope>>();
+
+            var scopeMappers = new ScopeMappers<Scope>(mockPropertyMapper.Object);
 
             var scopeClaim = new ScopeClaim("Name", true) { Description = "Description" };
             var secret = new Secret("Value", "Description", new DateTimeOffset(new DateTime(2016, 1, 1))) { Type = "Type" };

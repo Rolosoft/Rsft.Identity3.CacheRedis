@@ -62,14 +62,16 @@ namespace Rsft.Identity3.CacheRedis.Logic.Mappers
         /// </summary>
         /// <param name="source">The source.</param>
         /// <returns>The <see cref="SimpleClaimsPrincipal"/></returns>
-        public override SimpleClaimsPrincipal ToSimpleEntity(ClaimsPrincipal source)
+        public override SimpleClaimsPrincipal ToSimpleEntity(object source)
         {
             if (source == null)
             {
                 return null;
             }
 
-            var identities = this.claimsIdentityMapper.ToSimpleEntity(source.Identities);
+            var claimsPrincipal = (ClaimsPrincipal)source;
+
+            var identities = this.claimsIdentityMapper.ToSimpleEntity(claimsPrincipal.Identities);
 
             return new SimpleClaimsPrincipal
             {
