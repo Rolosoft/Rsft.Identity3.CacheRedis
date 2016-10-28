@@ -19,12 +19,15 @@ namespace Rsft.Identity3.CacheRedis.Tests.Unit.Logic.Mappers
     using System.Diagnostics;
     using System.Security.Claims;
     using CacheRedis.Logic.Mappers;
+    using Entities;
     using Entities.Serialization;
     using IdentityServer3.Core.Models;
+    using InheritedEntities;
     using Interfaces;
     using Interfaces.Serialization;
     using Moq;
     using NUnit.Framework;
+    using TestHelpers;
 
     /// <summary>
     /// The Refresh Token Mappers Tests
@@ -45,6 +48,9 @@ namespace Rsft.Identity3.CacheRedis.Tests.Unit.Logic.Mappers
 
             mockClaimsMapper.Setup(r => r.ToComplexEntity(It.IsAny<SimpleClaim>())).Returns(new Claim("Val1", "Val2"));
             mockClientMapper.Setup(r => r.ToComplexEntity(It.IsAny<SimpleClient>())).Returns(new Client());
+
+            mockPropertyMapper.Setup(r => r.GetSetters(It.IsAny<Type>()))
+                .Returns(new Dictionary<string, TypedSetter<Token>>());
 
             var tokenMappers = new TokenMapper<Token>(mockPropertyMapper.Object, mockClaimsMapper.Object, mockClientMapper.Object);
 
@@ -81,6 +87,66 @@ namespace Rsft.Identity3.CacheRedis.Tests.Unit.Logic.Mappers
         }
 
         /// <summary>
+        /// To the complex entity when simple entity and extended complex expect correct map.
+        /// </summary>
+        [Test]
+        public void ToComplexEntity_WhenSimpleEntityAndExtendedComplex_ExpectCorrectMap()
+        {
+            // Arrange
+            var mockPropertyMapper = new Mock<IPropertyGetSettersTyped<ExtendedToken>>();
+            var mockClaimsMapper = new Mock<IMapper<SimpleClaim, Claim>>();
+            var mockClientMapper = new Mock<IMapper<SimpleClient, Client>>();
+
+            mockClaimsMapper.Setup(r => r.ToComplexEntity(It.IsAny<SimpleClaim>())).Returns(new Claim("Val1", "Val2"));
+            mockClientMapper.Setup(r => r.ToComplexEntity(It.IsAny<SimpleClient>())).Returns(new Client());
+
+            var typedSetter = new TypedSetter<ExtendedToken>
+            {
+                OriginalType = typeof(string),
+                Setter = typeof(ExtendedToken).GetSetter<ExtendedToken>("CustomDecimal")
+            };
+
+            mockPropertyMapper.Setup(r => r.GetSetters(It.IsAny<Type>()))
+                .Returns(new Dictionary<string, TypedSetter<ExtendedToken>> { { "CustomDecimal", typedSetter } });
+
+            var tokenMappers = new TokenMapper<ExtendedToken>(mockPropertyMapper.Object, mockClaimsMapper.Object, mockClientMapper.Object);
+
+            var simpleEntity = new SimpleToken
+            {
+                Claims = new List<SimpleClaim>(),
+                Client = new SimpleClient(),
+                Type = "Type",
+                CreationTime = new DateTimeOffset(new DateTime(2016, 1, 1)),
+                Issuer = "Issuer",
+                Version = 1,
+                Audience = "Audience",
+                Lifetime = 1,
+                DataBag = new Dictionary<string, object> { { "CustomDecimal", 1.25m } }
+            };
+
+            // Act
+            var stopwatch = Stopwatch.StartNew();
+            var complexEntity = tokenMappers.ToComplexEntity(simpleEntity);
+            stopwatch.Stop();
+
+            // Assert
+            this.WriteTimeElapsed(stopwatch);
+
+            Assert.That(complexEntity, Is.Not.Null);
+
+            Assert.That(complexEntity.Claims, Is.Not.Null);
+            Assert.That(complexEntity.Client, Is.Not.Null);
+            Assert.That(complexEntity.Type, Is.EqualTo("Type"));
+            Assert.That(complexEntity.CreationTime, Is.EqualTo(new DateTimeOffset(new DateTime(2016, 1, 1))));
+            Assert.That(complexEntity.Issuer, Is.EqualTo("Issuer"));
+            Assert.That(complexEntity.Version, Is.EqualTo(1));
+            Assert.That(complexEntity.Audience, Is.EqualTo("Audience"));
+            Assert.That(complexEntity.Lifetime, Is.EqualTo(1));
+
+            Assert.That(complexEntity.CustomDecimal, Is.EqualTo(1.25));
+        }
+
+        /// <summary>
         /// To the simple entity when complex entity expect correct map.
         /// </summary>
         [Test]
@@ -97,6 +163,9 @@ namespace Rsft.Identity3.CacheRedis.Tests.Unit.Logic.Mappers
 
             mockClaimsMapper.Setup(r => r.ToSimpleEntity(It.IsAny<Claim>())).Returns(new SimpleClaim());
             mockClientMapper.Setup(r => r.ToSimpleEntity(It.IsAny<Client>())).Returns(new SimpleClient());
+
+            mockPropertyMapper.Setup(r => r.GetGetters(It.IsAny<Type>()))
+                .Returns(new Dictionary<string, Func<Token, object>>());
 
             var tokenMappers = new TokenMapper<Token>(
                 mockPropertyMapper.Object,
@@ -131,6 +200,67 @@ namespace Rsft.Identity3.CacheRedis.Tests.Unit.Logic.Mappers
             Assert.That(simpleRefreshToken.Version, Is.EqualTo(1));
             Assert.That(simpleRefreshToken.Audience, Is.EqualTo("Audience"));
             Assert.That(simpleRefreshToken.Lifetime, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void ToSimpleEntity_WhenComplexEntityAndExtendedComplex_ExpectCorrectMap()
+        {
+            // Arrange
+            var mockPropertyMapper = new Mock<IPropertyGetSettersTyped<ExtendedToken>>();
+
+            var mockClaimsMapper = new Mock<IMapper<SimpleClaim, Claim>>();
+            var mockClientMapper = new Mock<IMapper<SimpleClient, Client>>();
+
+            var mockGetters = new Dictionary<string, Func<ExtendedToken, object>>
+            {
+                {
+                    "CustomDecimal",
+                    typeof(ExtendedToken).GetProperty("CustomDecimal").GetGetter<ExtendedToken>()
+                }
+            };
+
+            mockPropertyMapper.Setup(r => r.GetGetters(It.IsAny<Type>()))
+                .Returns(mockGetters);
+
+            mockClaimsMapper.Setup(r => r.ToSimpleEntity(It.IsAny<Claim>())).Returns(new SimpleClaim());
+            mockClientMapper.Setup(r => r.ToSimpleEntity(It.IsAny<Client>())).Returns(new SimpleClient());
+
+            var tokenMappers = new TokenMapper<ExtendedToken>(
+                mockPropertyMapper.Object,
+                mockClaimsMapper.Object,
+                mockClientMapper.Object);
+
+            var complexEntity = new ExtendedToken
+            {
+                Claims = new List<Claim>(),
+                Client = new Client(),
+                Type = "Type",
+                CreationTime = new DateTimeOffset(new DateTime(2016, 1, 1)),
+                Issuer = "Issuer",
+                Version = 1,
+                Audience = "Audience",
+                Lifetime = 1,
+                CustomDecimal = 1.25m
+            };
+
+            // Act
+            var stopwatch = Stopwatch.StartNew();
+            var simpleRefreshToken = tokenMappers.ToSimpleEntity(complexEntity);
+            stopwatch.Stop();
+
+            // Assert
+            this.WriteTimeElapsed(stopwatch);
+
+            Assert.That(simpleRefreshToken.Claims, Is.Not.Null);
+            Assert.That(simpleRefreshToken.Client, Is.Not.Null);
+            Assert.That(simpleRefreshToken.Type, Is.EqualTo("Type"));
+            Assert.That(simpleRefreshToken.CreationTime, Is.EqualTo(new DateTimeOffset(new DateTime(2016, 1, 1))));
+            Assert.That(simpleRefreshToken.Issuer, Is.EqualTo("Issuer"));
+            Assert.That(simpleRefreshToken.Version, Is.EqualTo(1));
+            Assert.That(simpleRefreshToken.Audience, Is.EqualTo("Audience"));
+            Assert.That(simpleRefreshToken.Lifetime, Is.EqualTo(1));
+
+            Assert.That(simpleRefreshToken.DataBag["CustomDecimal"], Is.EqualTo(1.25m));
         }
     }
 }

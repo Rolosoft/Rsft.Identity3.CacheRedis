@@ -14,11 +14,14 @@
 // </copyright>
 namespace Rsft.Identity3.CacheRedis.Interfaces
 {
+    using System.Diagnostics.Contracts;
+    using Contracts;
     using Newtonsoft.Json;
 
     /// <summary>
     /// The Converter Factory
     /// </summary>
+    [ContractClass(typeof(JsonSettingsFactoryContracts))]
     public interface IJsonSettingsFactory
     {
         /// <summary>

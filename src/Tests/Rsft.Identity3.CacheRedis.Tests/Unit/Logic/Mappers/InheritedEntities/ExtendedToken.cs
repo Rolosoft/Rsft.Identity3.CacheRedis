@@ -9,28 +9,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// <copyright file="IPropertyInfoStore.cs" company="Rolosoft Ltd">
+// <copyright file="ExtendedToken.cs" company="Rolosoft Ltd">
 // Copyright (c) Rolosoft Ltd. All rights reserved.
 // </copyright>
-namespace Rsft.Identity3.CacheRedis.Interfaces.Serialization
+namespace Rsft.Identity3.CacheRedis.Tests.Unit.Logic.Mappers.InheritedEntities
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Diagnostics.Contracts;
-    using System.Reflection;
-    using Contracts;
+    using IdentityServer3.Core.Models;
 
     /// <summary>
-    /// The Propert Info Store
+    /// The Extended Token
     /// </summary>
-    [ContractClass(typeof(PropertyInfoStoreContracts))]
-    public interface IPropertyInfoStore
+    /// <seealso cref="IdentityServer3.Core.Models.Token" />
+    public sealed class ExtendedToken : Token
     {
         /// <summary>
-        /// Gets the declared properties.
+        /// Gets or sets the custom decimal.
         /// </summary>
-        /// <param name="type">The type.</param>
-        /// <returns>The <see cref="IEnumerable{T}"/></returns>
-        IEnumerable<PropertyInfo> GetDeclaredProperties(Type type);
+        public decimal CustomDecimal { get; set; }
     }
 }

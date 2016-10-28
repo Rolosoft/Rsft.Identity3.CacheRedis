@@ -33,7 +33,7 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic.Stores
     /// The Token Handle Store Tests
     /// </summary>
     [TestFixture]
-    //    [Ignore("Set REDIS Connection string in TestHelpers.RedisHelpers to your local dev store")]
+    [Ignore("Set REDIS Connection string in TestHelpers.RedisHelpers to your local dev store")]
     public sealed class TokenHandleStoreTests : TestBase
     {
         /// <summary>
@@ -57,7 +57,7 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic.Stores
             var cacheManager = new RedisCacheManager<Token>(
                 RedisHelpers.ConnectionMultiplexer,
                 mockCacheConfiguration.Object,
-                jsonSettingsFactory);
+                jsonSettingsFactory.Create());
 
             var tokenStore = new TokenHandleStore(
                 cacheManager,
@@ -95,7 +95,7 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic.Stores
             var cacheManager = new RedisCacheManager<Token>(
                 RedisHelpers.ConnectionMultiplexer,
                 mockCacheConfiguration.Object,
-                jsonSettingsFactory);
+                jsonSettingsFactory.Create());
 
             var tokenStore = new TokenHandleStore(
                 cacheManager,
@@ -137,7 +137,7 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic.Stores
             var cacheManager = new RedisCacheManager<Token>(
                 RedisHelpers.ConnectionMultiplexer,
                 mockCacheConfiguration.Object,
-                jsonSettingsFactory);
+                jsonSettingsFactory.Create());
 
             var tokenStore = new TokenHandleStore(
                 cacheManager,

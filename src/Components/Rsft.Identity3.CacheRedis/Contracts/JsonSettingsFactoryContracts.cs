@@ -9,28 +9,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// <copyright file="IPropertyInfoStore.cs" company="Rolosoft Ltd">
+// <copyright file="JsonSettingsFactoryContracts.cs" company="Rolosoft Ltd">
 // Copyright (c) Rolosoft Ltd. All rights reserved.
 // </copyright>
-namespace Rsft.Identity3.CacheRedis.Interfaces.Serialization
+namespace Rsft.Identity3.CacheRedis.Contracts
 {
-    using System;
-    using System.Collections.Generic;
     using System.Diagnostics.Contracts;
-    using System.Reflection;
-    using Contracts;
+    using Interfaces;
+    using Newtonsoft.Json;
 
-    /// <summary>
-    /// The Propert Info Store
-    /// </summary>
-    [ContractClass(typeof(PropertyInfoStoreContracts))]
-    public interface IPropertyInfoStore
+    [ContractClassFor(typeof(IJsonSettingsFactory))]
+    internal abstract class JsonSettingsFactoryContracts : IJsonSettingsFactory
     {
         /// <summary>
-        /// Gets the declared properties.
+        /// Creates this instance.
         /// </summary>
-        /// <param name="type">The type.</param>
-        /// <returns>The <see cref="IEnumerable{T}"/></returns>
-        IEnumerable<PropertyInfo> GetDeclaredProperties(Type type);
+        /// <returns>
+        /// The <see cref="JsonSerializerSettings" />
+        /// </returns>
+        public virtual JsonSerializerSettings Create()
+        {
+            Contract.Ensures(Contract.Result<JsonSerializerSettings>() != null);
+
+            return default(JsonSerializerSettings);
+        }
     }
 }

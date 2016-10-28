@@ -40,7 +40,7 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic
     /// </summary>
     /// <seealso cref="TestBase" />
     [TestFixture]
-    //   [Ignore("Set REDIS Connection string in TestHelpers.RedisHelpers to your local dev store")]
+    [Ignore("Set REDIS Connection string in TestHelpers.RedisHelpers to your local dev store")]
     public class RedisCacheManagerTests : TestBase
     {
         /// <summary>
@@ -90,7 +90,7 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic
             var redisCacheManager = new RedisCacheManager<IEnumerable<Claim>>(
                 RedisHelpers.ConnectionMultiplexer,
                 mockConfiguration.Object,
-                jsonSettingsFactory);
+                jsonSettingsFactory.Create());
             redisCacheManager.SetAsync(Key, claims, timeSpan).Wait();
 
             var result = redisCacheManager.GetAsync(Key).Result.ToList();
@@ -121,7 +121,7 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic
             var redisCacheManager = new RedisCacheManager<IEnumerable<Claim>>(
                 RedisHelpers.ConnectionMultiplexer,
                 mockConfiguration.Object,
-                mockJsonSettingsFactory.Object);
+                new JsonSerializerSettings());
             redisCacheManager.SetAsync(Key, claims, timeSpan).Wait();
 
             /*Wait 6 seconds for expiry*/
@@ -152,7 +152,7 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic
             var redisCacheManager = new RedisCacheManager<Client>(
                 RedisHelpers.ConnectionMultiplexer,
                 mockConfiguration.Object,
-                mockJsonSettingsFactory.Object);
+                new JsonSerializerSettings());
             redisCacheManager.SetAsync(Key, client, timeSpan).Wait();
 
             var result = redisCacheManager.GetAsync(Key).Result;
@@ -182,7 +182,7 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic
             var redisCacheManager = new RedisCacheManager<IEnumerable<Scope>>(
                 RedisHelpers.ConnectionMultiplexer,
                 mockConfiguration.Object,
-                mockJsonSettingsFactory.Object);
+                new JsonSerializerSettings());
             redisCacheManager.SetAsync(Key, scopes, timeSpan).Wait();
 
             var result = redisCacheManager.GetAsync(Key).Result;

@@ -62,19 +62,19 @@ namespace Rsft.Identity3.CacheRedis.Logic
         /// </summary>
         /// <param name="connectionMultiplexer">The connection multiplexer.</param>
         /// <param name="cacheConfiguration">The cache configuration.</param>
-        /// <param name="jsonSettingsFactory">The json settings factory.</param>
+        /// <param name="jsonSerializerSettings">The json serializer settings.</param>
         public RedisCacheManager(
             ConnectionMultiplexer connectionMultiplexer,
             IConfiguration<RedisCacheConfigurationEntity> cacheConfiguration,
-            IJsonSettingsFactory jsonSettingsFactory)
+            JsonSerializerSettings jsonSerializerSettings)
         {
             Contract.Requires(connectionMultiplexer != null);
             Contract.Requires(cacheConfiguration != null);
-            Contract.Requires(jsonSettingsFactory != null);
+            Contract.Requires(jsonSerializerSettings != null);
 
             this.connectionMultiplexer = connectionMultiplexer;
             this.cacheConfiguration = cacheConfiguration;
-            this.jsonSerializerSettings = jsonSettingsFactory.Create();
+            this.jsonSerializerSettings = jsonSerializerSettings;
         }
 
         /// <summary>

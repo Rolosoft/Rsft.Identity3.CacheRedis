@@ -125,6 +125,9 @@
     <Compile Include="Caches\ClientStoreCache.cs" />
     <Compile Include="Caches\ScopeStoreCache.cs" />
     <Compile Include="Caches\UserServiceCache.cs" />
+    <Compile Include="Contracts\JsonSettingsFactoryContracts.cs" />
+    <Compile Include="Contracts\PropertyGetSettersTypedContracts.cs" />
+    <Compile Include="Contracts\PropertyInfoStoreContracts.cs" />
     <Compile Include="CustomMapperFactory.cs" />
     <Compile Include="Diagnostics\Common\EventIds.cs" />
     <Compile Include="Diagnostics\Common\Messages.cs" />

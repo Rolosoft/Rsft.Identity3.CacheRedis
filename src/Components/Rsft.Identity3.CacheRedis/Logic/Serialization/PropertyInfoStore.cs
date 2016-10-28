@@ -37,21 +37,6 @@ namespace Rsft.Identity3.CacheRedis.Logic.Serialization
         /// <summary>
         /// Gets the declared properties.
         /// </summary>
-        /// <typeparam name="T">The Type</typeparam>
-        /// <param name="entity">The entity.</param>
-        /// <returns>
-        /// The <see cref="IEnumerable{T}" />
-        /// </returns>
-        public IEnumerable<PropertyInfo> GetDeclaredProperties<T>(T entity)
-        {
-            var type = entity.GetType();
-
-            return CachedPropertyInfos.GetOrAdd(type, ValueFactory(type)).Value;
-        }
-
-        /// <summary>
-        /// Gets the declared properties.
-        /// </summary>
         /// <param name="type">The type.</param>
         /// <returns>
         /// The <see cref="IEnumerable{T}" />

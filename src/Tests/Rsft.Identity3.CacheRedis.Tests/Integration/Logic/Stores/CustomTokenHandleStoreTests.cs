@@ -9,7 +9,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// <copyright file="TokenHandleStoreTests.cs" company="Rolosoft Ltd">
+// <copyright file="CustomTokenHandleStoreTests.cs" company="Rolosoft Ltd">
 // Copyright (c) Rolosoft Ltd. All rights reserved.
 // </copyright>
 namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic.Stores
@@ -33,7 +33,7 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic.Stores
     /// The Token Handle Store Tests
     /// </summary>
     [TestFixture]
-    // [Ignore("Set REDIS Connection string in TestHelpers.RedisHelpers to your local dev store")]
+    [Ignore("Set REDIS Connection string in TestHelpers.RedisHelpers to your local dev store")]
     public sealed class CustomTokenHandleStoreTests : TestBase
     {
         /// <summary>
@@ -62,7 +62,7 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic.Stores
             var cacheManager = new RedisCacheManager<Token>(
                 RedisHelpers.ConnectionMultiplexer,
                 mockCacheConfiguration.Object,
-                jsonSettingsFactory);
+                jsonSettingsFactory.Create());
 
             var tokenStore = new TokenHandleStore(
                 cacheManager,
@@ -105,7 +105,7 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic.Stores
             var cacheManager = new RedisCacheManager<Token>(
                 RedisHelpers.ConnectionMultiplexer,
                 mockCacheConfiguration.Object,
-                jsonSettingsFactory);
+                jsonSettingsFactory.Create());
 
             var tokenStore = new TokenHandleStore(
                 cacheManager,
@@ -152,7 +152,7 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic.Stores
             var cacheManager = new RedisCacheManager<Token>(
                 RedisHelpers.ConnectionMultiplexer,
                 mockCacheConfiguration.Object,
-                jsonSettingsFactory);
+                jsonSettingsFactory.Create());
 
             var tokenStore = new TokenHandleStore(
                 cacheManager,
@@ -161,7 +161,7 @@ namespace Rsft.Identity3.CacheRedis.Tests.Integration.Logic.Stores
             var claim1 = new Claim("Type1", "Value1");
             var claim2 = new Claim("Type2", "Value2");
 
-            var client = new Client
+            var client = new CustomClient
             {
                 Claims = new List<Claim> { claim1, claim2 }
             };

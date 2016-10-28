@@ -98,8 +98,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestBase.cs" />
     <Compile Include="TestHelpers\CustomClient.cs" />
-    <Compile Include="TestHelpers\CustomClientWrapper.cs" />
-    <Compile Include="TestHelpers\CustomSimple.cs" />
     <Compile Include="TestHelpers\RedisHelpers.cs" />
     <Compile Include="TestHelpers\ReflectionHelpers.cs" />
     <Compile Include="Unit\Diagnostics\EventSources\ActivityLoggingEventSourceTests.cs" />
@@ -113,13 +111,14 @@
     <Compile Include="Unit\Logic\Mappers\InheritedEntities\ExtendedAuthorizationCode.cs" />
     <Compile Include="Unit\Logic\Mappers\InheritedEntities\ExtendedClient.cs" />
     <Compile Include="Unit\Logic\Mappers\InheritedEntities\ExtendedRefreshToken.cs" />
+    <Compile Include="Unit\Logic\Mappers\InheritedEntities\ExtendedScope.cs" />
+    <Compile Include="Unit\Logic\Mappers\InheritedEntities\ExtendedToken.cs" />
     <Compile Include="Unit\Logic\Mappers\TokenMappersTests.cs" />
     <Compile Include="Unit\Logic\Mappers\RefreshTokenMappersTests.cs" />
     <Compile Include="Unit\Logic\Mappers\ScopeMappersTests.cs" />
     <Compile Include="Unit\Logic\Stores\RefreshTokenStoreTests.cs" />
     <Compile Include="Unit\Logic\Stores\TokenHandleStoreTests.cs" />
     <Compile Include="Unit\Logic\Stores\AuthorizationCodeStoreTests.cs" />
-    <Compile Include="Unit\Serialization\CustomClientSerializationTests.cs" />
     <Compile Include="Unit\Serialization\PropertGetSettersTests.cs" />
     <Compile Include="Unit\Serialization\PropertyInfoStoreTests.cs" />
     <Compile Include="Unit\Serialization\TestEntities\GetSetterTestEntity.cs" />

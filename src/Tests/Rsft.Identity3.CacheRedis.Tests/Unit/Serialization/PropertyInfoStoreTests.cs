@@ -36,11 +36,9 @@ namespace Rsft.Identity3.CacheRedis.Tests.Unit.Serialization
             // Arrange
             var propertyInfoStore = new PropertyInfoStore();
 
-            var propertyInfoStoreTestEntity = new PropertyInfoStoreTestEntity();
-
             // Act
             var stopwatch = Stopwatch.StartNew();
-            var declaredProperties = propertyInfoStore.GetDeclaredProperties(propertyInfoStoreTestEntity).ToList();
+            var declaredProperties = propertyInfoStore.GetDeclaredProperties(typeof(PropertyInfoStoreTestEntity)).ToList();
             stopwatch.Stop();
 
             // Assert

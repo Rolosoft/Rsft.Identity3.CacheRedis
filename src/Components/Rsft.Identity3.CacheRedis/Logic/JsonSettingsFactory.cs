@@ -14,7 +14,6 @@
 // </copyright>
 namespace Rsft.Identity3.CacheRedis.Logic
 {
-    using System;
     using System.Diagnostics.Contracts;
     using System.Security.Claims;
     using Entities;
@@ -33,7 +32,7 @@ namespace Rsft.Identity3.CacheRedis.Logic
         /// <summary>
         /// The lazy settings
         /// </summary>
-        private static Lazy<JsonSerializerSettings> lazySettings;
+        private static JsonSerializerSettings lazySettings;
 
         /// <summary>
         /// The custom mappers configuration
@@ -59,12 +58,9 @@ namespace Rsft.Identity3.CacheRedis.Logic
         /// </returns>
         public JsonSerializerSettings Create()
         {
-            if (lazySettings == null)
-            {
-                lazySettings = new Lazy<JsonSerializerSettings>(this.Initialize);
-            }
+            lazySettings = this.Initialize();
 
-            return lazySettings.Value;
+            return lazySettings;
         }
 
         /// <summary>

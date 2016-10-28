@@ -9,28 +9,37 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// <copyright file="IPropertyInfoStore.cs" company="Rolosoft Ltd">
+// <copyright file="PropertyInfoStoreContracts.cs" company="Rolosoft Ltd">
 // Copyright (c) Rolosoft Ltd. All rights reserved.
 // </copyright>
-namespace Rsft.Identity3.CacheRedis.Interfaces.Serialization
+namespace Rsft.Identity3.CacheRedis.Contracts
 {
     using System;
     using System.Collections.Generic;
     using System.Diagnostics.Contracts;
     using System.Reflection;
-    using Contracts;
+    using Interfaces.Serialization;
 
     /// <summary>
-    /// The Propert Info Store
+    /// The Property Info Store Contracts
     /// </summary>
-    [ContractClass(typeof(PropertyInfoStoreContracts))]
-    public interface IPropertyInfoStore
+    /// <seealso cref="IPropertyInfoStore" />
+    [ContractClassFor(typeof(IPropertyInfoStore))]
+    internal abstract class PropertyInfoStoreContracts : IPropertyInfoStore
     {
         /// <summary>
         /// Gets the declared properties.
         /// </summary>
         /// <param name="type">The type.</param>
-        /// <returns>The <see cref="IEnumerable{T}"/></returns>
-        IEnumerable<PropertyInfo> GetDeclaredProperties(Type type);
+        /// <returns>
+        /// The <see cref="IEnumerable{T}" />
+        /// </returns>
+        public IEnumerable<PropertyInfo> GetDeclaredProperties(Type type)
+        {
+            Contract.Requires(type != null);
+            Contract.Ensures(Contract.Result<IEnumerable<PropertyInfo>>() != null);
+
+            return default(IEnumerable<PropertyInfo>);
+        }
     }
 }

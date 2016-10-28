@@ -12,17 +12,19 @@
 // <copyright file="IPropertGetSettersTyped.cs" company="Rolosoft Ltd">
 // Copyright (c) Rolosoft Ltd. All rights reserved.
 // </copyright>
-
 namespace Rsft.Identity3.CacheRedis.Interfaces.Serialization
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.Contracts;
+    using Contracts;
     using Entities;
 
     /// <summary>
     /// The Property Get Setters Typed
     /// </summary>
     /// <typeparam name="TType">The type of the type.</typeparam>
+    [ContractClass(typeof(PropertyGetSettersTypedContracts<>))]
     internal interface IPropertyGetSettersTyped<TType>
     {
         /// <summary>

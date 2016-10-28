@@ -199,10 +199,12 @@ namespace Rsft.Identity3.CacheRedis
         {
             var jsonSettingsFactory = new JsonSettingsFactory(incomingMappers);
 
+            var settings = jsonSettingsFactory.Create();
+
             var authorizationCacheManager = new RedisCacheManager<AuthorizationCode>(
                 ConnectionMultiplexer,
                 Configuration,
-                jsonSettingsFactory);
+                settings);
 
             var authorizationCodeStore = new AuthorizationCodeStore(
                 authorizationCacheManager,
@@ -211,7 +213,7 @@ namespace Rsft.Identity3.CacheRedis
             var clientCacheManager = new RedisCacheManager<Client>(
                 ConnectionMultiplexer,
                 Configuration,
-                jsonSettingsFactory);
+                settings);
 
             var clientCache = new ClientStoreCache(
                 clientCacheManager,
@@ -220,7 +222,7 @@ namespace Rsft.Identity3.CacheRedis
             var refreshTokenCacheManager = new RedisCacheManager<RefreshToken>(
                 ConnectionMultiplexer,
                 Configuration,
-                jsonSettingsFactory);
+                settings);
 
             var refreshTokenStore = new RefreshTokenStore(
                 refreshTokenCacheManager,
@@ -229,7 +231,7 @@ namespace Rsft.Identity3.CacheRedis
             var scopeCacheManager = new RedisCacheManager<IEnumerable<Scope>>(
                 ConnectionMultiplexer,
                 Configuration,
-                jsonSettingsFactory);
+                settings);
 
             var scopesCache = new ScopeStoreCache(
                 scopeCacheManager,
@@ -238,7 +240,7 @@ namespace Rsft.Identity3.CacheRedis
             var redisHandleCacheManager = new RedisCacheManager<Token>(
                 ConnectionMultiplexer,
                 Configuration,
-                jsonSettingsFactory);
+                settings);
 
             var tokenHandleStore = new TokenHandleStore(
                 redisHandleCacheManager,
@@ -247,7 +249,7 @@ namespace Rsft.Identity3.CacheRedis
             var userServiceCacheManager = new RedisCacheManager<IEnumerable<Claim>>(
                 ConnectionMultiplexer,
                 Configuration,
-                jsonSettingsFactory);
+                settings);
 
             var userServiceCache = new UserServiceCache(
                 userServiceCacheManager,
