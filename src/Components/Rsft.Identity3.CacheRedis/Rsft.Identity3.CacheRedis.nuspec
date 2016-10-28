@@ -12,7 +12,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <summary>Redis Cache for Identity Server 3</summary>
     <description>$description$</description>
-    <releaseNotes>Added in new Token stores, and some work on the serialization to support this.</releaseNotes>
+    <releaseNotes>Added support for working with extended data types.</releaseNotes>
     <copyright>Copyright Rolosoft 2016</copyright>
     <language>en-US</language>
     <tags>IdentityServer Redis</tags>
