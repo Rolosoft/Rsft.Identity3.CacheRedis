@@ -29,8 +29,7 @@ namespace Rsft.Identity3.CacheRedis.Logic
     using Interfaces;
     using Newtonsoft.Json;
     using StackExchange.Redis;
-    using Util.Compression;
-
+    
     /// <summary>
     /// The redis cache manager.
     /// </summary>
@@ -77,13 +76,7 @@ namespace Rsft.Identity3.CacheRedis.Logic
             this.jsonSerializerSettings = jsonSerializerSettings;
         }
 
-        /// <summary>
-        /// Deletes the asynchronous.
-        /// </summary>
-        /// <param name="key">The key.</param>
-        /// <returns>
-        /// The <see cref="T:System.Threading.Tasks.Task" />
-        /// </returns>
+        /// <inheritdoc />
         public async Task DeleteAsync(string key)
         {
             var fqMethodLogName = LoggingNaming.GetFqMethodLogName(LoggingSourceNameBase, "SetAsync");
@@ -117,11 +110,7 @@ namespace Rsft.Identity3.CacheRedis.Logic
             ActivityLoggingEventSource.Log.MethodExit(fqMethodLogName);
         }
 
-        /// <summary>
-        /// Gets all the cache items specified by keys asynchronously.
-        /// </summary>
-        /// <param name="keys">The keys.</param>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        /// <inheritdoc />
         public async Task<IDictionary<string, T>> GetAllAsync(IEnumerable<string> keys)
         {
             var fqMethodLogName = LoggingNaming.GetFqMethodLogName(LoggingSourceNameBase, "GetAllAsync");
@@ -180,11 +169,7 @@ namespace Rsft.Identity3.CacheRedis.Logic
             return rtn;
         }
 
-        /// <summary>
-        /// Gets the cache item asynchronously.
-        /// </summary>
-        /// <param name="key">The key.</param>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        /// <inheritdoc />
         public async Task<T> GetAsync(string key)
         {
             var fqMethodLogName = LoggingNaming.GetFqMethodLogName(LoggingSourceNameBase, "GetAsync");
@@ -243,15 +228,7 @@ namespace Rsft.Identity3.CacheRedis.Logic
             return deserializedObject;
         }
 
-        /// <summary>
-        /// Sets the asynchronous.
-        /// </summary>
-        /// <param name="key">The key.</param>
-        /// <param name="item">The item.</param>
-        /// <param name="timeSpan">The time span.</param>
-        /// <returns>
-        /// A <see cref="Task" /> representing the asynchronous operation.
-        /// </returns>
+        /// <inheritdoc />
         public async Task SetAsync(string key, T item, TimeSpan timeSpan)
         {
             var fqMethodLogName = LoggingNaming.GetFqMethodLogName(LoggingSourceNameBase, "SetAsync");

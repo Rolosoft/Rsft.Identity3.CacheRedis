@@ -20,9 +20,9 @@ namespace Rsft.Identity3.CacheRedis.Tests.Unit
     using CacheRedis.Logic;
     using Entities;
     using Entities.Serialization;
+    using Helpers;
     using Newtonsoft.Json;
     using NUnit.Framework;
-    using Util.Compression;
 
     [TestFixture]
     public class SizeTests : TestBase
